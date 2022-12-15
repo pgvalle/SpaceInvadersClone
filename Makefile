@@ -1,6 +1,6 @@
 # tool macros
 CC ?= gcc 
-CFLAGS := $(shell pkg-config --cflags --libs sdl2 SDL2_image SDL2_ttf SDL2_mixer) -std=c11
+CFLAGS := $(shell pkg-config --cflags --libs sdl2 SDL2_image SDL2_ttf SDL2_mixer) -O3 -std=c11
 COBJFLAGS := $(CFLAGS) -c
 
 # path macros

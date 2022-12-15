@@ -5,10 +5,10 @@
 
 struct GameData;
 
-void cannon_initialize(struct GameData *data);
-void cannon_destroy(struct GameData* data);
-void cannon_update(struct GameData *data);
-void cannon_render(struct GameData* data);
+void cannon_initialize(struct GameData *game, int y);
+void cannon_destroy(struct GameData *game);
+void cannon_update(struct GameData *game);
+void cannon_render(struct GameData *game);
 
 // 5 rows with 11 invaders each
 #define INVADERS_COUNT 55
@@ -19,10 +19,11 @@ void cannon_render(struct GameData* data);
 #define INVADER2 2
 #define INVADER3 3
 
-void invaders_initialize(struct GameData *data);
-void invaders_destroy(struct GameData *data);
-void invaders_update(struct GameData *data);
-void invaders_render(struct GameData *data);
+void invaders_initialize(struct GameData *game, int x, int y);
+void invaders_destroy(struct GameData *game);
+void invaders_processEvents(struct GameData *game);
+void invaders_update(struct GameData *game);
+void invaders_render(struct GameData *game);
 
 #define GAME_SCALING_FACTOR 3
 
