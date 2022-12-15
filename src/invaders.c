@@ -28,28 +28,28 @@ void invaders_initialize(struct GameData *data)
     {
         // first row
         data->invaders.instances[i].type = INVADER1;
-        data->invaders.instances[i].x = 1 + 15*i;
+        data->invaders.instances[i].x = 1 + 16*i;
         data->invaders.instances[i].y = 0;
         // second
         data->invaders.instances[11 + i].type = INVADER2;
-        data->invaders.instances[11 + i].x = 15*i;
-        data->invaders.instances[11+ i].y = 15;
+        data->invaders.instances[11 + i].x = 16*i;
+        data->invaders.instances[11+ i].y = 16;
         // third
         data->invaders.instances[22 + i].type = INVADER2;
-        data->invaders.instances[22 + i].x = 15*i;
-        data->invaders.instances[22 + i].y = 30;
+        data->invaders.instances[22 + i].x = 16*i;
+        data->invaders.instances[22 + i].y = 32;
         // fourth
         data->invaders.instances[33 + i].type = INVADER3;
-        data->invaders.instances[33 + i].x = 15*i;
-        data->invaders.instances[33 + i].y = 45;
+        data->invaders.instances[33 + i].x = 16*i;
+        data->invaders.instances[33 + i].y = 48;
         // fifth
         data->invaders.instances[44 + i].type = INVADER3;
-        data->invaders.instances[44 + i].x = 15*i;
-        data->invaders.instances[44 + i].y = 60;
+        data->invaders.instances[44 + i].x = 16*i;
+        data->invaders.instances[44 + i].y = 64;
     }
 
     data->invaders.sideways_right = true;
-    data->invaders.sideways_moves_count = 8;
+    data->invaders.sideways_moves_count = 0;
     data->invaders.anim_timeout = ANIM_TIMEOUT;
     
 }
