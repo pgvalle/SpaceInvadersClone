@@ -1,52 +1,56 @@
 #include <stdlib.h>
 #include <stdio.h>
-#include <stdbool.h>
 
-#include <SDL2/SDL.h>
+#include "gamedata.h"
+
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_mixer.h>
 
-#define TEX_INVADER0 0
-#define TEX_INVADER1 1
-#define TEX_INVADER2 2
-#define TEX_INVADER3 3
 
-typedef struct game_data_t
+
+bool waitRemainingEventTimeout(GameData *data)
 {
-	bool quit;
-	
-	SDL_Window *win;
-	SDL_Renderer *ren;
-	SDL_Event event;
+	static int64_t before, now;
+	bool occurred = SDL_WaitEventTimeout(&data->event, data->event_timeout);
+	before = now;
+	now = SDL_GetTicks();
+	if (occurred)
+	{
+		data->event_timeout -= now - before;
+		if (data->event_timeout <= 0)
+			data->event_timeout = 0;
+	}
+	else
+		data->event_timeout = EVENT_TIMEOUT_MS;
 
-	SDL_Texture *tex[4];
-} game_data_t;
+	return occurred;
+}
 
-struct invader_instance_t
-{
-	int class;
-	int frame_i;
-
-	int x, y;
-
-	bool alive;
-};
-
-void gameloop(game_data_t *data)
+void gameloop(GameData *data)
 {
 	while (!data->quit)
 	{
-		if (!SDL_PollEvent(&data->event))
-			continue;
-
-		if (data->event.type == SDL_QUIT){
-			data->quit = true;
-			printf("Quitting!\n");
+		if (waitRemainingEventTimeout(data))
+		{
+			// process input events
+			if (data->event.type == SDL_QUIT)
+			{
+				data->quit = true;
+				return;
+			}
+		}
+		else
+		{
+			// process time events
+			cannon_processEvents(data);
 		}
 
-		SDL_RenderClear(data->ren);
 		
+
+		SDL_RenderClear(data->ren);
+		// cannon_render(data);
+		invaders_render(data);
 		SDL_RenderPresent(data->ren);
 	}
 }
@@ -67,30 +71,32 @@ int main(int argc, char const** args)
 	}
 
 	// commandline info
-	printf("arguments: ");
-	for (int i = 1; i < argc; i++)
-		printf("\"%s\" ", args[i]);
-	printf("\b\n");
+	// printf("arguments: ");
+	// for (int i = 1; i < argc; i++)
+	// 	printf("\"%s\" ", args[i]);
+	// printf("\b\n");
 
 	// initializing
 	SDL_Init(SDL_INIT_EVERYTHING);
 	IMG_Init(IMG_INIT_PNG);
 	Mix_OpenAudio(22050, MIX_DEFAULT_FORMAT, 2, 4096);
 
-	game_data_t *data = malloc(sizeof(*data));
+	GameData *data = malloc(sizeof(*data));
 	data->quit = false;
-	data->win = SDL_CreateWindow("Space Invaders",
+	data->win = SDL_CreateWindow("Space Invaders Clone",
 		SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-		448, 512, 0);
+		GAME_SCALING_FACTOR*224, GAME_SCALING_FACTOR*256, 0);
 	data->ren = SDL_CreateRenderer(data->win, -1, SDL_RENDERER_ACCELERATED);
-	data->tex[TEX_INVADER0] = IMG_LoadTexture(data->ren, "./res/invader0.png");
-	SDL_assert(data->tex != NULL);
+	data->event_timeout = EVENT_TIMEOUT_MS;
+	cannon_initialize(data);
+	invaders_initialize(data);
 
 	// execution
 	gameloop(data);
 
 	// Terminating
-	SDL_DestroyTexture(data->tex[TEX_INVADER0]);
+	invaders_destroy(data);
+	cannon_destroy(data);
 	SDL_DestroyRenderer(data->ren);
 	SDL_DestroyWindow(data->win);
 
