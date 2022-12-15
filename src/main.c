@@ -7,52 +7,31 @@
 #include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_mixer.h>
 
-
-
-bool waitRemainingEventTimeout(struct GameData *data)
-{
-	static int64_t before, now;
-	bool occurred = SDL_WaitEventTimeout(&data->event, data->event_timeout);
-	before = now;
-	now = SDL_GetTicks();
-	if (occurred)
-	{
-		data->event_timeout -= now - before;
-		if (data->event_timeout <= 0)
-			data->event_timeout = 0;
-	}
-	else
-	{
-		data->event.type = 0; // clear event type cuz nothing happened
-		data->event_timeout = EVENT_TIMEOUT_MS;
-	}
-		
-
-	return occurred;
-}
-
 void gameloop(struct GameData *data)
 {
+	Uint32 before = 0;
+
 	while (!data->quit)
 	{
-		if (waitRemainingEventTimeout(data))
+		// compute frametime
+		data->frametime = SDL_GetTicks() - before;
+		before = SDL_GetTicks();
+
+		// process events
+		while (SDL_PollEvent(&data->event))
 		{
-			// process input events
 			if (data->event.type == SDL_QUIT)
 			{
 				data->quit = true;
 				return;
 			}
 		}
-		else
-		{
-			// process time events
-			cannon_processEvents(data);
-			invaders_update(data);
-		}
 
-		
+		// update game entities
+		// cannon_update(data);
+		invaders_update(data);		
 
+		// rendering
 		SDL_RenderClear(data->ren);
 		// cannon_render(data);
 		invaders_render(data);
@@ -91,7 +70,6 @@ int main(int argc, char const** args)
 		SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
 		GAME_SCALING_FACTOR*224, GAME_SCALING_FACTOR*256, 0);
 	data->ren = SDL_CreateRenderer(data->win, -1, SDL_RENDERER_ACCELERATED);
-	data->event_timeout = EVENT_TIMEOUT_MS;
 	cannon_initialize(data);
 	invaders_initialize(data);
 

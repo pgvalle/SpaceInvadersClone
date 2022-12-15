@@ -7,7 +7,7 @@ struct GameData;
 
 void cannon_initialize(struct GameData *data);
 void cannon_destroy(struct GameData* data);
-void cannon_processEvents(struct GameData *data);
+void cannon_update(struct GameData *data);
 void cannon_render(struct GameData* data);
 
 // 5 rows with 11 invaders each
@@ -24,7 +24,7 @@ void invaders_destroy(struct GameData *data);
 void invaders_update(struct GameData *data);
 void invaders_render(struct GameData *data);
 
-#define GAME_SCALING_FACTOR 2
+#define GAME_SCALING_FACTOR 3
 
 // ~~ 60fps
 #define EVENT_TIMEOUT_MS 17
@@ -35,7 +35,7 @@ struct GameData
 	SDL_Window *win;
 	SDL_Renderer *ren;
 	SDL_Event event;
-	int64_t event_timeout;
+	int64_t frametime;
 
 	// texture data
 	SDL_Texture *inv0,
@@ -47,11 +47,12 @@ struct GameData
 	struct CannonData
 	{
 		SDL_Texture *tex;
-		SDL_Rect clip;
 		int x,
 			y;
-		int64_t shot_cooldown;
 		int lives;
+		int64_t shot_cooldown;
+		int64_t death_anim_timeout;
+		int anim_frame;
 	} cannon;
 
 	struct InvadersData
@@ -66,7 +67,7 @@ struct GameData
 			int death_anim_timeout;
 			bool has_played_death_anim;
 			int anim_frame;
-		} instances[INVADERS_COUNT];
+		} instances[INVADERS_COUNT + 1]; // the "+1" is the special one
 		
 		int anim_timeout;
 
