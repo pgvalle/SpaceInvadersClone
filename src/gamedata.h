@@ -37,6 +37,13 @@ typedef struct GameData
 	SDL_Event event;
 	int64_t event_timeout;
 
+	// texture data
+	SDL_Texture *inv0,
+				*inv1,
+				*inv2,
+				*inv3,
+				*death123;
+
 	struct CannonData
 	{
 		SDL_Texture *tex;
@@ -49,21 +56,22 @@ typedef struct GameData
 
 	struct InvadersData
 	{
-		SDL_Texture *tex0,
-					*tex1,
-					*tex2,
-					*tex3,
-					*tex4;
-
 		struct InvaderInstance
 		{
 			int type;
 			int x,
 				y;
+			bool has_been_updated;
 			bool alive;
+			int death_anim_timeout;
 			bool has_played_death_anim;
 			int anim_frame;
 		} instances[INVADERS_COUNT];
+		
+		int anim_timeout;
+
+		bool sideways_right;
+		int sideways_moves_count;
 	} invaders;
 } GameData;
 

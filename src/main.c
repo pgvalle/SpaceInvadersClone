@@ -22,7 +22,11 @@ bool waitRemainingEventTimeout(GameData *data)
 			data->event_timeout = 0;
 	}
 	else
+	{
 		data->event_timeout = EVENT_TIMEOUT_MS;
+		data->event.type = 0; // clear event type
+	}
+		
 
 	return occurred;
 }
@@ -44,6 +48,7 @@ void gameloop(GameData *data)
 		{
 			// process time events
 			cannon_processEvents(data);
+			invaders_update(data);
 		}
 
 		
@@ -70,7 +75,6 @@ int main(int argc, char const** args)
 			version.minor, version.patch);
 	}
 
-	// commandline info
 	// printf("arguments: ");
 	// for (int i = 1; i < argc; i++)
 	// 	printf("\"%s\" ", args[i]);
