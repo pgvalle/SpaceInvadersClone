@@ -1,3 +1,3 @@
-# BabelBloxx
+# SpaceInvaders Clone
 
-Esse jogo é ~~uma cópia descarrada~~ inspirado no [Tower Bloxx](https://www.google.com/search?kgmid=/g/11r7rgqdw&hl=en-BR&q=Tower+Bloxx&kgs=35902ab83e6a3f24&shndl=0&source=sh/x/kp/1&entrypoint=sh/x/kp)
+This game, as the name sugests, is yet another 1978 Arcade [SpaceInvaders](https://en.wikipedia.org/wiki/Space_Invaders)' clone. Obviously It's not 100% the same as the original one. But It's close enough.
