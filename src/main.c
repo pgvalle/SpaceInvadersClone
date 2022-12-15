@@ -7,35 +7,36 @@
 #include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_mixer.h>
 
-void gameloop(struct GameData *data)
+void gameloop(struct GameData *game)
 {
 	Uint32 before = 0;
 
-	while (!data->quit)
+	while (!game->quit)
 	{
 		// compute frametime
-		data->frametime = SDL_GetTicks() - before;
+		game->frametime = SDL_GetTicks() - before;
 		before = SDL_GetTicks();
 
 		// process events
-		while (SDL_PollEvent(&data->event))
+		while (SDL_PollEvent(&game->event))
 		{
-			if (data->event.type == SDL_QUIT)
+			if (game->event.type == SDL_QUIT)
 			{
-				data->quit = true;
+				game->quit = true;
 				return;
 			}
+			invaders_processEvents(game);
 		}
 
 		// update game entities
-		// cannon_update(data);
-		invaders_update(data);		
+		cannon_update(game);
+		invaders_update(game);		
 
 		// rendering
-		SDL_RenderClear(data->ren);
-		// cannon_render(data);
-		invaders_render(data);
-		SDL_RenderPresent(data->ren);
+		SDL_RenderClear(game->ren);
+		cannon_render(game);
+		invaders_render(game);
+		SDL_RenderPresent(game->ren);
 	}
 }
 
@@ -70,8 +71,8 @@ int main(int argc, char const** args)
 		SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
 		GAME_SCALING_FACTOR*224, GAME_SCALING_FACTOR*256, 0);
 	data->ren = SDL_CreateRenderer(data->win, -1, SDL_RENDERER_ACCELERATED);
-	cannon_initialize(data);
-	invaders_initialize(data);
+	cannon_initialize(data, 200);
+	invaders_initialize(data, 26, 60);
 
 	// execution
 	gameloop(data);
