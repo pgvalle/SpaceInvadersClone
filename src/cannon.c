@@ -3,7 +3,7 @@
 
 #define SHOT_COOLDOWN 1500
 
-void cannon_initialize(GameData *data)
+void cannon_initialize(struct GameData *data)
 {
     data->cannon.tex = IMG_LoadTexture(data->ren, "res/img/cannon.png");
     SDL_assert(data->cannon.tex != NULL);
@@ -15,12 +15,12 @@ void cannon_initialize(GameData *data)
     data->cannon.lives = 3;
 }
 
-void cannon_destroy(GameData *data)
+void cannon_destroy(struct GameData *data)
 {
     SDL_DestroyTexture(data->cannon.tex);
 }
 
-void cannon_processEvents(GameData *data)
+void cannon_processEvents(struct GameData *data)
 {
     Uint8 const* keys = SDL_GetKeyboardState(NULL);
     // movement
@@ -42,7 +42,7 @@ void cannon_processEvents(GameData *data)
     }
 }
 
-void cannon_render(GameData *data)
+void cannon_render(struct GameData *data)
 {
     SDL_Rect rect = {
         data->cannon.x,

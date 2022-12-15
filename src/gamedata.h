@@ -3,14 +3,12 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-typedef struct ClipTexture
-{
-	SDL_Texture *tex;
-	SDL_Rect clips[10];
-	int clip_count;
-} ClipTexture;
+struct GameData;
 
-#define GAME_SCALING_FACTOR 2
+void cannon_initialize(struct GameData *data);
+void cannon_destroy(struct GameData* data);
+void cannon_processEvents(struct GameData *data);
+void cannon_render(struct GameData* data);
 
 // 5 rows with 11 invaders each
 #define INVADERS_COUNT 55
@@ -21,15 +19,17 @@ typedef struct ClipTexture
 #define INVADER2 2
 #define INVADER3 3
 
+void invaders_initialize(struct GameData *data);
+void invaders_destroy(struct GameData *data);
+void invaders_update(struct GameData *data);
+void invaders_render(struct GameData *data);
+
+#define GAME_SCALING_FACTOR 2
+
 // ~~ 60fps
 #define EVENT_TIMEOUT_MS 17
 
-struct CannonData;
-struct InvaderInstance;
-struct InvadersData;
-struct ShieldsData;
-
-typedef struct GameData
+struct GameData
 {
 	bool quit;
 	SDL_Window *win;
@@ -73,16 +73,4 @@ typedef struct GameData
 		bool sideways_right;
 		int sideways_moves_count;
 	} invaders;
-} GameData;
-
-// invaders stuff
-void invaders_initialize(GameData *data);
-void invaders_destroy(GameData *data);
-void invaders_update(GameData *data);
-void invaders_render(GameData *data);
-
-// cannon stuff
-void cannon_initialize(GameData *data);
-void cannon_destroy(GameData* data);
-void cannon_processEvents(GameData *data);
-void cannon_render(GameData* data);
+};

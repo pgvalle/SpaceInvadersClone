@@ -7,7 +7,7 @@
 
 SDL_Rect const death123_clip = {0, 0, 13, 8};
 
-void invaders_initialize(GameData *data)
+void invaders_initialize(struct GameData *data)
 {
     data->inv0 = IMG_LoadTexture(data->ren, "./res/img/invader0.png");
     data->inv1 = IMG_LoadTexture(data->ren, "./res/img/invader1.png");
@@ -54,7 +54,7 @@ void invaders_initialize(GameData *data)
     
 }
 
-void invaders_destroy(GameData *data)
+void invaders_destroy(struct GameData *data)
 {
     SDL_DestroyTexture(data->inv0);
     SDL_DestroyTexture(data->inv1);
@@ -62,7 +62,7 @@ void invaders_destroy(GameData *data)
     SDL_DestroyTexture(data->inv3);
 }
 
-void invaders_update(GameData *data)
+void invaders_update(struct GameData *data)
 {
     if (data->invaders.anim_timeout > 0)
         data->invaders.anim_timeout -= data->event_timeout;
@@ -84,23 +84,28 @@ void invaders_update(GameData *data)
     }
     else
     {
-        for (int i = 0; i < INVADERS_COUNT; i++)
+        for (int i = 4; i >= 0; i--)
         {
-            // ignore already updated instances
-            if (data->invaders.instances[i].has_been_updated)
-                continue;
-            
-            if (data->invaders.anim_timeout <= 0)
+            for (int j = 0; j < 11; j++)
             {
-                // move to correct side
-                if (data->invaders.sideways_right)
-                    data->invaders.instances[i].x += 2;
-                else
-                    data->invaders.instances[i].x -= 2;
-
-                data->invaders.instances[i].has_been_updated = true;
+                int k = 11 * i + j;
+                // ignore already updated instances
+                if (data->invaders.instances[k].has_been_updated)
+                    continue;
+                
                 if (data->invaders.anim_timeout <= 0)
-                    data->invaders.anim_timeout = ANIM_TIMEOUT;
+                {
+                    // move to correct side
+                    if (data->invaders.sideways_right)
+                        data->invaders.instances[k].x += 2;
+                    else
+                        data->invaders.instances[k].x -= 2;
+                    data->invaders.instances[k].anim_frame = !data->invaders.instances[k].anim_frame;
+
+                    data->invaders.instances[k].has_been_updated = true;
+                    if (data->invaders.anim_timeout <= 0)
+                        data->invaders.anim_timeout = ANIM_TIMEOUT;
+                }
             }
         }
     }
@@ -118,7 +123,7 @@ void invaders_update(GameData *data)
     data->invaders.sideways_moves_count += 1;
 }
 
-void invader1_render(GameData *data, int i)
+void invader1_render(struct GameData *data, int i)
 {
     static SDL_Rect scale = {0, 0,
         GAME_SCALING_FACTOR * 8, GAME_SCALING_FACTOR * 8};
@@ -148,7 +153,7 @@ void invader1_render(GameData *data, int i)
     }
 }
 
-void invader2_render(GameData *data, int i)
+void invader2_render(struct GameData *data, int i)
 {
     static SDL_Rect scale = {0, 0,
         GAME_SCALING_FACTOR * 11, GAME_SCALING_FACTOR * 8};
@@ -178,7 +183,7 @@ void invader2_render(GameData *data, int i)
     }
 }
 
-void invader3_render(GameData *data, int i)
+void invader3_render(struct GameData *data, int i)
 {
     static SDL_Rect scale = {0, 0,
         GAME_SCALING_FACTOR * 12, GAME_SCALING_FACTOR * 8};
@@ -208,7 +213,7 @@ void invader3_render(GameData *data, int i)
     }
 }
 
-void invaders_render(GameData *data)
+void invaders_render(struct GameData *data)
 {
     for (int i = 0; i < INVADERS_COUNT; i++)
     {

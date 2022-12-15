@@ -9,7 +9,7 @@
 
 
 
-bool waitRemainingEventTimeout(GameData *data)
+bool waitRemainingEventTimeout(struct GameData *data)
 {
 	static int64_t before, now;
 	bool occurred = SDL_WaitEventTimeout(&data->event, data->event_timeout);
@@ -23,15 +23,15 @@ bool waitRemainingEventTimeout(GameData *data)
 	}
 	else
 	{
+		data->event.type = 0; // clear event type cuz nothing happened
 		data->event_timeout = EVENT_TIMEOUT_MS;
-		data->event.type = 0; // clear event type
 	}
 		
 
 	return occurred;
 }
 
-void gameloop(GameData *data)
+void gameloop(struct GameData *data)
 {
 	while (!data->quit)
 	{
@@ -85,7 +85,7 @@ int main(int argc, char const** args)
 	IMG_Init(IMG_INIT_PNG);
 	Mix_OpenAudio(22050, MIX_DEFAULT_FORMAT, 2, 4096);
 
-	GameData *data = malloc(sizeof(*data));
+	struct GameData *data = malloc(sizeof(*data));
 	data->quit = false;
 	data->win = SDL_CreateWindow("Space Invaders Clone",
 		SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
@@ -103,6 +103,7 @@ int main(int argc, char const** args)
 	cannon_destroy(data);
 	SDL_DestroyRenderer(data->ren);
 	SDL_DestroyWindow(data->win);
+	free(data);
 
 	Mix_CloseAudio();
 	IMG_Quit();
