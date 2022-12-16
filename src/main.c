@@ -55,11 +55,6 @@ int main(int argc, char const** args)
 			version.minor, version.patch);
 	}
 
-	// printf("arguments: ");
-	// for (int i = 1; i < argc; i++)
-	// 	printf("\"%s\" ", args[i]);
-	// printf("\b\n");
-
 	// initializing
 	SDL_Init(SDL_INIT_EVERYTHING);
 	IMG_Init(IMG_INIT_PNG);
@@ -69,10 +64,10 @@ int main(int argc, char const** args)
 	data->quit = false;
 	data->win = SDL_CreateWindow("Space Invaders Clone",
 		SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-		GAME_SCALING_FACTOR*224, GAME_SCALING_FACTOR*256, 0);
+		SCALING_FACTOR * CANVAS_WIDTH, SCALING_FACTOR * CANVAS_HEIGHT, 0);
 	data->ren = SDL_CreateRenderer(data->win, -1, SDL_RENDERER_ACCELERATED);
-	cannon_initialize(data, 200);
-	invaders_initialize(data, 26, 60);
+	cannon_initialize(data);
+	invaders_initialize(data);
 
 	// execution
 	gameloop(data);

@@ -1,55 +1,56 @@
 #include "gamedata.h"
 #include <SDL2/SDL_image.h>
 
-#define ANIM_TIMEOUT 50
 
 int64_t anim_timeout = 20;
 
-#define DEATH_ANIM_TIMEOUT 250
-
 SDL_Rect const death123_clip = {0, 0, 13, 8};
 
-void invaders_reset(struct GameData *game, int x, int y)
+void invaders_reset(struct GameData *game)
 {
+    // Just aliases
+    struct InvadersData *invaders = &game->invaders;
+    struct Invader123Instance *horde = game->invaders.horde;
+
     for (int i = 0; i < 11; i++)
     {
         // first row
-        game->invaders.instances[i].type = INVADER1;
-        game->invaders.instances[i].x = x + 2 + 16*i;
-        game->invaders.instances[i].y = y;
+        horde[i].type = INVADER1;
+        horde[i].x = HORDE_X_INIT + 2 + 16*i;
+        horde[i].y = HORDE_Y_INIT;
         // second
-        game->invaders.instances[11 + i].type = INVADER2;
-        game->invaders.instances[11 + i].x = x + 1 + 16*i;
-        game->invaders.instances[11+ i].y = y + 16;
+        horde[11 + i].type = INVADER2;
+        horde[11 + i].x = HORDE_X_INIT + 1 + 16*i;
+        horde[11 + i].y = HORDE_Y_INIT + 16;
         // third
-        game->invaders.instances[22 + i].type = INVADER2;
-        game->invaders.instances[22 + i].x = x + 1 + 16*i;
-        game->invaders.instances[22 + i].y = y + 32;
+        horde[22 + i].type = INVADER2;
+        horde[22 + i].x = HORDE_X_INIT + 1 + 16*i;
+        horde[22 + i].y = HORDE_Y_INIT + 32;
         // fourth
-        game->invaders.instances[33 + i].type = INVADER3;
-        game->invaders.instances[33 + i].x = x + 16*i;
-        game->invaders.instances[33 + i].y = y + 48;
+        horde[33 + i].type = INVADER3;
+        horde[33 + i].x = HORDE_X_INIT + 16*i;
+        horde[33 + i].y = HORDE_Y_INIT + 48;
         // fifth
-        game->invaders.instances[44 + i].type = INVADER3;
-        game->invaders.instances[44 + i].x = x + 16*i;
-        game->invaders.instances[44 + i].y = y + 64;
+        horde[44 + i].type = INVADER3;
+        horde[44 + i].x = HORDE_X_INIT + 16*i;
+        horde[44 + i].y = HORDE_Y_INIT + 64;
     }
 
-    for (int i = 0; i < INVADERS_COUNT + 1; i++)
+    for (int i = 0; i < HORDE_SIZE + 1; i++)
     {
-        game->invaders.instances[i].has_been_updated = false;
-        game->invaders.instances[i].alive = true;
-        game->invaders.instances[i].death_anim_timeout = DEATH_ANIM_TIMEOUT;
-        game->invaders.instances[i].has_played_death_anim = false;
-        game->invaders.instances[i].anim_frame = 1;
+        horde[i].move_anim_done = false;
+        horde[i].alive = true;
+        horde[i].death_anim_time = INVADER_DEATH_ANIM_TIMEOUT;
+        horde[i].move_anim_frame = 1;
     }
 
-    game->invaders.sideways_right = true;
-    game->invaders.sideways_moves_count = 8;
-    game->invaders.anim_timeout = anim_timeout;
+    invaders->sideways_right = true;
+    invaders->sideways_moves_count = 8;
+    invaders->move_anim_timeout = HORDE_MOVE_ANIM_TIMEOUT_INIT;
+    invaders->horde_locked = false;
 }
 
-void invaders_initialize(struct GameData *game, int x, int y)
+void invaders_initialize(struct GameData *game)
 {
     game->inv0 = IMG_LoadTexture(game->ren, "./res/img/invader0.png");
     game->inv1 = IMG_LoadTexture(game->ren, "./res/img/invader1.png");
@@ -57,7 +58,7 @@ void invaders_initialize(struct GameData *game, int x, int y)
     game->inv3 = IMG_LoadTexture(game->ren, "./res/img/invader3.png");
     game->death123 = IMG_LoadTexture(game->ren, "./res/img/death123.png");
 
-    invaders_reset(game, x, y);
+    invaders_reset(game);
 }
 
 void invaders_processEvents(struct GameData *game)
@@ -68,11 +69,12 @@ void invaders_processEvents(struct GameData *game)
         if (event.key.keysym.sym == SDLK_RETURN)
         {
             int random = rand() % 55;
-            game->invaders.instances[random].alive = false;
+            game->invaders.horde[random].alive = false;
+            game->invaders.horde_locked = true;
         }
         else if (event.key.keysym.sym == SDLK_r)
         {
-            invaders_reset(game, 26, 60);
+            invaders_reset(game);
         }
     }
 }
@@ -86,164 +88,174 @@ void invaders_destroy(struct GameData *game)
     SDL_DestroyTexture(game->death123);
 }
 
-void invaders_update(struct GameData *game)
+void invaders_animate_movement(struct GameData *game)
 {
-    // update animation timeout
-    game->invaders.anim_timeout -= game->frametime;
-    // don't animate yet
-    if (game->invaders.anim_timeout > 0)
-        return;
-    
-    // now ok
-    game->invaders.anim_timeout = anim_timeout;
+    // Just aliases
+    struct InvadersData *invaders = &game->invaders;
+    struct Invader123Instance *horde = game->invaders.horde;
 
+    // update movement animation timeout
+    invaders->move_anim_time -= game->frametime;
+    if (invaders->move_anim_time > 0 || invaders->horde_locked) // can't animate movement yet
+        return;
+    invaders->move_anim_time = invaders->move_anim_timeout; // reset timeout
+
+    // from bottom to up
     for (int i = 4; i >= 0; i--)
     {
+        // from left to right
         for (int j = 0; j < 11; j++)
         {
             int k = 11 * i + j;
-            // ignore updated instances
-            if (game->invaders.instances[k].has_been_updated)
+
+            // ignore horde already animated
+            if (horde[k].move_anim_done)
                 continue;
+            
+            // change movement animation frame
+            horde[k].move_anim_frame = !horde[k].move_anim_frame;
 
-            // change animation frame
-            game->invaders.instances[k].anim_frame = !game->invaders.instances[k].anim_frame;
-            // now instances[k] is updated
-            game->invaders.instances[k].has_been_updated = true;
-
-            // move down
-            if (game->invaders.sideways_moves_count == 16)
-            {
-                game->invaders.instances[k].y += 8;
-            }
+            // move down if moved sideways 16 times
+            if (invaders->sideways_moves_count == 16)
+                horde[k].y += 8;
             else // move left or right
             {
-                if (game->invaders.sideways_right)
-                    game->invaders.instances[k].x += 2;
+                if (invaders->sideways_right)
+                    horde[k].x += 2;
                 else
-                    game->invaders.instances[k].x -= 2;
+                    horde[k].x -= 2;
             }
 
-            // if all are updated
-            for (int i = 0; i < INVADERS_COUNT; i++)
-            {
-                if (!game->invaders.instances[i].has_been_updated)
-                    return;
-            }
-            for (int i = 0; i < INVADERS_COUNT; i++)
-                game->invaders.instances[i].has_been_updated = false;
-            
-            game->invaders.sideways_moves_count = (game->invaders.sideways_moves_count + 1) % 17;
-            if (game->invaders.sideways_moves_count == 0)
-                game->invaders.sideways_right = !game->invaders.sideways_right;
+            // movement animation done for this frame
+            horde[k].move_anim_done = true;
+            // we only animate movement for one instance at a time to
+            // reproduce the cool movement feel of the original game
+            return;
         }
     }
 
-    
+    // All moved. Reset movement animation state
+    for (int i = 0; i < HORDE_SIZE; i++)
+        horde[i].move_anim_done = false;
+    // increase move count and check if 16 horizontal movements were made
+    if (++invaders->sideways_moves_count == 17)
+    {
+        invaders->sideways_right = !invaders->sideways_right;
+        invaders->sideways_moves_count = 0;
+    }
+}
+
+void invaders_animate_death(struct GameData *game)
+{
+    // Just aliases
+    struct InvadersData *invaders = &game->invaders;
+    struct Invader123Instance *horde = game->invaders.horde;
+    int death_anim_done_count = 0;
+
+    for (int i = 0; i < HORDE_SIZE; i++)
+    {
+        // only update death animation timeout for dead horde and if timeout > 0
+        if (!horde[i].alive && horde[i].death_anim_time > 0)
+            horde[i].death_anim_time -= game->frametime;
+        else
+            death_anim_done_count++;
+    }
+
+    // all death animations played. Unlock horde movement
+    if (death_anim_done_count == HORDE_SIZE)
+        game->invaders.horde_locked = false;
+}
+
+void invaders_update(struct GameData *game)
+{
+    invaders_animate_movement(game);
+    invaders_animate_death(game);
 }
 
 void invader1_render(struct GameData *game, int i)
 {
     static SDL_Rect scale = {0, 0,
-        GAME_SCALING_FACTOR * 8, GAME_SCALING_FACTOR * 8};
+        SCALING_FACTOR * 8, SCALING_FACTOR * 8};
     static SDL_Rect clip = {0, 0, 8, 8};
-    
-    if (game->invaders.instances[i].alive)
-    {
-        scale.x = GAME_SCALING_FACTOR * game->invaders.instances[i].x;
-        scale.y = GAME_SCALING_FACTOR * game->invaders.instances[i].y;
-        
-        clip.x = 0;
-        if (game->invaders.instances[i].anim_frame == 1)
-            clip.x = 8;
-        
-        SDL_RenderCopy(game->ren, game->inv1, &clip, &scale);
-    }
-    else if (!game->invaders.instances[i].has_played_death_anim)
-    {
-        SDL_Rect death123_scale = {GAME_SCALING_FACTOR * game->invaders.instances[i].x,
-            GAME_SCALING_FACTOR * game->invaders.instances[i].y,
-            GAME_SCALING_FACTOR * 13, GAME_SCALING_FACTOR * 8};
-        SDL_RenderCopy(game->ren, game->death123, &death123_clip, &death123_scale);
 
-        game->invaders.instances[i].death_anim_timeout -= game->frametime;
-        if (game->invaders.instances[i].death_anim_timeout <= 0)
-            game->invaders.instances[i].has_played_death_anim = true;
-    }
+    scale.x = SCALING_FACTOR * game->invaders.horde[i].x;
+    scale.y = SCALING_FACTOR * game->invaders.horde[i].y;
+    
+    clip.x = 0;
+    if (game->invaders.horde[i].move_anim_frame == 1)
+        clip.x = 8;
+    
+    SDL_RenderCopy(game->ren, game->inv1, &clip, &scale);
 }
 
 void invader2_render(struct GameData *game, int i)
 {
     static SDL_Rect scale = {0, 0,
-        GAME_SCALING_FACTOR * 11, GAME_SCALING_FACTOR * 8};
+        SCALING_FACTOR * 11, SCALING_FACTOR * 8};
     static SDL_Rect clip = {0, 0, 11, 8};
-    
-    if (game->invaders.instances[i].alive)
-    {
-        scale.x = GAME_SCALING_FACTOR * game->invaders.instances[i].x;
-        scale.y = GAME_SCALING_FACTOR * game->invaders.instances[i].y;
-        
-        clip.x = 0;
-        if (game->invaders.instances[i].anim_frame == 1)
-            clip.x = 11;
-        
-        SDL_RenderCopy(game->ren, game->inv2, &clip, &scale);
-    }
-    else if (!game->invaders.instances[i].has_played_death_anim)
-    {
-        SDL_Rect death123_scale = {GAME_SCALING_FACTOR * game->invaders.instances[i].x,
-            GAME_SCALING_FACTOR * game->invaders.instances[i].y,
-            GAME_SCALING_FACTOR * 13, GAME_SCALING_FACTOR * 8};
-        SDL_RenderCopy(game->ren, game->death123, &death123_clip, &death123_scale);
 
-        game->invaders.instances[i].death_anim_timeout -= game->frametime;
-        if (game->invaders.instances[i].death_anim_timeout <= 0)
-            game->invaders.instances[i].has_played_death_anim = true;
-    }
+    scale.x = SCALING_FACTOR * game->invaders.horde[i].x;
+    scale.y = SCALING_FACTOR * game->invaders.horde[i].y;
+        
+    clip.x = 0;
+    if (game->invaders.horde[i].move_anim_frame == 1)
+        clip.x = 11;
+    
+    SDL_RenderCopy(game->ren, game->inv2, &clip, &scale);
 }
 
 void invader3_render(struct GameData *game, int i)
 {
     static SDL_Rect scale = {0, 0,
-        GAME_SCALING_FACTOR * 12, GAME_SCALING_FACTOR * 8};
+        SCALING_FACTOR * 12, SCALING_FACTOR * 8};
     static SDL_Rect clip = {0, 0, 12, 8};
     
-    if (game->invaders.instances[i].alive)
-    {
-        scale.x = GAME_SCALING_FACTOR * game->invaders.instances[i].x;
-        scale.y = GAME_SCALING_FACTOR * game->invaders.instances[i].y;
-        
-        clip.x = 0;
-        if (game->invaders.instances[i].anim_frame == 1)
-            clip.x = 12;
-        
-        SDL_RenderCopy(game->ren, game->inv3, &clip, &scale);
-    }
-    else if (!game->invaders.instances[i].has_played_death_anim)
-    {
-        SDL_Rect death123_scale = {GAME_SCALING_FACTOR * game->invaders.instances[i].x,
-            GAME_SCALING_FACTOR * game->invaders.instances[i].y,
-            GAME_SCALING_FACTOR * 13, GAME_SCALING_FACTOR * 8};
-        SDL_RenderCopy(game->ren, game->death123, &death123_clip, &death123_scale);
-
-        game->invaders.instances[i].death_anim_timeout -= game->frametime;
-        if (game->invaders.instances[i].death_anim_timeout <= 0)
-            game->invaders.instances[i].has_played_death_anim = true;
-    }
+    scale.x = SCALING_FACTOR * game->invaders.horde[i].x;
+    scale.y = SCALING_FACTOR * game->invaders.horde[i].y;
+    
+    clip.x = 0;
+    if (game->invaders.horde[i].move_anim_frame == 1)
+        clip.x = 12;
+    
+    SDL_RenderCopy(game->ren, game->inv3, &clip, &scale);
 }
 
 void invaders_render(struct GameData *game)
 {
-    for (int i = 0; i < INVADERS_COUNT; i++)
+    static SDL_Rect const death123_clip = {0, 0, 13, 8};
+
+    // Just aliases
+    struct Invader123Instance *horde = game->invaders.horde;
+    struct InvadersData *invaders = &game->invaders;
+
+    for (int i = 0; i < HORDE_SIZE; i++)
     {
-        switch (game->invaders.instances[i].type)
+        if (horde[i].alive)
         {
-        case INVADER1:
-            invader1_render(game, i); break;
-        case INVADER2:
-            invader2_render(game, i); break;
-        case INVADER3:
-            invader3_render(game, i); break;
+            switch (horde[i].type)
+            {
+            case INVADER1:
+                invader1_render(game, i); break;
+            case INVADER2:
+                invader2_render(game, i); break;
+            case INVADER3:
+                invader3_render(game, i); break;
+            }
+        }
+        else if (horde[i].death_anim_time > 0) // not alive. Render death animation
+        {
+            SDL_Rect death123_scale = {SCALING_FACTOR*horde[i].x, SCALING_FACTOR*horde[i].y,
+                SCALING_FACTOR*13, SCALING_FACTOR*8};
+            switch (horde[i].type)
+            {
+            case INVADER1:
+                death123_scale.x -= SCALING_FACTOR*2; break;
+            case INVADER2:
+                death123_scale.x -= SCALING_FACTOR*1; break;
+            }
+            SDL_RenderCopy(game->ren, game->death123, &death123_clip, &death123_scale);
         }
     }
+
+    // special one here
 }
