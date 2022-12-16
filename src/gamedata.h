@@ -1,4 +1,4 @@
-#include <SDL2/SDL.h>
+#include <SDL.h>
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -9,6 +9,8 @@
 
 // 5 rows with 11 invaders each
 #define HORDE_SIZE 55
+
+typedef void (*GameDataFun)(struct GameData*);
 
 struct GameData
 {
@@ -44,12 +46,18 @@ struct GameData
 			int x,
 				y;
 			bool alive;
-			bool move_anim_done;
-			int move_anim_frame;
-			int death_anim_time;
+			bool moveAnimDone;
+			int moveAnimFrame;
+			int deathAnimTime;
 		} horde[HORDE_SIZE];
 
-		bool horde_locked;
+		bool hordeLocked;
+
+		int moveAnimTime;
+		int moveAnimTimeout;
+
+		bool sidewaysRight;
+		int sidewaysMovesCount;
 
 		struct InvaderSpecial
 		{
@@ -57,15 +65,16 @@ struct GameData
 				y;
 			bool alive;
 		} special;
-		
-		int move_anim_time;
-		int move_anim_timeout;
-
-		bool sideways_right;
-		int sideways_moves_count;
 	} invaders;
-};
 
+	struct GameDataHandler
+	{
+		GameDataFun eventHandler,
+					updater,
+					renderer;
+	} handlers[3];
+	int currentHandler;
+};
 
 // ==============================================
 // INVADERS

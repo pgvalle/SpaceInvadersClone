@@ -1,5 +1,5 @@
 #include "gamedata.h"
-#include <SDL2/SDL_image.h>
+#include <SDL_image.h>
 
 
 int64_t anim_timeout = 20;
@@ -38,16 +38,17 @@ void invaders_reset(struct GameData *game)
 
     for (int i = 0; i < HORDE_SIZE + 1; i++)
     {
-        horde[i].move_anim_done = false;
+        horde[i].moveAnimDone = false;
         horde[i].alive = true;
-        horde[i].death_anim_time = INVADER_DEATH_ANIM_TIMEOUT;
-        horde[i].move_anim_frame = 1;
+        horde[i].deathAnimTime = INVADER_DEATH_ANIM_TIMEOUT;
+        horde[i].moveAnimFrame = 1;
     }
 
-    invaders->sideways_right = true;
-    invaders->sideways_moves_count = 8;
-    invaders->move_anim_timeout = HORDE_MOVE_ANIM_TIMEOUT_INIT;
-    invaders->horde_locked = false;
+    invaders->sidewaysRight = true;
+    invaders->sidewaysMovesCount = 8;
+    invaders->moveAnimTime = HORDE_MOVE_ANIM_TIMEOUT_INIT;
+    invaders->moveAnimTimeout = HORDE_MOVE_ANIM_TIMEOUT_INIT;
+    invaders->hordeLocked = false;
 }
 
 void invaders_initialize(struct GameData *game)
@@ -70,7 +71,7 @@ void invaders_processEvents(struct GameData *game)
         {
             int random = rand() % 55;
             game->invaders.horde[random].alive = false;
-            game->invaders.horde_locked = true;
+            game->invaders.hordeLocked = true;
         }
         else if (event.key.keysym.sym == SDLK_r)
         {
@@ -95,10 +96,10 @@ void invaders_animate_movement(struct GameData *game)
     struct Invader123 *horde = game->invaders.horde;
 
     // update movement animation timeout
-    invaders->move_anim_time -= game->frametime;
-    if (invaders->move_anim_time > 0 || invaders->horde_locked) // can't animate movement yet
+    invaders->moveAnimTime -= game->frametime;
+    if (invaders->moveAnimTime > 0 || invaders->hordeLocked) // can't animate movement yet
         return;
-    invaders->move_anim_time = invaders->move_anim_timeout; // reset timeout
+    invaders->moveAnimTime = invaders->moveAnimTimeout; // reset timeout
 
     // from bottom to up
     for (int i = 4; i >= 0; i--)
@@ -109,25 +110,25 @@ void invaders_animate_movement(struct GameData *game)
             int k = 11 * i + j;
 
             // ignore horde already animated
-            if (horde[k].move_anim_done)
+            if (horde[k].moveAnimDone)
                 continue;
             
             // change movement animation frame
-            horde[k].move_anim_frame = !horde[k].move_anim_frame;
+            horde[k].moveAnimFrame = !horde[k].moveAnimFrame;
 
             // move down if moved sideways 16 times
-            if (invaders->sideways_moves_count == 16)
+            if (invaders->sidewaysMovesCount == 16)
                 horde[k].y += 8;
             else // move left or right
             {
-                if (invaders->sideways_right)
+                if (invaders->sidewaysRight)
                     horde[k].x += 2;
                 else
                     horde[k].x -= 2;
             }
 
             // movement animation done for this frame
-            horde[k].move_anim_done = true;
+            horde[k].moveAnimDone = true;
             // we only animate movement for one instance at a time to
             // reproduce the cool movement feel of the original game
             return;
@@ -136,12 +137,12 @@ void invaders_animate_movement(struct GameData *game)
 
     // All moved. Reset movement animation state
     for (int i = 0; i < HORDE_SIZE; i++)
-        horde[i].move_anim_done = false;
+        horde[i].moveAnimDone = false;
     // increase move count and check if 16 horizontal movements were made
-    if (++invaders->sideways_moves_count == 17)
+    if (++invaders->sidewaysMovesCount == 17)
     {
-        invaders->sideways_right = !invaders->sideways_right;
-        invaders->sideways_moves_count = 0;
+        invaders->sidewaysRight = !invaders->sidewaysRight;
+        invaders->sidewaysMovesCount = 0;
     }
 }
 
@@ -155,15 +156,15 @@ void invaders_animate_death(struct GameData *game)
     for (int i = 0; i < HORDE_SIZE; i++)
     {
         // only update death animation timeout for dead horde and if timeout > 0
-        if (!horde[i].alive && horde[i].death_anim_time > 0)
-            horde[i].death_anim_time -= game->frametime;
+        if (!horde[i].alive && horde[i].deathAnimTime > 0)
+            horde[i].deathAnimTime -= game->frametime;
         else
             death_anim_done_count++;
     }
 
     // all death animations played. Unlock horde movement
     if (death_anim_done_count == HORDE_SIZE)
-        game->invaders.horde_locked = false;
+        game->invaders.hordeLocked = false;
 }
 
 void invaders_update(struct GameData *game)
@@ -182,7 +183,7 @@ void invader1_render(struct GameData *game, int i)
     scale.y = SCALING_FACTOR * game->invaders.horde[i].y;
     
     clip.x = 0;
-    if (game->invaders.horde[i].move_anim_frame == 1)
+    if (game->invaders.horde[i].moveAnimFrame == 1)
         clip.x = 8;
     
     SDL_RenderCopy(game->ren, game->inv1, &clip, &scale);
@@ -198,7 +199,7 @@ void invader2_render(struct GameData *game, int i)
     scale.y = SCALING_FACTOR * game->invaders.horde[i].y;
         
     clip.x = 0;
-    if (game->invaders.horde[i].move_anim_frame == 1)
+    if (game->invaders.horde[i].moveAnimFrame == 1)
         clip.x = 11;
     
     SDL_RenderCopy(game->ren, game->inv2, &clip, &scale);
@@ -214,7 +215,7 @@ void invader3_render(struct GameData *game, int i)
     scale.y = SCALING_FACTOR * game->invaders.horde[i].y;
     
     clip.x = 0;
-    if (game->invaders.horde[i].move_anim_frame == 1)
+    if (game->invaders.horde[i].moveAnimFrame == 1)
         clip.x = 12;
     
     SDL_RenderCopy(game->ren, game->inv3, &clip, &scale);
@@ -242,7 +243,7 @@ void invaders_render(struct GameData *game)
                 invader3_render(game, i); break;
             }
         }
-        else if (horde[i].death_anim_time > 0) // not alive. Render death animation
+        else if (horde[i].deathAnimTime > 0) // not alive. Render death animation
         {
             SDL_Rect death123_scale = {SCALING_FACTOR*horde[i].x, SCALING_FACTOR*horde[i].y,
                 SCALING_FACTOR*13, SCALING_FACTOR*8};
