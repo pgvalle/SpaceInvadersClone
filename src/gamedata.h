@@ -38,7 +38,7 @@ struct GameData
 
 	struct InvadersData
 	{
-		struct Invader123Instance
+		struct Invader123
 		{
 			int type;
 			int x,

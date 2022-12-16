@@ -10,7 +10,7 @@ void invaders_reset(struct GameData *game)
 {
     // Just aliases
     struct InvadersData *invaders = &game->invaders;
-    struct Invader123Instance *horde = game->invaders.horde;
+    struct Invader123 *horde = game->invaders.horde;
 
     for (int i = 0; i < 11; i++)
     {
@@ -92,7 +92,7 @@ void invaders_animate_movement(struct GameData *game)
 {
     // Just aliases
     struct InvadersData *invaders = &game->invaders;
-    struct Invader123Instance *horde = game->invaders.horde;
+    struct Invader123 *horde = game->invaders.horde;
 
     // update movement animation timeout
     invaders->move_anim_time -= game->frametime;
@@ -149,7 +149,7 @@ void invaders_animate_death(struct GameData *game)
 {
     // Just aliases
     struct InvadersData *invaders = &game->invaders;
-    struct Invader123Instance *horde = game->invaders.horde;
+    struct Invader123 *horde = game->invaders.horde;
     int death_anim_done_count = 0;
 
     for (int i = 0; i < HORDE_SIZE; i++)
@@ -225,7 +225,7 @@ void invaders_render(struct GameData *game)
     static SDL_Rect const death123_clip = {0, 0, 13, 8};
 
     // Just aliases
-    struct Invader123Instance *horde = game->invaders.horde;
+    struct Invader123 *horde = game->invaders.horde;
     struct InvadersData *invaders = &game->invaders;
 
     for (int i = 0; i < HORDE_SIZE; i++)
