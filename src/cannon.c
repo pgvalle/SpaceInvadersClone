@@ -35,7 +35,7 @@ void cannon_update(struct GameData *game)
         // shoot
         printf("Shooting\n");
 
-        game->cannon.shot_cooldown = SHOT_COOLDOWN; // reset cooldown
+        game->cannon.shot_cooldown = CANNON_SHOT_COOLDOWN; // reset cooldown
     }
 }
 
