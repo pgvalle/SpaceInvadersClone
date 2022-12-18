@@ -1,4 +1,3 @@
-/debug
-/obj
-
-*.o
+.vs/
+out/
+build/
