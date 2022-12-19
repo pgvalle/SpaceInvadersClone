@@ -1,4 +1,5 @@
 #include "../App.h"
+#include <stdio.h>
 
 void Cannon_Initialize()
 {
@@ -14,11 +15,6 @@ void Cannon_Initialize()
 
 void Cannon_Update()
 {
-    struct App* app = App_Get();
-    struct Cannon* cannon = &app->game.cannon;
-
-    // update timers
-    
 }
 
 void Cannon_Render()

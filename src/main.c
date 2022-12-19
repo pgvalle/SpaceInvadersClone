@@ -46,7 +46,8 @@ void LoadAssets()
 
     // textures
     app.textures[CANNON_TEX_INDEX] = IMG_LoadTexture(app.renderer,
-        APP_ASSETS_BASEDIR "img / cannon.png");
+        APP_ASSETS_BASEDIR "img/cannon.png");
+    SDL_assert(app.textures[CANNON_TEX_INDEX]);
 }
 
 void FreeAssets()
@@ -72,6 +73,7 @@ int main(int argc, const char** args)
 
     // initializing entities
     Cannon_Initialize();
+    Horde_Initialize();
 
     MainLoop();
 
@@ -118,12 +120,14 @@ void Gameplay_EventUpdate()
 
 void Gameplay_TimeUpdate()
 {
-
+    Horde_Update();
 }
 
 void Gameplay_Render()
 {
-
+    SDL_RenderClear(app.renderer);
+    Horde_Render();
+    SDL_RenderPresent(app.renderer);
 }
 
 void MainLoop()

@@ -3,11 +3,13 @@
 
 #include <SDL.h>
 
-#define CANNON_X_INIT 30
-#define CANNON_Y      220 // won't change
+#define CANNON_X_INIT 0
+#define CANNON_Y      0 // won't change
+
+#define CANNON_MOVEMENT_PACE 1
 
 #define CANNON_SHOT_COOLDOWN 1000
-#define CANNON_MOVE_DELTA    20
+#define CANNON_MOVE_DELTA    16
 
 #define CANNON_LIVES_TOTAL 3
 

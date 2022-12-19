@@ -7,6 +7,7 @@
 #include <SDL_ttf.h>
 
 #include "entities/Cannon.h"
+#include "entities/Horde.h"
 
 #define APP_TITLE "Space Invaders"
 
@@ -19,7 +20,7 @@
 // ~~ 20 polls per frame
 #define APP_EVENTPOLLING_DELTA 50
 
-#define APP_ASSETS_BASEDIR "../../../res"
+#define APP_ASSETS_BASEDIR "../../../res/"
 
 struct App
 {
@@ -33,6 +34,7 @@ struct App
     struct Game
     {
         struct Cannon cannon;
+        struct Horde horde;
     } game;
 
     SDL_bool shouldQuit;
