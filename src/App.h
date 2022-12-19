@@ -30,6 +30,11 @@ struct App
         GAMEOVER = 2
     } state;
 
+    struct Game
+    {
+        struct Cannon cannon;
+    } game;
+
     SDL_bool shouldQuit;
     SDL_Window* window;
     SDL_Renderer* renderer;

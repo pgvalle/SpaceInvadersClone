@@ -70,6 +70,9 @@ int main(int argc, const char** args)
     OpenLibraries();
     LoadAssets();
 
+    // initializing entities
+    Cannon_Initialize();
+
     MainLoop();
 
     FreeAssets();
@@ -128,6 +131,9 @@ void MainLoop()
     while (!app.shouldQuit)
     {
         App_PollEventsAndComputeFrameTime();
+
+        if (app.hadEvent && app.event.type == SDL_QUIT)
+            return;
 
         switch (app.state)
         {
