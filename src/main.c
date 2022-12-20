@@ -45,8 +45,15 @@ void LoadResources()
         SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
     app->frameTime = 0;
 
+    // icon
+    SDL_RWops* rwops = SDL_RWFromFile(APP_ASSETS_BASEDIR "icon.ico", "rb");
+    SDL_Surface* icon = IMG_LoadICO_RW(rwops);
+    SDL_SetWindowIcon(app->window, icon);
+    SDL_FreeSurface(icon);
+    SDL_FreeRW(rwops);
+
     // font
-    app->font = TTF_OpenFont(APP_ASSETS_BASEDIR "space_invaders.ttf",
+    app->font = TTF_OpenFont(APP_ASSETS_BASEDIR "font.ttf",
         APP_SCALE(10));
 
     // textures
