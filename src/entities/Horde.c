@@ -2,7 +2,7 @@
 #include <stdlib.h>
 
 #define GET_APP_AND_HORDE \
-struct App* app = App_Get();\
+struct App* app = GetAppInstance();\
 struct Horde* horde = &app->game.horde;
 
 void Horde_Initialize()
@@ -37,18 +37,60 @@ void Horde_Initialize()
     for (int i = 0; i < HORDE_SIZE; i++)
     {
         horde->array[i].alive = SDL_TRUE;
-        horde->array[i].hasMoved = SDL_FALSE;
         horde->array[i].deathTimer = 0;
     }
 
     horde->locked = SDL_FALSE;
     horde->goingRight = SDL_TRUE;
-    horde->moveCount = 8;
+    horde->shooting = SDL_FALSE;
+    horde->whoShooting = -1;
+    horde->moveClip = 1;
+    horde->moveFrame = 8;
     horde->moveTimer = 0;
     horde->moveTimeout = HORDE_MOVE_DELTA_INIT;
 }
 
-void Horde_UpdateDeadInvaders()
+void UpdateAliveInvaders()
+{
+    GET_APP_AND_HORDE;
+
+    // update move timer
+    horde->moveTimer += app->frameTime;
+    // cant move yet
+    if (horde->locked || horde->moveTimer < horde->moveTimeout)
+        return;
+    horde->moveTimer = 0;
+
+    // should move down
+    if (horde->moveFrame == 16)
+    {
+        for (int i = 0; i < HORDE_SIZE; i++)
+        {
+            if (horde->array[i].alive)
+                horde->array[i].y += 8;
+        }
+
+        horde->moveFrame = 0; // reset move counter
+        horde->moveTimeout; // increase invaders speed somehow
+        horde->goingRight = !horde->goingRight; // change horizontal movement
+    }
+    else
+    {
+        int offset = horde->goingRight ? 2 : -2;
+        for (int i = 0; i < HORDE_SIZE; i++)
+        {
+            if (horde->array[i].alive)
+                horde->array[i].x += offset;
+        }
+
+        horde->moveFrame++;
+    }
+
+    // change animation frame for all invaders in horde
+    horde->moveClip = !horde->moveClip;
+}
+
+void UpdateDeadInvaders()
 {
     GET_APP_AND_HORDE;
 
@@ -62,7 +104,7 @@ void Horde_UpdateDeadInvaders()
         // don't care
         if (horde->array[i].alive)
             continue;
-        
+
         deadCount++; // +1 dead
         // update death timer
         if (horde->array[i].deathTimer < INVADER_DEATH_DELTA)
@@ -78,50 +120,8 @@ void Horde_UpdateDeadInvaders()
 
 void Horde_Update()
 {
-    GET_APP_AND_HORDE;
-
-    if (app->hadEvent && app->event.type == SDL_KEYDOWN &&
-        app->event.key.keysym.sym == SDLK_SPACE)
-    {
-        int i = rand() % HORDE_SIZE;
-        horde->array[i].alive = SDL_FALSE;
-    }
-
-    Horde_UpdateDeadInvaders();
-
-    // update move timer
-    horde->moveTimer += app->frameTime;
-    // cant move yet
-    if (horde->locked || horde->moveTimer < horde->moveTimeout)
-        return;
-    horde->moveTimer = 0;
-
-    // should move down
-    if (horde->moveCount == 16)
-    {
-        for (int i = 0; i < HORDE_SIZE; i++)
-        {
-            if (horde->array[i].alive)
-                horde->array[i].y += 8;
-        }
-
-        horde->moveCount = 0; // reset move counter
-        horde->goingRight = !horde->goingRight; // change horizontal movement
-    }
-    else
-    {
-        int offset = horde->goingRight ? 2 : -2;
-        for (int i = 0; i < HORDE_SIZE; i++)
-        {
-            if (horde->array[i].alive)
-                horde->array[i].x += offset;
-        }
-
-        horde->moveCount++;
-    }
-
-    // change animation frame for all invaders in horde
-    horde->moveClip = !horde->moveClip;
+    UpdateAliveInvaders();
+    UpdateDeadInvaders();
 }
 
 void Horde_Render()
@@ -145,7 +145,7 @@ void Horde_Render()
                 clip.y = 16;
             SDL_RenderCopy(app->renderer, app->textures[INVADERS_TEX_INDEX], &clip, &scale);
         }
-        else if (horde->array[i].deathTimer < INVADER_DEATH_DELTA)
+        else if (horde->array[i].deathTimer < INVADER_DEATH_SHOW_DELTA)
         {
             SDL_Rect clip = { 0,24, 13,8 };
             SDL_Rect scale = { APP_SCALE(x - 1),APP_SCALE(y), APP_SCALE(13),APP_SCALE(8) };

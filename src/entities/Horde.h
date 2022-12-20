@@ -7,9 +7,10 @@
 
 #define HORDE_X_INIT 26
 #define HORDE_Y_INIT 60
-#define HORDE_MOVE_DELTA_INIT 100
+#define HORDE_MOVE_DELTA_INIT 1000
 
-#define INVADER_DEATH_DELTA 1000
+#define INVADER_DEATH_SHOW_DELTA 350
+#define INVADER_DEATH_DELTA INVADER_DEATH_SHOW_DELTA + 50
 
 #define INVADERS_TEX_INDEX 1
 
@@ -26,15 +27,16 @@ struct Horde
 
         int x, y;
         SDL_bool alive;
-        SDL_bool hasMoved;
         int deathTimer;
     } array[HORDE_SIZE];
 
     SDL_bool locked;
     SDL_bool goingRight;
+    SDL_bool shooting; // only one at a time
+    int whoShooting;
 
     int moveClip;
-    int moveCount;
+    int moveFrame;
     int moveTimer;
     int moveTimeout;
 };
