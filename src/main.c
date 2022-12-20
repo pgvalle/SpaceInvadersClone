@@ -2,7 +2,7 @@
 
 // Single instance
 struct App* app;
-struct App* App_Get()
+struct App* GetAppInstance()
 {
     return app;
 }
@@ -106,13 +106,13 @@ int main(int argc, const char** args)
 // GAMEPLAY
 // ========================================================================= //
 
-void Gameplay_Update()
+void UpdateGameplayState()
 {
     Horde_Update();
     Cannon_Update();
 }
 
-void Gameplay_Render()
+void RenderGameplayState()
 {
     SDL_RenderClear(app->renderer);
     Horde_Render();
@@ -141,8 +141,8 @@ void MainLoop()
         case MAINMENU:
             break;
         case GAMEPLAY:
-            Gameplay_Update();
-            Gameplay_Render();
+            UpdateGameplayState();
+            RenderGameplayState();
             break;
         case GAMEOVER:
             break;

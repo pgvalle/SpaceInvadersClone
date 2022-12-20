@@ -11,13 +11,11 @@
 
 #include "entities/Cannon.h"
 #include "entities/Horde.h"
-#include "entities/UI.h"
-
 
 #define APP_TITLE "Space Invaders"
 
 // To prevent stuff being too small
-#define APP_SCALE_FACTOR 2
+#define APP_SCALE_FACTOR 3
 // Alias for scaling values
 #define APP_SCALE(value) APP_SCALE_FACTOR * (value)
 
@@ -51,6 +49,6 @@ struct App
     TTF_Font* font;
 };
 
-struct App* App_Get();
+struct App* GetAppInstance();
 
 #endif // APP_H_INCLUDED
