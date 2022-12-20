@@ -47,7 +47,9 @@ void LoadAssets()
     // textures
     app.textures[CANNON_TEX_INDEX] = IMG_LoadTexture(app.renderer,
         APP_ASSETS_BASEDIR "img/cannon.png");
-    SDL_assert(app.textures[CANNON_TEX_INDEX]);
+    app.textures[INVADERS_TEX_INDEX] = IMG_LoadTexture(app.renderer,
+        APP_ASSETS_BASEDIR "img/invaders.png");
+    SDL_assert(app.textures[INVADERS_TEX_INDEX]);
 }
 
 void FreeAssets()
