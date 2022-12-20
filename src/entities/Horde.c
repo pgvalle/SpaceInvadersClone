@@ -120,6 +120,22 @@ void UpdateDeadInvaders()
 
 void Horde_Update()
 {
+    GET_APP_AND_HORDE;
+
+    if (app->event.type == SDL_KEYDOWN)
+    {
+        SDL_KeyCode key = app->event.key.keysym.sym;
+        if (key == SDLK_SPACE)
+        {
+            int i = rand() % HORDE_SIZE;
+            horde->array[i].alive = SDL_FALSE;
+        }
+        else if (key == SDLK_r)
+        {
+            Horde_Initialize();
+        }
+    }
+
     UpdateAliveInvaders();
     UpdateDeadInvaders();
 }

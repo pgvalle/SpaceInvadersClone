@@ -2,8 +2,8 @@
 #include <stdio.h>
 
 #define GET_APP_AND_CANNON \
-struct App* app = GetAppInstance();\
-struct Cannon* cannon = &app->game.cannon;
+    struct App* app = GetAppInstance();\
+    struct Cannon* cannon = &app->game.cannon;
 
 void Cannon_Initialize()
 {
@@ -23,11 +23,6 @@ void Cannon_Update()
     GET_APP_AND_CANNON;
 
     const Uint8* keys = SDL_GetKeyboardState(NULL);
-    if (keys[SDL_SCANCODE_LEFT])
-        cannon->x -= 1;
-    if (keys[SDL_SCANCODE_RIGHT])
-        cannon->x += 1;
-
     if (keys[SDL_SCANCODE_RETURN])
         cannon->wasShot = SDL_TRUE;
 
@@ -45,6 +40,13 @@ void Cannon_Update()
             cannon->deathFrame = !cannon->deathFrame;
             cannon->deathFrameTimer = 0;
         }
+    }
+    else
+    {
+        if (keys[SDL_SCANCODE_LEFT])
+            cannon->x -= 1;
+        if (keys[SDL_SCANCODE_RIGHT])
+            cannon->x += 1;
     }
 }
 

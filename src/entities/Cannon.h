@@ -17,8 +17,6 @@
 
 #define CANNON_TEX_INDEX 0
 
-
-
 struct Cannon
 {
     int x;
