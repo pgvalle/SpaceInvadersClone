@@ -1,6 +1,9 @@
 #ifndef APP_H_INCLUDED
 #define APP_H_INCLUDED
 
+#include <stdlib.h>
+#include <stdio.h>
+
 #include <SDL.h>
 #include <SDL_image.h>
 #include <SDL_mixer.h>
@@ -8,17 +11,18 @@
 
 #include "entities/Cannon.h"
 #include "entities/Horde.h"
+#include "entities/UI.h"
+
 
 #define APP_TITLE "Space Invaders"
 
-#define APP_SCALE_FACTOR 3
-#define APP_SCALE(value) APP_SCALE_FACTOR * value
+// To prevent stuff being too small
+#define APP_SCALE_FACTOR 2
+// Alias for scaling values
+#define APP_SCALE(value) APP_SCALE_FACTOR * (value)
 
 #define APP_WINDOW_WIDTH  APP_SCALE(224)
 #define APP_WINDOW_HEIGHT APP_SCALE(256)
-
-// ~~ 20 polls per frame
-#define APP_EVENTPOLLING_DELTA 50
 
 #define APP_ASSETS_BASEDIR "../../../res/"
 
@@ -41,10 +45,10 @@ struct App
     SDL_Window* window;
     SDL_Renderer* renderer;
     SDL_Event event;
-    SDL_bool hadEvent;
     Uint32 frameTime;
 
     SDL_Texture* textures[20];
+    TTF_Font* font;
 };
 
 struct App* App_Get();
