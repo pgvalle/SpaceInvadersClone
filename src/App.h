@@ -11,12 +11,13 @@
 
 #include "entities/Cannon.h"
 #include "entities/Horde.h"
+#include "entities/Shots.h"
 
 #define APP_TITLE "Space Invaders"
 
-// To prevent stuff being too small
-#define APP_SCALE_FACTOR 3
-// Alias for scaling values
+// To fix scaling of app elements
+#define APP_SCALE_FACTOR 2
+// Alias to scale values
 #define APP_SCALE(value) APP_SCALE_FACTOR * (value)
 
 #define APP_WINDOW_WIDTH  APP_SCALE(224)
@@ -24,13 +25,29 @@
 
 #define APP_ASSETS_BASEDIR "../../../res/"
 
+
+enum TextureIndex
+{
+    /* Image resources */
+
+    TEXINDEX_CANNON,
+    TEXINDEX_HORDE,
+    TEXINDEX_SHIELD,
+    TEXINDEX_TOURIST,
+
+    /* UI(Text) items */
+
+    // Special
+    TEXINDEX_COUNT
+};
+
 struct App
 {
     enum AppState
     {
-        MAINMENU = 0,
-        GAMEPLAY = 1,
-        GAMEOVER = 2
+        APPSTATE_MAINMENU,
+        APPSTATE_GAMEPLAY,
+        APPSTATE_GAMEOVER
     } state;
 
     struct Game
@@ -39,13 +56,18 @@ struct App
         struct Horde horde;
     } game;
 
-    SDL_bool shouldQuit;
+    bool shouldQuit;
+
     SDL_Window* window;
     SDL_Renderer* renderer;
+
     SDL_Event event;
+
     Uint32 frameTime;
 
-    SDL_Texture* textures[20];
+    /* Assets */
+
+    SDL_Texture* textures[TEXINDEX_COUNT];
     TTF_Font* font;
 };
 

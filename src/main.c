@@ -59,16 +59,20 @@ void LoadResources()
         APP_SCALE(10));
 
     // textures
-    app->textures[CANNON_TEX_INDEX] = IMG_LoadTexture(app->renderer,
+    app->textures[TEXINDEX_CANNON] = IMG_LoadTexture(app->renderer,
         APP_ASSETS_BASEDIR "img/cannon.png");
-    app->textures[INVADERS_TEX_INDEX] = IMG_LoadTexture(app->renderer,
+    app->textures[TEXINDEX_HORDE] = IMG_LoadTexture(app->renderer,
         APP_ASSETS_BASEDIR "img/invaders.png");
 }
 
 void FreeResources()
 {
     // textures
-    SDL_DestroyTexture(app->textures[CANNON_TEX_INDEX]);
+    for (int i = 0; i < TEXINDEX_COUNT; i++)
+    {
+        if (app->textures[i])
+            SDL_DestroyTexture(app->textures[i]);
+    }
 
     TTF_CloseFont(app->font); // font
 
