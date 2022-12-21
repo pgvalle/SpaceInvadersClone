@@ -37,7 +37,7 @@ void LoadResources()
     app = malloc(sizeof(*app));
 
     // base stuff
-    app->state = GAMEPLAY;
+    app->state = APPSTATE_GAMEPLAY;
     app->shouldQuit = SDL_FALSE;
     app->window = SDL_CreateWindow(APP_TITLE, SDL_WINDOWPOS_CENTERED,
         SDL_WINDOWPOS_CENTERED, APP_WINDOW_WIDTH, APP_WINDOW_HEIGHT, 0);
@@ -138,13 +138,13 @@ void MainLoop()
         
         switch (app->state)
         {
-        case MAINMENU:
+        case APPSTATE_MAINMENU:
             break;
-        case GAMEPLAY:
+        case APPSTATE_GAMEPLAY:
             UpdateGameplayState();
             RenderGameplayState();
             break;
-        case GAMEOVER:
+        case APPSTATE_GAMEOVER:
             break;
         }
 

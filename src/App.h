@@ -25,7 +25,6 @@
 
 #define APP_ASSETS_BASEDIR "../../../res/"
 
-
 enum TextureIndex
 {
     /* Image resources */
