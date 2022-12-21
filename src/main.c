@@ -122,14 +122,10 @@ void RenderGameplayState()
 
 void MainLoop()
 {
-    Uint32 before = 0;
+    Uint32 before = SDL_GetTicks();
 
     while (!app->shouldQuit)
     {
-        // updating frame delta time
-        app->frameTime = SDL_GetTicks() - before;
-        before = SDL_GetTicks();
-
         // polling events
         SDL_PollEvent(&app->event);
         // just to make sure the user can quit the app
@@ -147,5 +143,9 @@ void MainLoop()
         case GAMEOVER:
             break;
         }
+
+        // updating frame delta time
+        app->frameTime = SDL_GetTicks() - before;
+        before = SDL_GetTicks();
     }
 }
