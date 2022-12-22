@@ -14,7 +14,7 @@ void InitApp()
 
     // base stuff
     app->state = APPSTATE_GAMEPLAY;
-    app->shouldQuit = SDL_FALSE;
+    app->shouldQuit = false;
     app->window = SDL_CreateWindow(APP_TITLE, SDL_WINDOWPOS_CENTERED,
         SDL_WINDOWPOS_CENTERED, APP_WINDOW_WIDTH, APP_WINDOW_HEIGHT, 0);
     app->renderer = SDL_CreateRenderer(app->window, -1,
@@ -64,8 +64,14 @@ void DestroyApp()
 
 // states routines declaration
 
+void UpdateMainMenuState();
+void RenderMainMenuState();
+
 void UpdateGameplayState();
 void RenderGameplayState();
+
+void UpdateGameOverState();
+void RenderGameOverState();
 
 void MainLoop()
 {
@@ -82,12 +88,16 @@ void MainLoop()
         switch (app->state)
         {
         case APPSTATE_MAINMENU:
+            UpdateMainMenuState();
+            RenderMainMenuState();
             break;
         case APPSTATE_GAMEPLAY:
             UpdateGameplayState();
             RenderGameplayState();
             break;
         case APPSTATE_GAMEOVER:
+            UpdateGameOverState();
+            RenderGameOverState();
             break;
         }
 
