@@ -13,18 +13,18 @@ void UpdateTourist()
         // update spawn timer
         tourist->spawnTimer += app->frameTime;
         if (tourist->spawnTimer >= tourist->spawnTimeout)
-            // Done waiting. Spawn!
+            // Spawn Time
         {
             // set spawning location settings
             tourist->spawnedRight = rand() % 2 ? true : false;
             // FIXME: use more precise clipping values
             if (tourist->spawnedRight)
-                tourist->x = 0;
-            else
                 tourist->x = APP_VSCREEN_WIDTH - 10;
+            else
+                tourist->x = 0;
 
             tourist->spawned = true; // now it has spawned
-            tourist->dead = false; // can't spawn dead. DUH          
+            
             // reset spawn timer with random timeout
             tourist->spawnTimer = 0;
             tourist->spawnTimeout = (rand() % 30000) + 30000;
@@ -35,21 +35,33 @@ void UpdateTourist()
         // update death timer
         tourist->deathTimer += app->frameTime;
         if (tourist->deathTimer >= TOURIST_DEATH_TIMEOUT)
-            // death timeout done. Execute spawning logic
+            // Time to wait spawning again
         {
+            tourist->dead = false;
             tourist->deathTimer = 0;
             tourist->spawned = false;
         }
     }
     else // spawned and not dead
     {
-        // Update position
-        int moveOffset = tourist->spawnedRight ? 1 : -1;
-        tourist->x += moveOffset;
-        // FIXME: use more precise clipping values 2
-        if (tourist->x < 0 || tourist->x >= APP_VSCREEN_WIDTH - 10)
-            // out of bounds. Excecute spawning logic
-            tourist->spawned = false;
+        // Update movement timer
+        tourist->moveAnimationTimer += app->frameTime;
+        if (tourist->moveAnimationTimer >= TOURIST_MOVEANIM_PACE)
+            // Time to move
+        {
+            int moveOffset = tourist->spawnedRight ? -1 : 1;
+            tourist->x += moveOffset;
+            // FIXME: use more precise clipping values 2
+            if (tourist->x < 0 || tourist->x >= APP_VSCREEN_WIDTH - 10)
+                // Time to wait spawning again
+            {
+                tourist->moveAnimationTimer = 0;
+                tourist->spawned = false;
+            }
+            else
+                tourist->moveAnimationTimer -= TOURIST_MOVEANIM_PACE;
+        }
+        
     }
 }
 

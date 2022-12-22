@@ -7,19 +7,23 @@
 
 #define TOURIST_DEATH_TIMEOUT 1000
 
+#define TOURIST_MOVEANIM_PACE 25
+
 struct Tourist
 {
-    int x;
+    int x; // !!!
 
-    bool dead; // updated from interaction with Shot entities
+    bool dead; // !!!
     int deathTimer;
 
+    bool spawned; // !!!
     bool spawnedRight;
-    bool spawned;
     int spawnTimer;
     int spawnTimeout;
 
-    int scoreValue;
+    int moveAnimationTimer;
+
+    int scoreValue; // !!!
 };
 
 void UpdateTourist();
