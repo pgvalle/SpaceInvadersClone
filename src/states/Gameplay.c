@@ -5,8 +5,20 @@
 
 void UpdateGameplayState()
 {
-    Horde_Update();
-    Cannon_Update();
+    // tought update order
+    /* individual entities */
+    // horde shots
+    // player shots
+    /* inter-entity */
+    // check shot collisions with cannon, tourist and horde
+    /* individual entities */
+    // horde
+    // player
+    // tourist
+    // Ui elements
+
+    UpdateCannon();
+    UpdateTourist();
 }
 
 void RenderGameplayState()
@@ -14,7 +26,7 @@ void RenderGameplayState()
     GET_APP;
 
     SDL_RenderClear(app->renderer);
-    Horde_Render();
-    Cannon_Render();
+    RenderTourist();
+    RenderCannon();
     SDL_RenderPresent(app->renderer);
 }
