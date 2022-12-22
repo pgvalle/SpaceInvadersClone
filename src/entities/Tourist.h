@@ -21,7 +21,7 @@ struct Tourist
     int spawnTimer;
     int spawnTimeout;
 
-    int moveAnimationTimer;
+    int moveTimer;
 
     int scoreValue; // !!!
 };

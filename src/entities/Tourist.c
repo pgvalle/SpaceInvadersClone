@@ -45,8 +45,8 @@ void UpdateTourist()
     else // spawned and not dead
     {
         // Update movement timer
-        tourist->moveAnimationTimer += app->frameTime;
-        if (tourist->moveAnimationTimer >= TOURIST_MOVEANIM_PACE)
+        tourist->moveTimer += app->frameTime;
+        if (tourist->moveTimer >= TOURIST_MOVEANIM_PACE)
             // Time to move
         {
             int moveOffset = tourist->spawnedRight ? -1 : 1;
@@ -55,11 +55,11 @@ void UpdateTourist()
             if (tourist->x < 0 || tourist->x >= APP_VSCREEN_WIDTH - 10)
                 // Time to wait spawning again
             {
-                tourist->moveAnimationTimer = 0;
+                tourist->moveTimer = 0;
                 tourist->spawned = false;
             }
             else
-                tourist->moveAnimationTimer -= TOURIST_MOVEANIM_PACE;
+                tourist->moveTimer -= TOURIST_MOVEANIM_PACE;
         }
         
     }
