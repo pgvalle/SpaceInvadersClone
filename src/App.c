@@ -45,9 +45,12 @@ void InitApp()
         APP_ASSETS_BASEDIR "img/tourist.png");
 
     app->game.tourist.spawned = false;
+    app->game.tourist.dead = false;
     app->game.tourist.deathTimer = 0;
     app->game.tourist.spawnTimer = 0;
     app->game.tourist.spawnTimeout = 5000;
+    app->game.tourist.moveTimer = 0;
+    InitCannon();
 }
 
 void DestroyApp()

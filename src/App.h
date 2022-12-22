@@ -28,7 +28,7 @@
 
 #define APP_ASSETS_BASEDIR "../../../res/"
 
-#define APP_GET_KEYS const Uint8* keys = SDL_GetKeyboardState(NULL)
+#define GET_APP_KEYS const Uint8* keys = SDL_GetKeyboardState(NULL)
 
 enum TextureIndex
 {
