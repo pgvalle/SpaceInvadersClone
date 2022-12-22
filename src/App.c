@@ -16,7 +16,7 @@ void InitApp()
     app->state = APPSTATE_GAMEPLAY;
     app->shouldQuit = false;
     app->window = SDL_CreateWindow(APP_TITLE, SDL_WINDOWPOS_CENTERED,
-        SDL_WINDOWPOS_CENTERED, APP_WINDOW_WIDTH, APP_WINDOW_HEIGHT, 0);
+        SDL_WINDOWPOS_CENTERED, APP_SCREEN_WIDTH, APP_SCREEN_HEIGHT, 0);
     app->renderer = SDL_CreateRenderer(app->window, -1,
         SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
     app->frameTime = 0;
@@ -41,6 +41,13 @@ void InitApp()
         APP_ASSETS_BASEDIR "img/cannon.png");
     app->textures[TEXINDEX_HORDE] = IMG_LoadTexture(app->renderer,
         APP_ASSETS_BASEDIR "img/invaders.png");
+    app->textures[TEXINDEX_TOURIST] = IMG_LoadTexture(app->renderer,
+        APP_ASSETS_BASEDIR "img/tourist.png");
+
+    app->game.tourist.spawned = false;
+    app->game.tourist.deathTimer = 0;
+    app->game.tourist.spawnTimer = 0;
+    app->game.tourist.spawnTimeout = 5000;
 }
 
 void DestroyApp()
@@ -75,7 +82,7 @@ void RenderGameOverState();
 
 void MainLoop()
 {
-    Uint32 before = SDL_GetTicks();
+    Uint32 before = 0;
 
     while (!app->shouldQuit)
     {
@@ -109,7 +116,7 @@ void MainLoop()
 
 void RunApp()
 {
-    /* Initializing libraries */
+    // Initializing libraries
 
     SDL_Init(SDL_INIT_EVERYTHING);
     IMG_Init(IMG_INIT_PNG);
@@ -124,7 +131,7 @@ void RunApp()
     // properly free everything
     DestroyApp();
 
-    /* Quitting libraries */
+    // Quitting libraries
 
     TTF_Quit();
     Mix_CloseAudio();

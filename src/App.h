@@ -12,6 +12,7 @@
 #include "entities/Cannon.h"
 #include "entities/Horde.h"
 #include "entities/Shots.h"
+#include "entities/Tourist.h"
 
 #define APP_TITLE "Space Invaders"
 
@@ -20,10 +21,14 @@
 // Alias to scale values
 #define APP_SCALE(value) APP_SCALE_FACTOR * (value)
 
-#define APP_WINDOW_WIDTH  APP_SCALE(224)
-#define APP_WINDOW_HEIGHT APP_SCALE(256)
+#define APP_VSCREEN_WIDTH  224 // width in game units
+#define APP_VSCREEN_HEIGHT 256 // height in game units
+#define APP_SCREEN_WIDTH  APP_SCALE(APP_VSCREEN_WIDTH)  // real width
+#define APP_SCREEN_HEIGHT APP_SCALE(APP_VSCREEN_HEIGHT) // real height
 
 #define APP_ASSETS_BASEDIR "../../../res/"
+
+#define APP_GET_KEYS const Uint8* keys = SDL_GetKeyboardState(NULL)
 
 enum TextureIndex
 {
@@ -53,6 +58,7 @@ struct App
     {
         struct Cannon cannon;
         struct Horde horde;
+        struct Tourist tourist;
     } game;
 
     bool shouldQuit;
@@ -64,7 +70,7 @@ struct App
 
     Uint32 frameTime;
 
-    /* Assets */
+    // Assets
 
     SDL_Texture* textures[TEXINDEX_COUNT];
     TTF_Font* font;
