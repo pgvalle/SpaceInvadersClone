@@ -9,31 +9,37 @@ struct Application* GetAppInstance()
     return app;
 }
 
+#define CHARACTER_MAP \
+    " A B C D E F G H  I J K L M N O P Q R S T U V W X Y Z 0  1 2 3 4 5 6 7 8 9 <  > "
+
+int FindInCharacterMap(char c)
+{
+    static const char* characterMap = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789<> ";
+    const int upperC = toupper(c);
+    for (int i = 0; i < strlen(characterMap); i++)
+    {
+        if (characterMap[i] == upperC)
+            return i;
+    }
+    return -1;
+}
+
 void RenderText(int x, int y, const char* text)
 {
     const int widthPace = 8;
     const int textLen = strlen(text);
     for (int i = 0; i < textLen; i++)
     {
-        int indexMapping;
-        if (isalpha(text[i]))
-            // get array index mapping of the character
-            indexMapping = toupper(text[i]) - 65;
-        else if (isdigit(text[i]))
-            // 26 is the offset of "0" in the texture
-            indexMapping = text[i] - 48 + 26;
-        else
+        int indexMapping = FindInCharacterMap(text[i]);
+        if (indexMapping != -1)
         {
-            x += widthPace;
-            continue;
-        }
-        
-        SDL_Rect clip = { indexMapping * widthPace, 0, widthPace, 8 };
-        SDL_Rect scale = { 3 * x, 3 * y, 3 * widthPace, 3 * 8 };
-        if (toupper(text[i]) == 'I' || text[i] == '1')
-            scale.x -= 3;
+            SDL_Rect clip = { indexMapping * widthPace, 0, widthPace, 8 };
+            SDL_Rect scale = { 3 * x, 3 * y, 3 * widthPace, 3 * 8 };
+            if (toupper(text[i]) == 'I' || text[i] == '1')
+                scale.x -= 3;
 
-        SDL_RenderCopy(app->renderer, app->uiTex, &clip, &scale);
+            SDL_RenderCopy(app->renderer, app->uiTex, &clip, &scale);
+        }
 
         x += widthPace;
     }
@@ -61,7 +67,7 @@ void InitApp()
 
     // loading window icon
     {
-        SDL_RWops* ops = SDL_RWFromFile(APP_ASSETS_BASEDIR "icon.svg", "rb");
+        SDL_RWops* ops = SDL_RWFromFile(APP_RESOURCE_DIR "icon.svg", "rb");
         SDL_Surface* icon = IMG_LoadSVG_RW(ops);
         SDL_SetWindowIcon(app->window, icon);
         SDL_RWclose(ops);
@@ -69,13 +75,12 @@ void InitApp()
     }
 
     app->entitiesTex = IMG_LoadTexture(app->renderer,
-        APP_ASSETS_BASEDIR "atlas.png");
+        APP_RESOURCE_DIR "atlas.png");
 
     // load font and creating font atlas
     {
-        TTF_Font* font = TTF_OpenFont(APP_ASSETS_BASEDIR "font.ttf", 8);
-        SDL_Surface* uiSurface = TTF_RenderUTF8_Solid(font,
-            "A B C D E F G H  I J K L M N O P Q R S T U V W X Y Z 0  1 2 3 4 5 6 7 8 9 ",
+        TTF_Font* font = TTF_OpenFont(APP_RESOURCE_DIR "font.ttf", 8);
+        SDL_Surface* uiSurface = TTF_RenderUTF8_Solid(font, CHARACTER_MAP,
             (SDL_Color){ 255, 255, 255, 255 });
         app->uiTex = SDL_CreateTextureFromSurface(app->renderer, uiSurface);
         SDL_FreeSurface(uiSurface);
@@ -108,6 +113,8 @@ void AppMainLoop()
             app->shouldClose = true;
 
         SDL_RenderClear(app->renderer);
+
+
         UpdateMainMenuState();
         RenderMainMenuState();
         SDL_RenderPresent(app->renderer);

@@ -12,7 +12,7 @@
 
 #define APP_TITLE "Space Invaders"
 
-#define APP_ASSETS_BASEDIR "../../../res/"
+#define APP_RESOURCE_DIR "../../../res/"
 
 struct Application
 {
@@ -27,6 +27,12 @@ struct Application
 
     SDL_Texture* entitiesTex;
     SDL_Texture* uiTex;
+
+    struct Options
+    {
+        int volume;
+        int scale;
+    };
 };
 
 struct Application* GetAppInstance();

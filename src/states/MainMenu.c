@@ -23,7 +23,7 @@ void ToMainMenu()
 
 void ToGameplayState()
 {
-    
+    printf("Should go to gameplay state rn\n");
 }
 
 void ToOptionsMenu()
@@ -82,8 +82,10 @@ void UpdateMainMenuState()
 {
     GET_APP;
 
-    if (app->event.type == SDL_KEYUP)
+    if (app->event.type == SDL_KEYDOWN)
     {
+        if (app->event.key.repeat)
+            return;
         SDL_KeyCode key = app->event.key.keysym.sym;
         if (key == SDLK_UP)
         {
@@ -105,8 +107,6 @@ void UpdateMainMenuState()
             flickTimer = 0;
             display = true;
         }
-        printf("\x1b[2J\r%d", currentMenu->itemSelected);
-        fflush(stdout);
     }
 }
 
@@ -120,7 +120,7 @@ void RenderMainMenuState()
     flickTimer += app->frameTime;
     for (int i = 0; i < currentMenu->itemCount; i++)
     {
-        if (flickTimer >= 100 && i == currentMenu->itemSelected)
+        if (flickTimer >= 75 && i == currentMenu->itemSelected)
         {
             flickTimer = 0;
             display = !display;
@@ -130,11 +130,11 @@ void RenderMainMenuState()
         {
             if (display)
                 RenderText(0, y, currentMenu->items[i].label);
-            y += 8;
+            y += 10;
             continue;
         }
 
         RenderText(0, y, currentMenu->items[i].label);
-        y += 8;
+        y += 10;
     }
 }
