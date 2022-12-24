@@ -1,49 +1,31 @@
-# tool macros
 CC ?= gcc 
-CFLAGS := $(shell pkg-config --cflags --libs sdl2 SDL2_image SDL2_ttf SDL2_mixer) -O3 -std=c18 -APP_RESOURCE_DIR="./res/"
-COBJFLAGS := $(CFLAGS) -c
+CFLAGS := $(shell pkg-config --cflags --libs sdl2 SDL2_image SDL2_ttf SDL2_mixer) -std=c18
 
-# path macros
-BIN_PATH := .
-OBJ_PATH := obj
-SRC_PATH := src
+TARGET_EXEC ?= SpaceInvadersClone.out
 
-# compile macros
-TARGET_NAME := space_invaders
-TARGET := $(BIN_PATH)/$(TARGET_NAME)
+BUILD_DIR ?= ./build
+SRC_DIR ?= ./src
 
-# src files & obj files
-SRC := $(foreach x, $(SRC_PATH), $(wildcard $(addprefix $(x)/*,.c*)))
-OBJ := $(addprefix $(OBJ_PATH)/, $(addsuffix .o, $(notdir $(basename $(SRC)))))
+SRCS := $(shell find $(SRC_DIR) -name *.c)
+OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)
+DEPS := $(OBJS:.o=.d)
 
-# clean files list
-DISTCLEAN_LIST := $(OBJ)
-CLEAN_LIST := $(TARGET) $(DISTCLEAN_LIST)
+INC_DIRS := $(shell find $(SRC_DIR) -type d)
+INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 
-# default rule
-default: makedir all
+$(BUILD_DIR)/$(TARGET_EXEC): $(OBJS)
+	$(CC) $(OBJS) -o $@ $(CFLAGS)
 
-# non-phony targets
-$(TARGET): $(OBJ)
-	$(CC) -o $@ $(OBJ) $(CFLAGS)
-
-$(OBJ_PATH)/%.o: $(SRC_PATH)/%.c*
-	$(CC) $(COBJFLAGS) -o $@ $<
-
-# phony rules
-.PHONY: makedir
-makedir:
-	@mkdir -p $(BIN_PATH) $(OBJ_PATH)
-
-.PHONY: all
-all: $(TARGET)
+# c source
+$(BUILD_DIR)/%.c.o: %.c
+	$(MKDIR_P) $(dir $@)
+	$(CC) $(CFLAGS) -c $< -o $@
 
 .PHONY: clean
 clean:
-	@echo CLEAN $(CLEAN_LIST)
-	@rm -f $(CLEAN_LIST)
+	$(RM) -r $(BUILD_DIR)
 
-.PHONY: distclean
-distclean:
-	@echo CLEAN $(DISTCLEAN_LIST)
-	@rm -f $(DISTCLEAN_LIST)
+-include $(DEPS)
+
+MKDIR_P ?= mkdir -p
+
