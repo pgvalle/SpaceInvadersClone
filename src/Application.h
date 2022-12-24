@@ -12,7 +12,7 @@
 
 #define APP_TITLE "Space Invaders"
 
-#define APP_RESOURCE_DIR "../../../res/"
+#define APP_RESOURCE_DIR "./res/"
 
 struct Application
 {
@@ -32,7 +32,7 @@ struct Application
     {
         int volume;
         int scale;
-    };
+    } options;
 };
 
 struct Application* GetAppInstance();

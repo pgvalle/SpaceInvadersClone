@@ -49,7 +49,7 @@ void RenderInt(int x, int y, int value)
 {
     // convert value to a string
     char valueStr[12];
-    itoa(value, valueStr, 10);
+    sprintf(valueStr, "%d", value);
     // render it
     RenderText(x, y, valueStr);
 }
