@@ -23,7 +23,7 @@ struct Application
 
     SDL_Event event;
 
-    int frameTime;
+    Uint32 frameTime;
 
     SDL_Texture* entitiesTex;
     SDL_Texture* uiTex;

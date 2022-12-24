@@ -92,8 +92,15 @@ void DestroyApp()
     SDL_DestroyWindow(app->window);
 }
 
+void InitMainMenuState();
+void UpdateMainMenuState();
+void RenderMainMenuState();
+
 void AppMainLoop()
 {
+    Uint32 before = 0;
+    InitMainMenuState();
+
     while (!app->shouldClose)
     {
         SDL_PollEvent(&app->event);
@@ -101,8 +108,12 @@ void AppMainLoop()
             app->shouldClose = true;
 
         SDL_RenderClear(app->renderer);
-        RenderInt(0, 0, 987654312);
+        UpdateMainMenuState();
+        RenderMainMenuState();
         SDL_RenderPresent(app->renderer);
+
+        app->frameTime = SDL_GetTicks() - before;
+        before = SDL_GetTicks();
     }
 }
 
