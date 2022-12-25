@@ -107,7 +107,7 @@ void InitTransitionState();
 void RenderTransitionState();
 void UpdateTransitionState();
 
-SDL_CalculatePitch(Uint32 format, int width)
+Uint32 SDL_CalculatePitch(Uint32 format, int width)
 {
     Sint64 pitch;
 
