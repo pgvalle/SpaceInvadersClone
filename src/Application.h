@@ -12,10 +12,26 @@
 
 #define APP_TITLE "Space Invaders"
 
+#define APP_FONT_PTSIZE 8
+
 #define APP_RESOURCE_DIR "./res/"
 
 struct Application
 {
+    enum AppState
+    {
+        APPSTATE_NONE,
+        APPSTATE_MENU,
+        APPSTATE_GAME,
+        APPSTATE_OVER
+    } currentState, nextState;
+
+    struct AppOptions
+    {
+        int volume;
+        int scale;
+    } options;
+
     bool shouldClose;
 
     SDL_Window* window;
@@ -25,18 +41,14 @@ struct Application
 
     Uint32 frameTime;
 
+    // Assets
+
     SDL_Texture* entitiesTex;
     SDL_Texture* uiTex;
-
-    struct Options
-    {
-        int volume;
-        int scale;
-    } options;
 };
 
-struct Application* GetAppInstance();
-// Non-alphanumeric characters are rendered as whitespaces, whitespaces included.
+struct Application* GetApp();
+// Non-alphanumeric characters are rendered as whitespaces
 void RenderText(int x, int y, const char* text);
 void RenderInt(int x, int y, int value);
 

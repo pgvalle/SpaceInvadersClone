@@ -1,20 +1,27 @@
 #include <string.h>
 #include "../Application.h"
 
-#define GET_APP struct Application* app = GetAppInstance()
+#define GET_APP struct Application* app = GetApp()
 
-struct MenuItem
-{
-    char label[32];
-    void (*doAction)();
-};
+#define RENDER_SELECTION_TIMEOUT 75
+
+#define MENU_LINE_SPACING 4
 
 struct Menu
 {
-    struct MenuItem* items;
+    struct MenuItem
+    {
+        char label[32];
+        void (*ExecAction)();
+    } *items;
     int itemCount;
     int itemSelected;
-} startMenu, mainMenu, optionsMenu, *currentMenu;
+
+    int x, y; // relative to center
+} startMenu, mainMenu, optionsMenu, * currentMenu;
+
+bool renderSelection;
+int menuSelectionTimer;
 
 void ToMainMenu()
 {
@@ -23,7 +30,6 @@ void ToMainMenu()
 
 void ToGameplayState()
 {
-    printf("Should go to gameplay state rn\n");
 }
 
 void ToOptionsMenu()
@@ -33,7 +39,7 @@ void ToOptionsMenu()
 
 void QuitGame()
 {
-    GetAppInstance()->shouldClose = true;
+    GetApp()->shouldClose = true;
 }
 
 void InitMainMenuState()
@@ -44,7 +50,10 @@ void InitMainMenuState()
     startMenu.items = malloc(startMenu.itemCount * sizeof(*startMenu.items));
     // item
     strcpy(startMenu.items[0].label, "press any key to start");
-    startMenu.items[0].doAction = ToMainMenu;
+    startMenu.items[0].ExecAction = ToMainMenu;
+    // position
+    startMenu.x = 112;
+    startMenu.y = 128;
 
     // main
     mainMenu.itemCount = 3;
@@ -52,13 +61,16 @@ void InitMainMenuState()
     mainMenu.items = malloc(mainMenu.itemCount * sizeof(*mainMenu.items));
     // item 0
     strcpy(mainMenu.items[0].label, "play");
-    mainMenu.items[0].doAction = ToGameplayState;
+    mainMenu.items[0].ExecAction = ToGameplayState;
     // item 1
     strcpy(mainMenu.items[1].label, "options");
-    mainMenu.items[1].doAction = ToOptionsMenu;
+    mainMenu.items[1].ExecAction = ToOptionsMenu;
     // item 2
     strcpy(mainMenu.items[2].label, "quit");
-    mainMenu.items[2].doAction = QuitGame;
+    mainMenu.items[2].ExecAction = QuitGame;
+    // position
+    mainMenu.x = 112;
+    mainMenu.y = 128;
 
     // options
     optionsMenu.itemCount = 1;
@@ -66,75 +78,63 @@ void InitMainMenuState()
     optionsMenu.items = malloc(optionsMenu.itemCount * sizeof(*optionsMenu.items));
     // item 0
     strcpy(optionsMenu.items[0].label, "nothing");
-    optionsMenu.items[0].doAction = ToMainMenu;
+    optionsMenu.items[0].ExecAction = ToMainMenu;
+    // position
+    optionsMenu.x = 112;
+    optionsMenu.y = 128;
 
-    currentMenu = &startMenu;
+    renderSelection = false;
+    menuSelectionTimer = 0;
+    currentMenu = &mainMenu;
 }
 
 void DestroyMainMenuState()
 {
 }
 
-int flickTimer = 0;
-int display = false;
-
 void UpdateMainMenuState()
 {
     GET_APP;
 
-    if (app->event.type == SDL_KEYDOWN)
+    menuSelectionTimer += app->frameTime;
+    if (menuSelectionTimer > RENDER_SELECTION_TIMEOUT)
     {
-        if (app->event.key.repeat)
-            return;
-        SDL_KeyCode key = app->event.key.keysym.sym;
-        if (key == SDLK_UP)
+        renderSelection = !renderSelection;
+        menuSelectionTimer = 0;
+    }
+
+    SDL_Event event = app->event;
+    if (event.type == SDL_KEYDOWN && !event.key.repeat)
+    {
+        SDL_KeyCode key = event.key.keysym.sym;
+        switch (key)
         {
-            currentMenu->itemSelected--;
-            if (currentMenu->itemSelected < 0)
+        case SDLK_UP:
+            if (--currentMenu->itemSelected < 0)
                 currentMenu->itemSelected = currentMenu->itemCount - 1;
-            flickTimer = 0;
-            display = true;
-        }
-        else if (key == SDLK_DOWN)
-        {
-            currentMenu->itemSelected = (currentMenu->itemSelected + 1) % currentMenu->itemCount;
-            flickTimer = 0;
-            display = true;
-        }
-        else if (key == SDLK_RETURN)
-        {
-            currentMenu->items[currentMenu->itemSelected].doAction();
-            flickTimer = 0;
-            display = true;
+            break;
+        case SDLK_DOWN:
+            currentMenu->itemSelected = ++currentMenu->itemSelected % currentMenu->itemCount;
+            break;
+        case SDLK_RETURN:
+            currentMenu->items[currentMenu->itemSelected].ExecAction();
+            break;
         }
     }
 }
 
-
-
 void RenderMainMenuState()
 {
     GET_APP;
-    int y = 0;
 
-    flickTimer += app->frameTime;
+    int x = currentMenu->x;
+    int y = currentMenu->y - 4*currentMenu->itemCount - 2*(currentMenu->itemCount - 1);
     for (int i = 0; i < currentMenu->itemCount; i++)
     {
-        if (flickTimer >= 75 && i == currentMenu->itemSelected)
-        {
-            flickTimer = 0;
-            display = !display;
-        }
+        int xShiftWidth = 4*strlen(currentMenu->items[i].label);
 
-        if (i == currentMenu->itemSelected)
-        {
-            if (display)
-                RenderText(0, y, currentMenu->items[i].label);
-            y += 10;
-            continue;
-        }
+        RenderText(x - xShiftWidth, y, currentMenu->items[i].label);
 
-        RenderText(0, y, currentMenu->items[i].label);
-        y += 10;
+        y += APP_FONT_PTSIZE + MENU_LINE_SPACING;
     }
 }
