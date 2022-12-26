@@ -9,13 +9,10 @@ struct Application* GetApp()
     return app;
 }
 
-#define CHARACTER_MAP \
-    "A B C D E F G H  I J K L M N O P Q R S T U V W X Y Z 0  1 2 3 4 5 6 7 8 9 <  > * "
-
 int FindInCharacterMap(char c)
 {
     static const char* characterMap = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789<>*";
-    const int upperC = toupper(c);
+    const char upperC = toupper(c);
     for (int i = 0; i < strlen(characterMap); i++)
     {
         if (characterMap[i] == upperC)
@@ -24,34 +21,76 @@ int FindInCharacterMap(char c)
     return -1;
 }
 
-void RenderText(int x, int y, const char* text)
+void RenderText(int x, int y, const char* text, bool red)
 {
-    const int factor = app->options.scale;
+    const int scaleFactor = app->options.scale;
     const int textLen = strlen(text);
+    const int clipY = red ? APP_FONT_PTSIZE : 0;
     for (int i = 0; i < textLen; i++)
     {
         int indexMapping = FindInCharacterMap(text[i]);
-        if (indexMapping != -1)
+        if (indexMapping != -1) // success
         {
-            SDL_Rect clip = { indexMapping * APP_FONT_PTSIZE, 0, APP_FONT_PTSIZE, APP_FONT_PTSIZE };
-            SDL_Rect scale = { factor * x, factor * y, factor * APP_FONT_PTSIZE, factor * APP_FONT_PTSIZE };
+            SDL_Rect clipRect = { indexMapping * APP_FONT_PTSIZE, clipY,
+                APP_FONT_PTSIZE, APP_FONT_PTSIZE };
+            SDL_Rect scaleRect = { scaleFactor * x, scaleFactor * y,
+                scaleFactor * APP_FONT_PTSIZE, scaleFactor * APP_FONT_PTSIZE };
+            // I and 1 are thinner in the font. This is for correcting their placement
             if (toupper(text[i]) == 'I' || text[i] == '1')
-                scale.x -= factor;
+                scaleRect.x -= scaleFactor;
 
-            SDL_RenderCopy(app->renderer, app->uiTex, &clip, &scale);
+            SDL_RenderCopy(app->renderer, app->charsTex, &clipRect, &scaleRect);
         }
 
         x += APP_FONT_PTSIZE;
     }
 }
 
-void RenderInt(int x, int y, int value)
+void RenderInt(int x, int y, int value, bool red)
 {
-    // convert value to a string
+    // convert value to a string first
     char valueStr[12];
     sprintf(valueStr, "%d", value);
-    // render it
-    RenderText(x, y, valueStr);
+
+    RenderText(x, y, valueStr, red);
+}
+
+void LoadChars()
+{
+    // The character map
+    // It's spaced in a certain way so that the texture generated is symmetric
+    const char* characterMapMono =
+        "A B C D E F G H  I J K L M N O P Q R S T "
+        "U V W X Y Z 0  1 2 3 4 5 6 7 8 9 <  > * ";
+
+    TTF_Font* font = TTF_OpenFont(APP_RESOURCE_DIR "font.ttf", APP_FONT_PTSIZE);
+
+    // generate all the characters in different surfaces separated by color
+    SDL_Surface* whiteCharsSurf = TTF_RenderUTF8_Solid(font, characterMapMono,
+        (SDL_Color){ 255, 255, 255, 255 });
+    SDL_Surface* redCharsSurf = TTF_RenderUTF8_Solid(font, characterMapMono,
+        (SDL_Color){ 0xD8, 0x20, 0x20, 255 });
+
+    // Create temporary surface to paste all colored characters to
+    SDL_Surface* allCharsSurf = SDL_CreateRGBSurfaceWithFormat(0, whiteCharsSurf->w,
+        2 * APP_FONT_PTSIZE, 0, SDL_PIXELFORMAT_RGB888);
+
+    // blit and free
+    const SDL_Rect srcRect = { 0, 0,  whiteCharsSurf->w, APP_FONT_PTSIZE };
+    // white goes above
+    SDL_Rect destRect = { 0, 0, 0, 0 };
+    SDL_BlitSurface(whiteCharsSurf, &srcRect, allCharsSurf, &destRect);
+    SDL_FreeSurface(whiteCharsSurf);
+    // red goes down
+    destRect.y += APP_FONT_PTSIZE;
+    SDL_BlitSurface(redCharsSurf, &srcRect, allCharsSurf, &destRect);
+    SDL_FreeSurface(redCharsSurf);
+
+    // finally create the texture and free the surface
+    app->charsTex = SDL_CreateTextureFromSurface(app->renderer, allCharsSurf);
+    SDL_FreeSurface(allCharsSurf);
+    
+    TTF_CloseFont(font);
 }
 
 void InitApp()
@@ -79,21 +118,13 @@ void InitApp()
     app->entitiesTex = IMG_LoadTexture(app->renderer,
         APP_RESOURCE_DIR "atlas.png");
 
-    // load font and creating font atlas
-    {
-        TTF_Font* font = TTF_OpenFont(APP_RESOURCE_DIR "font.ttf", APP_FONT_PTSIZE);
-        SDL_Surface* uiSurface = TTF_RenderUTF8_Solid(font, CHARACTER_MAP,
-            (SDL_Color){ 255, 255, 255, 255 });
-        app->uiTex = SDL_CreateTextureFromSurface(app->renderer, uiSurface);
-        SDL_FreeSurface(uiSurface);
-        TTF_CloseFont(font);
-    }
+    LoadChars();
 }
 
 void DestroyApp()
 {
     SDL_DestroyTexture(app->entitiesTex);
-    SDL_DestroyTexture(app->uiTex);
+    SDL_DestroyTexture(app->charsTex);
 
     SDL_DestroyRenderer(app->renderer);
     SDL_DestroyWindow(app->window);
@@ -103,28 +134,9 @@ void InitMainMenuState();
 void UpdateMainMenuState();
 void RenderMainMenuState();
 
-void InitTransitionState();
-void RenderTransitionState();
-void UpdateTransitionState();
-
-Uint32 SDL_CalculatePitch(Uint32 format, int width)
-{
-    Sint64 pitch;
-
-    if (SDL_ISPIXELFORMAT_FOURCC(format) || SDL_BITSPERPIXEL(format) >= 8) {
-        pitch = ((Sint64)width * SDL_BYTESPERPIXEL(format));
-    }
-    else {
-        pitch = (((Sint64)width * SDL_BITSPERPIXEL(format)) + 7) / 8;
-    }
-    pitch = (pitch + 3) & ~3;   /* 4-byte aligning for speed */
-    return pitch;
-}
-
 void AppMainLoop()
 {
     Uint32 before = 0;
-    int count = 0;
     InitMainMenuState();
 
     while (!app->shouldClose)
@@ -137,24 +149,9 @@ void AppMainLoop()
         UpdateMainMenuState();
         RenderMainMenuState();
         SDL_RenderPresent(app->renderer);
-        if (count == 1000)
-        {
-            int w, h;
-            SDL_GetWindowSize(app->window, &w, &h);
-            Uint32 pixelFormat = SDL_GetWindowPixelFormat(app->window);
-            int pitch = SDL_CalculatePitch(pixelFormat, w);
-            void* pixels = malloc(w*h*pitch);
-            SDL_RenderReadPixels(app->renderer, NULL, 0, pixels, pitch);
-            SDL_Surface* surface = SDL_CreateRGBSurfaceWithFormatFrom(pixels, w, h, 0, pitch, pixelFormat);
-            SDL_SaveBMP(surface, "../../../a.bmp");
-            SDL_FreeSurface(surface);
-        }
-
 
         app->frameTime = SDL_GetTicks() - before;
         before = SDL_GetTicks();
-        if (count < 1010)
-            count++;
     }
 }
 
