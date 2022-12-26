@@ -30,6 +30,7 @@ void ToMainMenu()
 
 void ToGameplayState()
 {
+    
 }
 
 void ToOptionsMenu()
@@ -133,7 +134,10 @@ void RenderMainMenuState()
     {
         int xShiftWidth = 4*strlen(currentMenu->items[i].label);
 
-        RenderText(x - xShiftWidth, y, currentMenu->items[i].label);
+        if (i == currentMenu->itemSelected)
+            RenderText(x - xShiftWidth, y, currentMenu->items[i].label, true);
+        else
+            RenderText(x - xShiftWidth, y, currentMenu->items[i].label, false);
 
         y += APP_FONT_PTSIZE + MENU_LINE_SPACING;
     }
