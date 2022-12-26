@@ -1,58 +1,10 @@
 #include "Application.h"
-#include <string.h>
-#include <ctype.h>
 
 // Single instance
 struct Application* app = NULL;
 struct Application* GetApp()
 {
     return app;
-}
-
-int FindInCharacterMap(char c)
-{
-    static const char* characterMap = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789<>*";
-    const char upperC = toupper(c);
-    for (int i = 0; i < strlen(characterMap); i++)
-    {
-        if (characterMap[i] == upperC)
-            return i;
-    }
-    return -1;
-}
-
-void RenderText(int x, int y, const char* text, bool red)
-{
-    const int scaleFactor = app->options.scale;
-    const int textLen = strlen(text);
-    const int clipY = red ? APP_FONT_PTSIZE : 0;
-    for (int i = 0; i < textLen; i++)
-    {
-        int indexMapping = FindInCharacterMap(text[i]);
-        if (indexMapping != -1) // success
-        {
-            SDL_Rect clipRect = { indexMapping * APP_FONT_PTSIZE, clipY,
-                APP_FONT_PTSIZE, APP_FONT_PTSIZE };
-            SDL_Rect scaleRect = { scaleFactor * x, scaleFactor * y,
-                scaleFactor * APP_FONT_PTSIZE, scaleFactor * APP_FONT_PTSIZE };
-            // I and 1 are thinner in the font. This is for correcting their placement
-            if (toupper(text[i]) == 'I' || text[i] == '1')
-                scaleRect.x -= scaleFactor;
-
-            SDL_RenderCopy(app->renderer, app->charsTex, &clipRect, &scaleRect);
-        }
-
-        x += APP_FONT_PTSIZE;
-    }
-}
-
-void RenderInt(int x, int y, int value, bool red)
-{
-    // convert value to a string first
-    char valueStr[12];
-    sprintf(valueStr, "%d", value);
-
-    RenderText(x, y, valueStr, red);
 }
 
 void LoadChars()
@@ -89,7 +41,7 @@ void LoadChars()
     // finally create the texture and free the surface
     app->charsTex = SDL_CreateTextureFromSurface(app->renderer, allCharsSurf);
     SDL_FreeSurface(allCharsSurf);
-    
+
     TTF_CloseFont(font);
 }
 

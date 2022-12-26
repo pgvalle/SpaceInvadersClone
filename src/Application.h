@@ -48,8 +48,5 @@ struct Application
 };
 
 struct Application* GetApp();
-// Non-alphanumeric characters are rendered as whitespaces
-void RenderText(int x, int y, const char* text, bool red);
-void RenderInt(int x, int y, int value, bool red);
 
 #endif // APPLICATION_H
