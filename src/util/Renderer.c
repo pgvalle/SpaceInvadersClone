@@ -1,17 +1,18 @@
 #include "Renderer.h"
-#include "Application.h"
+#include "../Application.h"
 
 #include <string.h>
 #include <ctype.h>
 
 
 // ========================================================================= //
-// HELPER FUNCTIONS
+// Helper Functions
 // ========================================================================= //
 
 void GetEntityRect(enum EntityTexEnum tex, SDL_Rect* out)
 {
-    static const SDL_Rect rectMap[ENTITYTEX_COUNT] = {
+    static const SDL_Rect rectMap[ENTITYTEX_COUNT] =
+    {
         {  0,  0, 24,  8 }, // tourist
         { 24,  0, 24,  8 }, // tourist dead
 
@@ -20,11 +21,11 @@ void GetEntityRect(enum EntityTexEnum tex, SDL_Rect* out)
         { 32,  8, 16,  8 }, // cannon dead, frame 1
 
         {  0, 16, 12,  8 }, // invader 0, frame 0
-        { 12, 16, 12,  8 }, // invader 0, frame 
+        { 12, 16, 12,  8 }, // invader 0, frame 1
         {  0, 24, 12,  8 }, // invader 1, frame 0
-        { 12, 24, 12,  8 }, // invader 1, frame 
+        { 12, 24, 12,  8 }, // invader 1, frame 1
         {  0, 32, 12,  8 }, // invader 2, frame 0
-        { 12, 32, 12,  8 }, // invader 2, frame 
+        { 12, 32, 12,  8 }, // invader 2, frame 1
         {  0, 40, 13,  8 }, // invader dead
     };
 
@@ -45,7 +46,7 @@ int FindInCharacterMap(char c)
 
 
 // ========================================================================= //
-// Renderer.h IMPLEMENTATIONS
+// Renderer.h Implementations
 // ========================================================================= //
 
 void RenderEntity(int x, int y, enum EntityTexEnum tex)
