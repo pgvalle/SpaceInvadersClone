@@ -1,4 +1,4 @@
-# SpaceInvaders Clone
+# Space Invaders Clone
 
 This game, as the name suggests, is yet another 1978 Arcade
 [SpaceInvaders](https://en.wikipedia.org/wiki/Space_Invaders)' clone.
@@ -8,9 +8,9 @@ enough to be called Space Invaders Clone.
 # Build instructions
 
 ## Linux
-**NOTE 1**: If you are completely new to linux, you should at least remember the
-command prompt in Windows, right? Good. So, everytime you read *terminal* here,
-bring that command prompt window to your mind.
+**NOTE 1**: For newbies, you must remember the command prompt from Windows, right?
+Probably you even did some stuff in there. So, bring that experience to mind
+everytime you read *terminal* here.
 
 To start, open up a *terminal* window and try out each of these commands to see
 which one prompts something other than "command not found" or so:\
@@ -24,8 +24,7 @@ which one prompts something other than "command not found" or so:\
 When the command runs, whichever it is, it's going to ask for your password.
 So you just type it and press enter.\
 **NOTE 3**: Don't worry if it seems like your keyboard stopped working because
-the password dots don't get printed out. Don't be affraid. No one is going to
-hack into your computer.
+the password dots don't get printed out. It's working.
 
 Then, follow these commands:
 ```
@@ -37,7 +36,7 @@ $ make
 $ cp build/SpaceInvadersClone.out .
 $ ./SpaceInvadersClone.out
 ```
-Now you're done. You should have the game executing now. Congrats!
+And you're done. You should have the game executing now. YAY!
 
 ## Windows
 To be documented...
