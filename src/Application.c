@@ -1,4 +1,5 @@
 #include "Application.h"
+#include "states/States.h"
 
 // Single instance
 struct Application* app = NULL;
@@ -82,9 +83,7 @@ void DestroyApp()
     SDL_DestroyWindow(app->window);
 }
 
-void InitMainMenuState();
-void UpdateMainMenuState();
-void RenderMainMenuState();
+
 
 void AppMainLoop()
 {
