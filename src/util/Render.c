@@ -1,4 +1,4 @@
-#include "Renderer.h"
+#include "Render.h"
 #include "../Application.h"
 
 #include <string.h>
@@ -34,13 +34,17 @@ void GetEntityRect(enum EntityTexEnum tex, SDL_Rect* out)
 
 int FindInCharacterMap(char c)
 {
-    static const char* characterMap = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789<>*";
+    static const char* characterMap = APP_CHARACTER_SET;
     const char upperC = toupper(c);
+    int j = 0;
     for (int i = 0; i < strlen(characterMap); i++)
     {
         if (characterMap[i] == upperC)
-            return i;
+            return j;
+        if (characterMap[i] != ' ')
+            j++;
     }
+
     return -1;
 }
 
@@ -77,11 +81,12 @@ void RenderText(int x, int y, const char* text, bool red)
                 APP_FONT_PTSIZE, APP_FONT_PTSIZE };
             SDL_Rect scaleRect = { scaleFactor * x, scaleFactor * y,
                 scaleFactor * APP_FONT_PTSIZE, scaleFactor * APP_FONT_PTSIZE };
-            // I and 1 are thinner in the font. This is for correcting their placement
+            // I and 1 are thinner. This is to correct their placement
             if (toupper(text[i]) == 'I' || text[i] == '1')
                 scaleRect.x -= scaleFactor;
 
-            SDL_RenderCopy(GetApp()->renderer, GetApp()->charsTex, &clipRect, &scaleRect);
+            SDL_RenderCopy(GetApp()->renderer, GetApp()->charsTex, &clipRect,
+                &scaleRect);
         }
 
         x += APP_FONT_PTSIZE;
