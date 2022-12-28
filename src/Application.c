@@ -1,5 +1,6 @@
 #include "Application.h"
 #include "states/States.h"
+#include "states/StateMachine.h"
 
 // Single instance
 struct Application* app = NULL;
@@ -11,24 +12,22 @@ struct Application* GetApp()
 void LoadChars()
 {
     // The character map
-    // It's spaced in a certain way so that the texture generated is symmetric
-    const char* characterMapMono =
-        "A B C D E F G H  I J K L M N O P Q R S T "
-        "U V W X Y Z 0  1 2 3 4 5 6 7 8 9 <  > * ";
+    // It's spaced in a certain way so that the text rendered is monospaced
+    const char* characterMapMono = APP_CHARACTER_SET;
 
     TTF_Font* font = TTF_OpenFont(APP_RESOURCE_DIR "font.ttf", APP_FONT_PTSIZE);
 
-    // generate all the characters in different surfaces separated by color
+    // render all character set in different surfaces separated by color
     SDL_Surface* whiteCharsSurf = TTF_RenderUTF8_Solid(font, characterMapMono,
         (SDL_Color){ 255, 255, 255, 255 });
     SDL_Surface* redCharsSurf = TTF_RenderUTF8_Solid(font, characterMapMono,
         (SDL_Color){ 0xD8, 0x20, 0x20, 255 });
 
-    // Create temporary surface to paste all colored characters to
+    // Create temporary surface to merge everything together
     SDL_Surface* allCharsSurf = SDL_CreateRGBSurfaceWithFormat(0, whiteCharsSurf->w,
         2 * APP_FONT_PTSIZE, 0, SDL_PIXELFORMAT_RGB888);
 
-    // blit and free
+    // the surfaces to be copied have some unused gaps
     const SDL_Rect srcRect = { 0, 0,  whiteCharsSurf->w, APP_FONT_PTSIZE };
     // white goes above
     SDL_Rect destRect = { 0, 0, 0, 0 };
@@ -72,10 +71,15 @@ void InitApp()
         APP_RESOURCE_DIR "atlas.png");
 
     LoadChars();
+
+    InitStateMachine();
 }
 
 void DestroyApp()
 {
+    // destroy all states properly because we're quitting the app.
+    DestroyMenuState();
+
     SDL_DestroyTexture(app->entitiesTex);
     SDL_DestroyTexture(app->charsTex);
 
@@ -83,33 +87,32 @@ void DestroyApp()
     SDL_DestroyWindow(app->window);
 }
 
-
-
 void AppMainLoop()
 {
     Uint32 before = 0;
-    InitMainMenuState();
 
     while (!app->shouldClose)
     {
+        // calculate last frame time
+        app->frameTime = SDL_GetTicks() - before;
+        before = SDL_GetTicks();
+
+        // reset event and poll for next in queue
+        app->event.type = SDL_FIRSTEVENT;
         SDL_PollEvent(&app->event);
         if (app->event.type == SDL_QUIT)
             app->shouldClose = true;
 
-        SDL_RenderClear(app->renderer);
-        UpdateMainMenuState();
-        RenderMainMenuState();
-        SDL_RenderPresent(app->renderer);
+        UpdateCurrentState();
+        RenderCurrentState();
 
-        app->frameTime = SDL_GetTicks() - before;
-        before = SDL_GetTicks();
+        UpdateStateChanges();
     }
 }
 
 void RunApp()
 {
     // Initialize libraries
-
     SDL_Init(SDL_INIT_EVERYTHING);
     IMG_Init(IMG_INIT_PNG);
     Mix_OpenAudio(22050, MIX_DEFAULT_FORMAT, 2, 4096);
