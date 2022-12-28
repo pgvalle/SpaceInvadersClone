@@ -74,7 +74,7 @@ void RenderText(int x, int y, const char* text, bool red)
     const int clipY = red ? APP_FONT_PTSIZE : 0;
     for (int i = 0; i < textLen; i++)
     {
-        int indexMapping = FindInCharacterMap(text[i]);
+        const int indexMapping = FindInCharacterMap(text[i]);
         if (indexMapping != -1) // success
         {
             SDL_Rect clipRect = { indexMapping * APP_FONT_PTSIZE, clipY,
