@@ -2,13 +2,13 @@
 #define STATES_H
 
 // ========================================================================= //
-// MainMenu
+// Menu
 // ========================================================================= //
 
-void InitMainMenuState();
-void DestroyMainMenuState();
-void UpdateMainMenuState();
-void RenderMainMenuState();
+void InitMenuState();
+void DestroyMenuState();
+void UpdateMenuState();
+void RenderMenuState();
 
 
 #endif // STATES_H
