@@ -1,15 +1,14 @@
 #ifndef MENU_H
 #define MENU_H
 
-// Quick alias for void function()
-typedef void (*Function)();
+#include "Function.h"
 
 struct Menu
 {
     struct MenuItem
     {
         char label[32];
-        Function action;
+        Function DoAction;
     }* items;
     int itemCount;
     int itemCurrent;
