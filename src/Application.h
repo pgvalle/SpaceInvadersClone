@@ -11,21 +11,13 @@
 #include <SDL_mixer.h>
 
 #define APP_TITLE "Space Invaders"
-
+#define APP_RESOURCE_DIR "../../../res/"
 #define APP_FONT_PTSIZE 8
-
-#define APP_RESOURCE_DIR "./res/"
+#define APP_CHARACTER_SET "A B C D E F G H  I J K L M N O P Q R S T "\
+    "U V W X Y Z 0  1 2 3 4 5 6 7 8 9 <  > * ? "
 
 struct Application
 {
-    enum AppState
-    {
-        APPSTATE_NONE,
-        APPSTATE_MENU,
-        APPSTATE_GAME,
-        APPSTATE_OVER
-    } currentState, nextState;
-
     struct AppOptions
     {
         int volume;
@@ -42,9 +34,7 @@ struct Application
     Uint32 frameTime;
 
     // Assets
-
-    SDL_Texture* entitiesTex;
-    SDL_Texture* charsTex;
+    SDL_Texture* entitiesTex, * charsTex;
 };
 
 struct Application* GetApp();
