@@ -9,10 +9,10 @@
 
 // This function is called by the states. Changes aren't applied just yet.
 void ScheduleStateChange(
-    Function init,
-    Function destroy,
-    Function update,
-    Function render
+    Function Init,
+    Function Destroy,
+    Function Update,
+    Function Render
 );
 
 // ========================================================================= //

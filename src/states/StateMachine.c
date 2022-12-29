@@ -38,10 +38,10 @@ void ScheduleStateChange(
     Function Render
 )
 {
-    InitNewState = init;
-    DestroyNewState = destroy;
-    UpdateNewState = update;
-    RenderNewState = render;
+    InitNewState = Init;
+    DestroyNewState = Destroy;
+    UpdateNewState = Update;
+    RenderNewState = Render;
 
     changeScheduled = true;
 }
