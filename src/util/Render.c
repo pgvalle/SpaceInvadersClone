@@ -60,16 +60,16 @@ void RenderEntity(int x, int y, enum EntityTexEnum tex)
     GetEntityRect(tex, &clip);
 
     // calculate scale rectangle according to app scaling factor
-    const int scaleFactor = GetApp()->options.scale;
+    const int scaleFactor = app.options.scale;
     SDL_Rect scale = { scaleFactor * x, scaleFactor * y,
         scaleFactor * clip.w, scaleFactor * clip.h };
 
-    SDL_RenderCopy(GetApp()->renderer, GetApp()->entitiesTex, &clip, &scale);
+    SDL_RenderCopy(app.renderer, app.entitiesTex, &clip, &scale);
 }
 
 void RenderText(int x, int y, const char* text, bool red)
 {
-    const int scaleFactor = GetApp()->options.scale;
+    const int scaleFactor = app.options.scale;
     const int textLen = strlen(text);
     const int clipY = red ? APP_FONT_PTSIZE : 0;
     for (int i = 0; i < textLen; i++)
@@ -85,7 +85,7 @@ void RenderText(int x, int y, const char* text, bool red)
             if (toupper(text[i]) == 'I' || text[i] == '1')
                 scaleRect.x -= scaleFactor;
 
-            SDL_RenderCopy(GetApp()->renderer, GetApp()->charsTex, &clipRect,
+            SDL_RenderCopy(app.renderer, app.charsTex, &clipRect,
                 &scaleRect);
         }
 

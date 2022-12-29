@@ -37,6 +37,7 @@ struct Application
     SDL_Texture* entitiesTex, * charsTex;
 };
 
-struct Application* GetApp();
+// single instance
+extern struct Application app;
 
 #endif // APPLICATION_H
