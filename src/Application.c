@@ -33,8 +33,10 @@ int main(int argc, const char** args)
     return 0;
 }
 
-void LoadChars()
+void LoadTextures()
 {
+    app.entitiesTex = IMG_LoadTexture(app.renderer, APP_RESOURCE_DIR "atlas.png");
+
     // The character map
     // It's spaced in a certain way so that the text rendered is monospaced
     const char* characterMapMono = APP_CHARACTER_SET;
@@ -109,9 +111,7 @@ void InitApp()
         SDL_FreeSurface(icon);
     }
 
-    app.entitiesTex = IMG_LoadTexture(app.renderer, APP_RESOURCE_DIR "atlas.png");
-
-    LoadChars();
+    LoadTextures();
 
     InitStateMachine();
 }
