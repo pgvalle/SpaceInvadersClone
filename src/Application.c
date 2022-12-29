@@ -7,7 +7,7 @@ void InitApp();
 void DestroyApp();
 void RunApp();
 
-int main(int argc, const char** args)
+int main(int argc, char** args)
 {
     // Open libraries
     SDL_Init(SDL_INIT_EVERYTHING);

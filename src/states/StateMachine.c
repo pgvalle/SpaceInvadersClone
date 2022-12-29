@@ -4,8 +4,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-Function currentDestroy, currentUpdate, currentRender;
-Function newInit, newDestroy, newUpdate, newRender;
+// current state
+Function DestroyState, UpdateState, RenderState;
+Function InitNewState, DestroyNewState, UpdateNewState, RenderNewState;
 
 bool changeScheduled;
 
@@ -13,14 +14,14 @@ void InitStateMachine()
 {
     InitGameplayState();
 
-    currentDestroy = DestroyGameplayState;
-    currentUpdate = UpdateGameplayState;
-    currentRender = RenderGameplayState;
+    DestroyState = DestroyGameplayState;
+    UpdateState = UpdateGameplayState;
+    RenderState = RenderGameplayState;
 
-    newInit = NULL;
-    newDestroy = NULL;
-    newUpdate = NULL;
-    newRender = NULL;
+    InitNewState = NULL;
+    DestroyNewState = NULL;
+    UpdateNewState = NULL;
+    RenderNewState = NULL;
     
     changeScheduled = false;
 }
@@ -30,13 +31,17 @@ void DestroyStateMachine()
     // destroy all states
 }
 
-void ScheduleStateChange(Function init, Function destroy, Function update,
-    Function render)
+void ScheduleStateChange(
+    Function Init,
+    Function Destroy,
+    Function Update,
+    Function Render
+)
 {
-    newInit = init;
-    newDestroy = destroy;
-    newUpdate = update;
-    newRender = render;
+    InitNewState = init;
+    DestroyNewState = destroy;
+    UpdateNewState = update;
+    RenderNewState = render;
 
     changeScheduled = true;
 }
@@ -45,26 +50,28 @@ void UpdateStateChanges()
 {
     if (changeScheduled)
     {
-        currentDestroy();
-        newInit();
+        DestroyState();
+        InitNewState();
 
-        currentDestroy = newDestroy;
-        currentUpdate = newUpdate;
-        currentRender = newRender;
+        DestroyState = DestroyNewState;
+        UpdateState = UpdateNewState;
+        RenderState = RenderNewState;
 
-        newInit = NULL;
-        newDestroy = NULL;
-        newUpdate = NULL;
-        newRender = NULL;
+        InitNewState = NULL;
+        DestroyNewState = NULL;
+        UpdateNewState = NULL;
+        RenderNewState = NULL;
+
+        changeScheduled = false;
     }
 }
 
 void UpdateCurrentState()
 {
-    currentUpdate();
+    UpdateState();
 }
 
 void RenderCurrentState()
 {
-    currentRender();
+    RenderState();
 }
