@@ -1,14 +1,15 @@
 #ifndef STATES_H
 #define STATES_H
 
-// ========================================================================= //
-// Menu
-// ========================================================================= //
+void InitStateMachine();
+void DestroyStateMachine();
 
-void InitMenuState();
-void DestroyMenuState();
-void UpdateMenuState();
-void RenderMenuState();
+// The state changes are only applied when this function is called.
+// May be called only after UpdateCurrentSTate and RenderCurrentState were called.
+void UpdateStateChanges();
+
+void UpdateCurrentState();
+void RenderCurrentState();
 
 
 #endif // STATES_H

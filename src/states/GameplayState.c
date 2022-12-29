@@ -1,22 +1,24 @@
 #include "States.h"
+#include "../util/Menu.h"
 #include <stdio.h>
 
-void InitMenuState()
+
+void InitGameplayState()
 {
     printf("Initialized!\n");
 }
 
-void DestroyMenuState()
+void DestroyGameplayState()
 {
     printf("Destroyed!\n");
 }
 
-void UpdateMenuState()
+void UpdateGameplayState()
 {
     printf("Updating!\n");
 }
 
-void RenderMenuState()
+void RenderGameplayState()
 {
     printf("Rendering!\n");
 }
