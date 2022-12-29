@@ -1,24 +1,32 @@
 #include "States.h"
-#include "../util/Menu.h"
+#include "../Application.h"
+#include "../entities/Entities.h"
 #include <stdio.h>
+
+struct Horde horde;
 
 
 void InitGameplayState()
 {
-    printf("Initialized!\n");
+    InitHorde(&horde);
 }
 
 void DestroyGameplayState()
 {
-    printf("Destroyed!\n");
+    
 }
 
 void UpdateGameplayState()
 {
-    printf("Updating!\n");
+    UpdateHorde(&horde);
 }
 
 void RenderGameplayState()
 {
-    printf("Rendering!\n");
+    SDL_SetRenderDrawColor(app.renderer, 0, 0, 0, 255);
+    SDL_RenderClear(app.renderer);
+
+    RenderHorde(&horde);
+
+    SDL_RenderPresent(app.renderer);
 }

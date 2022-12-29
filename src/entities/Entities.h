@@ -1,8 +1,8 @@
 #ifndef ENTITIES_H
 #define ENTITIES_H
 
+#include <SDL.h>
 #include <stdbool.h>
-
 
 // NOTE: there isn't ENTITYTEX_BUNKER because it's an unique entity.
 // Take a look at atlas.png and you won't find a bunker image there.
@@ -35,19 +35,42 @@ void RenderEntity(int x, int y, enum EntityTex tex);
 // Horde
 // ========================================================================= //
 
-#define HORDE_SIZE 55
+// 5 rows with 11 invaders each
+#define INVADER_COUNT 55
+
+#define INVADER_DEATH_TIMEOUT 400
+
+struct Invader
+{
+    int x, y;
+
+    bool dead;
+    int deathTimer;
+};
 
 #define HORDE_X_INIT 26
 #define HORDE_Y_INIT 60
 
 #define HORDE_STAND_TIMEOUT_INIT 1000
 
-#define INVADER_DEATH_TIMEOUT 400
-
 struct Horde
 {
-    int bruh;
+    struct Invader invaders[INVADER_COUNT];
+
+    enum EntityTex row0Tex, row12Tex, row34Tex;
+
+    int whoShot;
+
+    bool moveRight;
+    int moveCount;
+
+    int standTimer;
+    int standTimeout; // lower -> faster invaders
 };
+
+void InitHorde(struct Horde* horde);
+void UpdateHorde(struct Horde* horde);
+void RenderHorde(const struct Horde* horde);
 
 
 // ========================================================================= //
@@ -85,7 +108,13 @@ struct Tourist
 
 struct Bunker
 {
-    SDL_Rect pieces[]
+    struct BunkerPiece
+    {
+        SDL_Rect rect;
+        bool damaged;
+    } pieces[352]; // 352 = 22 * 16 = w * h
 };
+
+
 
 #endif // ENTITIES_H
