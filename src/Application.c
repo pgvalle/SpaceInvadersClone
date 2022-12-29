@@ -1,6 +1,5 @@
 #include "Application.h"
 #include "states/States.h"
-#include "states/StateMachine.h"
 
 struct Application app;
 
@@ -10,21 +9,21 @@ void RunApp();
 
 int main(int argc, const char** args)
 {
-    // Initialize libraries
+    // Open libraries
     SDL_Init(SDL_INIT_EVERYTHING);
     IMG_Init(IMG_INIT_PNG);
     Mix_OpenAudio(22050, MIX_DEFAULT_FORMAT, 2, 4096);
     TTF_Init();
 
-    // Initialize app and all of its resources
+    // Initialize app instance and all of its resources
     InitApp();
 
-    RunApp();
+    RunApp(); // Main loop
 
     // properly free everything
     DestroyApp();
 
-    // Quit libraries
+    // Close libraries
     TTF_Quit();
     Mix_CloseAudio();
     IMG_Quit();
@@ -119,7 +118,7 @@ void InitApp()
 void DestroyApp()
 {
     // destroy all states properly because we're quitting the app.
-    DestroyMenuState();
+    DestroyStateMachine();
 
     SDL_DestroyTexture(app.entitiesTex);
     SDL_DestroyTexture(app.charsTex);

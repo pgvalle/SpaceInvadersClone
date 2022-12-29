@@ -27,9 +27,9 @@ struct Application
     bool shouldClose;
 
     SDL_Window* window;
-    SDL_Renderer* renderer;
-
     SDL_Event event;
+
+    SDL_Renderer* renderer;
 
     Uint32 frameTime;
 
