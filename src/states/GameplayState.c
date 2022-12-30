@@ -2,7 +2,7 @@
 #include "../Application.h"
 #include "../entities/Entities.h"
 
-#define START_ANIMATION_PACE 50
+#define START_ANIMATION_PACE 35
 
 struct Horde horde;
 struct Cannon cannon;
@@ -10,7 +10,7 @@ struct Cannon cannon;
 bool startAnimation;
 int startAnimationI;
 int startAnimationJ;
-int startAnimationTimer;
+struct Timer startAnimationTimer;
 
 void InitGameplayState()
 {
@@ -20,7 +20,11 @@ void InitGameplayState()
     startAnimation = true;
     startAnimationI = 4;
     startAnimationJ = 0;
-    startAnimationTimer = 0;
+    startAnimationTimer = (struct Timer){
+        .reachedTimeout = false,
+        .time = 0,
+        .timeout = START_ANIMATION_PACE
+    };
 }
 
 void DestroyGameplayState()
@@ -32,8 +36,9 @@ void UpdateGameplayState()
 {
     if (startAnimation)
     {
-        startAnimationTimer += app.frameTime;
-        if (startAnimationTimer >= START_ANIMATION_PACE)
+        // update start animation timer
+        UpdateTimer(&startAnimationTimer);
+        if (startAnimationTimer.reachedTimeout)
         {
             int k = startAnimationI * 11 + startAnimationJ;
             startAnimationJ++;
@@ -43,8 +48,8 @@ void UpdateGameplayState()
                 startAnimationI--;
             }
             horde.invaders[k].dead = false;
-            horde.invaders[k].deathTimer = 0;
-            startAnimationTimer = 0;
+            horde.invaders[k].deathTimer.reachedTimeout = false;
+
             if (--horde.deadCount == 0)
                 startAnimation = false;
         }

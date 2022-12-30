@@ -51,7 +51,7 @@ struct Invader
     int x, y;
 
     bool dead;
-    int deathTimer;
+    struct Timer deathTimer;
 };
 
 #define HORDE_X_INIT 26

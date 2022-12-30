@@ -22,11 +22,15 @@ void InitHorde(struct Horde* horde)
         horde->invaders[44 + i].y = HORDE_Y_INIT + 64;
     }
 
-    // other invader fields. All of them start dead to play that animation
+    // All invaders start dead to play an animation before starting gameplay
     for (int i = 0; i < INVADER_COUNT; i++)
     {
         horde->invaders[i].dead = true;
-        horde->invaders[i].deathTimer = INVADER_DEATH_TIMEOUT;
+        horde->invaders[i].deathTimer = (struct Timer){
+            .reachedTimeout = true,
+            .time = 0,
+            .timeout = INVADER_DEATH_TIMEOUT
+        };
     }
 
     horde->deadCount = INVADER_COUNT;
@@ -104,8 +108,8 @@ bool UpdateDeadInvader(struct Horde* horde)
             continue;
 
         // update death timer
-        horde->invaders[i].deathTimer += app.frameTime;
-        if (horde->invaders[i].deathTimer < INVADER_DEATH_TIMEOUT)
+        UpdateTimer(&horde->invaders[i].deathTimer);
+        if (!horde->invaders[i].deathTimer.reachedTimeout)
             invadersDying = true;
     }
 
@@ -143,7 +147,7 @@ void RenderHorde(const struct Horde* horde)
             	break;
             }
         }
-        else if (horde->invaders[i].deathTimer < INVADER_DEATH_TIMEOUT)
+        else if (!horde->invaders[i].deathTimer.reachedTimeout)
         	RenderEntity(x - 1, y, ENTITYTEX_INVADER_DEAD);
 	}
 }
