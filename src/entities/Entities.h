@@ -4,6 +4,10 @@
 #include <SDL.h>
 #include <stdbool.h>
 
+// ========================================================================= //
+// Rendering Utils
+// ========================================================================= //
+
 // NOTE: there isn't ENTITYTEX_BUNKER because it's an unique entity.
 // Take a look at atlas.png and you won't find a bunker image there.
 enum EntityTex
@@ -12,8 +16,8 @@ enum EntityTex
     ENTITYTEX_TOURIST_DEAD,
 
     ENTITYTEX_CANNON,
-    ENTITYTEX_DEAD0,
-    ENTITYTEX_DEAD1,
+    ENTITYTEX_CANNON_DEAD0,
+    ENTITYTEX_CANNON_DEAD1,
 
     ENTITYTEX_INVADER00,
     ENTITYTEX_INVADER01,
@@ -55,9 +59,9 @@ struct Invader
 
 struct Horde
 {
-    struct Invader invaders[INVADER_COUNT];
-
     enum EntityTex row0Tex, row12Tex, row34Tex;
+
+    struct Invader invaders[INVADER_COUNT];
 
     int whoShot;
 
@@ -84,12 +88,26 @@ void RenderHorde(const struct Horde* horde);
 
 #define CANNON_DEATH_TIMEOUT 1000
 
-#define CANNON_DEATHTEX_SWAP_TIMEOUT 100
+#define CANNON_DEATH_TEX_SWAP_TIMEOUT 100
 
 struct Cannon
 {
-    int a;
+    enum EntityTex deathTex;
+
+    int x;
+
+    bool dead;
+    int deaths;
+    int deathTimer;
+    int deathTexSwapTimer;
+    
+    bool shooting;
+    int shotTimer;
 };
+
+void InitCannon(struct Cannon* cannon);
+void UpdateCannon(struct Cannon* cannon);
+void RenderCannon(struct Cannon* cannon);
 
 
 // ========================================================================= //

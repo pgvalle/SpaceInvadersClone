@@ -3,11 +3,12 @@
 #include "../entities/Entities.h"
 
 struct Horde horde;
-
+struct Cannon cannon;
 
 void InitGameplayState()
 {
     InitHorde(&horde);
+    InitCannon(&cannon);
 }
 
 void DestroyGameplayState()
@@ -18,6 +19,7 @@ void DestroyGameplayState()
 void UpdateGameplayState()
 {
     UpdateHorde(&horde);
+    UpdateCannon(&cannon);
 }
 
 void RenderGameplayState()
@@ -26,6 +28,7 @@ void RenderGameplayState()
     SDL_RenderClear(app.renderer);
 
     RenderHorde(&horde);
+    RenderCannon(&cannon);
 
     SDL_RenderPresent(app.renderer);
 }
