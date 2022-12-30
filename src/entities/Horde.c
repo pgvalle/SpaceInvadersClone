@@ -93,7 +93,7 @@ void UpdateAliveInvaders(struct Horde* horde)
 
 bool UpdateDeadInvader(struct Horde* horde)
 {
-    bool invadersStillDead = false;
+    bool invadersDying = false;
 
     for (int i = 0; i < INVADER_COUNT; i++)
     {
@@ -104,10 +104,10 @@ bool UpdateDeadInvader(struct Horde* horde)
         // update death timer
         horde->invaders[i].deathTimer += app.frameTime;
         if (horde->invaders[i].deathTimer < INVADER_DEATH_TIMEOUT)
-            invadersStillDead = true;
+            invadersDying = true;
     }
 
-    return !invadersStillDead;
+    return !invadersDying; // !invadersDying = may update alive invaders
 }
 
 void UpdateHorde(struct Horde* horde)
