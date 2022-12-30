@@ -28,8 +28,8 @@ void RenderEntity(int x, int y, enum EntityTex tex)
     const SDL_Rect scale = {
         scaleFactor * x,
         scaleFactor * y,
-        scaleFactor * clip.w,
-        scaleFactor * clip.h
+        scaleFactor * rectMap[tex].w,
+        scaleFactor * rectMap[tex].h
     };
 
     SDL_RenderCopy(app.renderer, app.entitiesTex, &rectMap[tex], &scale);
