@@ -22,12 +22,14 @@ void InitHorde(struct Horde* horde)
         horde->invaders[44 + i].y = HORDE_Y_INIT + 64;
     }
 
-    // other invader fields
+    // other invader fields. All of them start dead to play that animation
     for (int i = 0; i < INVADER_COUNT; i++)
     {
-        horde->invaders[i].dead = false;
-        horde->invaders[i].deathTimer = 0;
+        horde->invaders[i].dead = true;
+        horde->invaders[i].deathTimer = INVADER_DEATH_TIMEOUT;
     }
+
+    horde->deadCount = INVADER_COUNT;
 
     horde->row0Tex  = ENTITYTEX_INVADER00;
     horde->row12Tex = ENTITYTEX_INVADER10;

@@ -62,6 +62,7 @@ struct Horde
     enum EntityTex row0Tex, row12Tex, row34Tex;
 
     struct Invader invaders[INVADER_COUNT];
+    int deadCount;
 
     int whoShot;
 
