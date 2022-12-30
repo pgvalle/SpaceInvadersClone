@@ -1,7 +1,6 @@
 #include "TextRender.h"
 #include "../Application.h"
 
-#include <string.h>
 #include <ctype.h>
 
 // ========================================================================= //
@@ -63,7 +62,7 @@ void RenderText(int x, int y, const char* text, bool red)
     }
 }
 
-void RenderUnsignedInt(int x, int y, Uint64 value, bool red)
+void RenderUnsignedInt(int x, int y, uint64_t value, bool red)
 {
     // convert value to a string first
     char valueStr[22] = "\0";

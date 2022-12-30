@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 
-// This kind of problem is appearing too much.
+// This kind of thing is appearing too much.
 struct Timer
 {
 	bool reachedTimeout; // read-only

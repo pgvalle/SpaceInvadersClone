@@ -1,6 +1,8 @@
 #include "Application.h"
 #include "states/StateMachine.h"
 
+#include <stdio.h>
+
 struct Application app;
 
 void InitApp();
@@ -84,7 +86,7 @@ void LoadTextures()
 void InitApp()
 {
     app.options.volume = 5;
-    app.options.scale = 2;
+    app.options.scale = 3;
     app.shouldClose = false;
     app.window = SDL_CreateWindow(
         APP_TITLE,
