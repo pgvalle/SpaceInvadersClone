@@ -2,8 +2,9 @@
 #include "../Application.h"
 #include <SDL.h>
 
-void GetEntityRect(enum EntityTex tex, SDL_Rect* out)
+void RenderEntity(int x, int y, enum EntityTex tex)
 {
+    // all valid clips in atlas.png
     static const SDL_Rect rectMap[ENTITYTEX_COUNT] =
     {
         {  0,  0, 24,  8 }, // tourist
@@ -22,15 +23,6 @@ void GetEntityRect(enum EntityTex tex, SDL_Rect* out)
         {  0, 40, 13,  8 }, // invader dead
     };
 
-    *out = rectMap[tex];
-}
-
-void RenderEntity(int x, int y, enum EntityTex tex)
-{
-    // get the clip rectangle
-    SDL_Rect clip;
-    GetEntityRect(tex, &clip);
-
     // calculate scale rectangle according to app scaling factor
     const int scaleFactor = app.options.scale;
     const SDL_Rect scale = {
@@ -40,5 +32,5 @@ void RenderEntity(int x, int y, enum EntityTex tex)
         scaleFactor * clip.h
     };
 
-    SDL_RenderCopy(app.renderer, app.entitiesTex, &clip, &scale);
+    SDL_RenderCopy(app.renderer, app.entitiesTex, &rectMap[tex], &scale);
 }
