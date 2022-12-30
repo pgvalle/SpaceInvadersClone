@@ -4,6 +4,8 @@
 #include <SDL.h>
 #include <stdbool.h>
 
+#include "../util/Timer.h"
+
 // ========================================================================= //
 // Rendering Utils
 // ========================================================================= //
@@ -85,10 +87,8 @@ void RenderHorde(const struct Horde* horde);
 #define CANNON_X_INIT 26
 #define CANNON_Y      220 // won't change
 
-#define CANNON_SHOT_COOLDOWN 1000
-
-#define CANNON_DEATH_TIMEOUT 1000
-
+#define CANNON_SHOT_COOLDOWN 1500
+#define CANNON_DEATH_TIMEOUT 2000
 #define CANNON_DEATH_TEX_SWAP_TIMEOUT 100
 
 struct Cannon
@@ -99,11 +99,10 @@ struct Cannon
 
     bool dead;
     int deaths;
-    int deathTimer;
-    int deathTexSwapTimer;
+    struct Timer deathTimer, deathTexSwapTimer;
     
     bool shooting;
-    int shotTimer;
+    struct Timer shotTimer;
 };
 
 void InitCannon(struct Cannon* cannon);
@@ -129,7 +128,8 @@ struct Bunker
 {
     struct BunkerPiece
     {
-        SDL_Rect rect;
+        int x, y;
+
         bool damaged;
     } pieces[352]; // 352 = 22 * 16 = w * h
 };
