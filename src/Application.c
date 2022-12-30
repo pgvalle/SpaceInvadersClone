@@ -1,8 +1,6 @@
 #include "Application.h"
 #include "states/StateMachine.h"
 
-#include <stdio.h>
-
 struct Application app;
 
 void InitApp();

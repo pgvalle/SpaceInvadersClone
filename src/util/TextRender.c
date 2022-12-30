@@ -1,6 +1,7 @@
 #include "TextRender.h"
 #include "../Application.h"
 
+#include <stdio.h>
 #include <ctype.h>
 
 // ========================================================================= //
