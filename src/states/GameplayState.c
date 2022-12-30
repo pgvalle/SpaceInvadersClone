@@ -1,7 +1,6 @@
-#include "States.h"
+#include "StatesInternal.h"
 #include "../Application.h"
 #include "../entities/Entities.h"
-#include <stdio.h>
 
 struct Horde horde;
 
