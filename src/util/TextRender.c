@@ -4,7 +4,6 @@
 #include <string.h>
 #include <ctype.h>
 
-
 // ========================================================================= //
 // Helper Functions
 // ========================================================================= //
@@ -40,16 +39,24 @@ void RenderText(int x, int y, const char* text, bool red)
         const int indexMapping = FindInCharacterMap(text[i]);
         if (indexMapping != -1) // success
         {
-            SDL_Rect clipRect = { indexMapping * APP_FONT_PTSIZE, clipY,
-                APP_FONT_PTSIZE, APP_FONT_PTSIZE };
-            SDL_Rect scaleRect = { scaleFactor * x, scaleFactor * y,
-                scaleFactor * APP_FONT_PTSIZE, scaleFactor * APP_FONT_PTSIZE };
+            SDL_Rect clipRect = {
+                indexMapping * APP_FONT_PTSIZE,
+                clipY,
+                APP_FONT_PTSIZE,
+                APP_FONT_PTSIZE
+            };
+            SDL_Rect scaleRect = {
+                scaleFactor * x,
+                scaleFactor * y,
+                scaleFactor * APP_FONT_PTSIZE,
+                scaleFactor * APP_FONT_PTSIZE
+            };
+
             // I and 1 are thinner. This is to correct their placement
             if (toupper(text[i]) == 'I' || text[i] == '1')
                 scaleRect.x -= scaleFactor;
 
-            SDL_RenderCopy(app.renderer, app.charsTex, &clipRect,
-                &scaleRect);
+            SDL_RenderCopy(app.renderer, app.charsTex, &clipRect, &scaleRect);
         }
 
         x += APP_FONT_PTSIZE;
