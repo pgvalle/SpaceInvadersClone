@@ -1,5 +1,5 @@
-#ifndef STATES_H
-#define STATES_H
+#ifndef STATE_MACHINE_H
+#define STATE_MACHINE_H
 
 void InitStateMachine();
 void DestroyStateMachine();
@@ -12,4 +12,4 @@ void UpdateCurrentState();
 void RenderCurrentState();
 
 
-#endif // STATES_H
+#endif // STATE_MACHINE_H
