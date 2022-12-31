@@ -67,7 +67,7 @@ void RenderUnsignedInt(int x, int y, uint64_t value, bool red)
 {
     // convert value to a string first
     char valueStr[22] = "\0";
-    sprintf(valueStr, "%llu", value);
+    sprintf_s(valueStr, 22, "%llu", value);
 
     RenderText(x, y, valueStr, red);
 }
