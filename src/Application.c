@@ -1,5 +1,5 @@
 #include "Application.h"
-#include "states/StateMachine.h"
+#include "States/StateMachine.h"
 
 struct Application app;
 
