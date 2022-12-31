@@ -7,6 +7,8 @@ file(GLOB_RECURSE PROJECT_HEADER_FILES src/**.h)
 
 add_executable(SpaceInvadersClone ${PROJECT_SOURCE_FILES} ${PROJECT_HEADER_FILES})
 
+set_property(TARGET SpaceInvadersClone PROPERTY C_STANDARD 17)
+
 find_package(SDL2       REQUIRED)
 find_package(SDL2_image REQUIRED)
 find_package(SDL2_ttf   REQUIRED)
