@@ -37,6 +37,7 @@ int main(int argc, char** args)
 void LoadEntitiesTexture()
 {
     bool entitiesTexValid = true;
+
     app.entitiesTex = IMG_LoadTexture(app.renderer, APP_RESOURCE_DIR "atlas.png");
     if (app.entitiesTex == NULL)
     {
@@ -51,6 +52,7 @@ void LoadEntitiesTexture()
         {
             printf("res/atlas.png is %dx%d pixels!", width, height);
             printf(" It should be at least 48x48.\n");
+
             entitiesTexValid = false;
             SDL_DestroyTexture(app.entitiesTex);
             app.entitiesTex = NULL;
@@ -63,12 +65,9 @@ void LoadEntitiesTexture()
 
         // Create temporary fallback surface
         SDL_Surface* fallbackSurf = SDL_CreateRGBSurfaceWithFormat(
-            0,
-            48,
-            48,
-            0,
-            SDL_PIXELFORMAT_RGB888
+            0, 48, 48, 0, SDL_PIXELFORMAT_RGB888
         );
+
         // paint it all white
         SDL_FillRect(fallbackSurf, NULL, 0xffffffff);
 
@@ -84,27 +83,15 @@ void CreateCharsTexture()
     if (font == NULL)
     {
         printf("Error loading res/font.ttf!\n");
-        printf("Text will be rendered as white/red rectangles.\n");
+        printf("Text will be rendered as white rectangles.\n");
 
         // Create temporary fallback surface
         SDL_Surface* fallbackSurf = SDL_CreateRGBSurfaceWithFormat(
-            0,
-            42 * APP_FONT_PTSIZE,
-            2 * APP_FONT_PTSIZE,
-            0,
-            SDL_PIXELFORMAT_RGB888
+            0, 42 * APP_FONT_PTSIZE, 2 * APP_FONT_PTSIZE, 0, SDL_PIXELFORMAT_RGB888
         );
 
-        // paint its top-half with white
-        SDL_Rect paintRect = { 0, 0, 42 * APP_FONT_PTSIZE, APP_FONT_PTSIZE };
-        SDL_FillRect(fallbackSurf, &paintRect, 0xffffffff);
-        // now bottom-half with red
-        paintRect.y += APP_FONT_PTSIZE;
-        SDL_FillRect(
-            fallbackSurf,
-            &paintRect,
-            SDL_MapRGB(fallbackSurf->format, 216, 32, 32)
-        );
+        // paint it all white
+        SDL_FillRect(fallbackSurf, NULL, 0xffffffff);
 
         // create fallback texture and free surface
         app.charsTex = SDL_CreateTextureFromSurface(app.renderer, fallbackSurf);
@@ -114,23 +101,15 @@ void CreateCharsTexture()
     {
         // render all character set in different surfaces separated by color
         SDL_Surface* whiteCharsSurf = TTF_RenderUTF8_Solid(
-            font,
-            APP_CHARACTER_SET,
-            (SDL_Color){ 255, 255, 255, 255 }
+            font, APP_CHARACTER_SET, (SDL_Color){ 255, 255, 255, 255 }
         );
         SDL_Surface* redCharsSurf = TTF_RenderUTF8_Solid(
-            font,
-            APP_CHARACTER_SET,
-            (SDL_Color){ 216, 32, 32, 255 }
+            font, APP_CHARACTER_SET, (SDL_Color){ 216, 32, 32, 255 }
         );
 
         // Create temporary surface to merge everything together
         SDL_Surface* allCharsSurf = SDL_CreateRGBSurfaceWithFormat(
-            0,
-            whiteCharsSurf->w,
-            2 * APP_FONT_PTSIZE,
-            0,
-            SDL_PIXELFORMAT_RGB888
+            0, whiteCharsSurf->w, 2 * APP_FONT_PTSIZE, 0, SDL_PIXELFORMAT_RGB888
         );
 
         // the surfaces to be copied have some unused gaps
@@ -166,9 +145,7 @@ void InitApp()
         0
     );
     app.renderer = SDL_CreateRenderer(
-        app.window,
-        -1,
-        SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC
+        app.window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC
     );
     app.frameTime = 0;
 
