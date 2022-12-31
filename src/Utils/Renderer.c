@@ -29,7 +29,7 @@ int FindInCharacterMap(char c)
 // Renderer.h Implementations
 // ========================================================================= //
 
-void RenderEntity(int x, int y, enum EntityTex tex)
+void RenderEntityTex(int x, int y, enum EntityTex tex)
 {
     // all valid clips in atlas.png
     static const SDL_Rect rectMap[ENTITYTEX_COUNT] =

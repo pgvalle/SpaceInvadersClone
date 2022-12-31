@@ -139,17 +139,17 @@ void RenderHorde(const struct Horde* horde)
             switch (i / 11)
             {
             case 0: // first row
-            	RenderEntity(x, y, horde->row0Tex);
+                RenderEntityTex(x, y, horde->row0Tex);
             	break;
             case 1: case 2: // second or third
-            	RenderEntity(x, y, horde->row12Tex);
+                RenderEntityTex(x, y, horde->row12Tex);
             	break;
             case 3: case 4: // fourth or fifth
-            	RenderEntity(x, y, horde->row34Tex);
+                RenderEntityTex(x, y, horde->row34Tex);
             	break;
             }
         }
         else if (!horde->invaders[i].deathTimer.reachedTimeout)
-        	RenderEntity(x - 1, y, ENTITYTEX_INVADER_DEAD);
+            RenderEntityTex(x - 1, y, ENTITYTEX_INVADER_DEAD);
 	}
 }

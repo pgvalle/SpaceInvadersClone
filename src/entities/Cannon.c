@@ -91,7 +91,7 @@ void UpdateCannon(struct Cannon* cannon)
 void RenderCannon(struct Cannon* cannon)
 {
 	if (!cannon->dead)
-        RenderEntity(cannon->x, CANNON_Y, ENTITYTEX_CANNON);
+        RenderEntityTex(cannon->x, CANNON_Y, ENTITYTEX_CANNON);
     else if (!cannon->deathTimer.reachedTimeout)
-        RenderEntity(cannon->x, CANNON_Y, cannon->deathTex);
+        RenderEntityTex(cannon->x, CANNON_Y, cannon->deathTex);
 }

@@ -28,7 +28,7 @@ enum EntityTex
 };
 
 // x and y are in-game coordinates.
-void RenderEntity(int x, int y, enum EntityTex tex);
+void RenderEntityTex(int x, int y, enum EntityTex tex);
 
 // x and y are in-game coordinates
 // character set: ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789<>*?
