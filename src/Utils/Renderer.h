@@ -4,31 +4,31 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-// NOTE: there isn't ENTITYTEX_BUNKER because it's an unique entity.
+// NOTE: there isn't ATLASCLIP_BUNKER because it's an unique entity.
 // Take a look at atlas.png and you won't find a bunker image there.
-enum EntityTex
+enum AtlasClip
 {
-    ENTITYTEX_TOURIST,
-    ENTITYTEX_TOURIST_DEAD,
+    ATLASCLIP_TOURIST,
+    ATLASCLIP_TOURIST_DEAD,
 
-    ENTITYTEX_CANNON,
-    ENTITYTEX_CANNON_DEAD0,
-    ENTITYTEX_CANNON_DEAD1,
+    ATLASCLIP_CANNON,
+    ATLASCLIP_CANNON_DEAD0,
+    ATLASCLIP_CANNON_DEAD1,
 
-    ENTITYTEX_INVADER00,
-    ENTITYTEX_INVADER01,
-    ENTITYTEX_INVADER10,
-    ENTITYTEX_INVADER11,
-    ENTITYTEX_INVADER20,
-    ENTITYTEX_INVADER21,
+    ATLASCLIP_INVADER00,
+    ATLASCLIP_INVADER01,
+    ATLASCLIP_INVADER10,
+    ATLASCLIP_INVADER11,
+    ATLASCLIP_INVADER20,
+    ATLASCLIP_INVADER21,
 
-    ENTITYTEX_INVADER_DEAD,
+    ATLASCLIP_INVADER_DEAD,
 
-    ENTITYTEX_COUNT
+    ATLASCLIP_COUNT
 };
 
 // x and y are in-game coordinates.
-void RenderEntityTex(int x, int y, enum EntityTex tex);
+void RenderAtlasClip(int x, int y, enum AtlasClip clip);
 
 // x and y are in-game coordinates
 // character set: ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789<>*?

@@ -30,11 +30,10 @@ int FindInCharacterMap(char c)
 // Renderer.h Implementations
 // ========================================================================= //
 
-void RenderEntityTex(int x, int y, enum EntityTex tex)
+void RenderAtlasClip(int x, int y, enum AtlasClip clip)
 {
     // all valid clips in atlas.png
-    static const SDL_Rect rectMap[ENTITYTEX_COUNT] =
-    {
+    static const SDL_Rect clips[ATLASCLIP_COUNT] = {
         {  0,  0, 24,  8 }, // tourist
         { 24,  0, 24,  8 }, // tourist dead
 
@@ -56,11 +55,11 @@ void RenderEntityTex(int x, int y, enum EntityTex tex)
     const SDL_Rect scale = {
         scaleFactor * x,
         scaleFactor * y,
-        scaleFactor * rectMap[tex].w,
-        scaleFactor * rectMap[tex].h
+        scaleFactor * clips[clip].w,
+        scaleFactor * clips[clip].h
     };
 
-    SDL_RenderCopy(app.renderer, app.entitiesTex, &rectMap[tex], &scale);
+    SDL_RenderCopy(app.renderer, app.atlasTex, &clips[clip], &scale);
 }
 
 void RenderText(int x, int y, const char* text, bool red)
@@ -90,7 +89,7 @@ void RenderText(int x, int y, const char* text, bool red)
             if (toupper(text[i]) == 'I' || text[i] == '1')
                 scaleRect.x -= scaleFactor;
 
-            SDL_RenderCopy(app.renderer, app.charsTex, &clipRect, &scaleRect);
+            SDL_RenderCopy(app.renderer, app.fontTex, &clipRect, &scaleRect);
         }
 
         x += APP_FONT_PTSIZE;

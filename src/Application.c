@@ -38,8 +38,8 @@ void LoadEntitiesTexture()
 {
     bool entitiesTexValid = true;
 
-    app.entitiesTex = IMG_LoadTexture(app.renderer, APP_RESOURCE_DIR "atlas.png");
-    if (app.entitiesTex == NULL)
+    app.atlasTex = IMG_LoadTexture(app.renderer, APP_RESOURCE_DIR "atlas.png");
+    if (app.atlasTex == NULL)
     {
         printf("Error loading res/atlas.png!\n");
         entitiesTexValid = false;
@@ -47,15 +47,15 @@ void LoadEntitiesTexture()
     else
     {
         int width, height;
-        SDL_QueryTexture(app.entitiesTex, NULL, NULL, &width, &height);
+        SDL_QueryTexture(app.atlasTex, NULL, NULL, &width, &height);
         if (width < 48 || height < 48)
         {
             printf("res/atlas.png is %dx%d pixels!", width, height);
             printf(" It should be at least 48x48.\n");
 
             entitiesTexValid = false;
-            SDL_DestroyTexture(app.entitiesTex);
-            app.entitiesTex = NULL;
+            SDL_DestroyTexture(app.atlasTex);
+            app.atlasTex = NULL;
         }
     }
 
@@ -72,7 +72,7 @@ void LoadEntitiesTexture()
         SDL_FillRect(fallbackSurf, NULL, 0xffffffff);
 
         // create fallback texture and free surface
-        app.entitiesTex = SDL_CreateTextureFromSurface(app.renderer, fallbackSurf);
+        app.atlasTex = SDL_CreateTextureFromSurface(app.renderer, fallbackSurf);
         SDL_FreeSurface(fallbackSurf);
     }
 }
@@ -94,7 +94,7 @@ void CreateCharsTexture()
         SDL_FillRect(fallbackSurf, NULL, 0xffffffff);
 
         // create fallback texture and free surface
-        app.charsTex = SDL_CreateTextureFromSurface(app.renderer, fallbackSurf);
+        app.fontTex = SDL_CreateTextureFromSurface(app.renderer, fallbackSurf);
         SDL_FreeSurface(fallbackSurf);
     }
     else
@@ -124,7 +124,7 @@ void CreateCharsTexture()
         SDL_FreeSurface(redCharsSurf);
 
         // finally create the texture and free the surface
-        app.charsTex = SDL_CreateTextureFromSurface(app.renderer, allCharsSurf);
+        app.fontTex = SDL_CreateTextureFromSurface(app.renderer, allCharsSurf);
         SDL_FreeSurface(allCharsSurf);
 
         TTF_CloseFont(font);
@@ -177,8 +177,8 @@ void DestroyApp()
     // destroy all states properly because we're quitting the app.
     DestroyStateMachine();
 
-    SDL_DestroyTexture(app.entitiesTex);
-    SDL_DestroyTexture(app.charsTex);
+    SDL_DestroyTexture(app.atlasTex);
+    SDL_DestroyTexture(app.fontTex);
 
     SDL_DestroyRenderer(app.renderer);
     SDL_DestroyWindow(app.window);

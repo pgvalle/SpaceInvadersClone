@@ -1,4 +1,5 @@
 #include "Timer.h"
+#include "../Application.h"
 
 void UpdateTimer(struct Timer* timer)
 {
