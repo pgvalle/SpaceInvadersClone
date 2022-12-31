@@ -4,37 +4,7 @@
 #include <SDL.h>
 #include <stdbool.h>
 
-#include "../util/Timer.h"
-
-// ========================================================================= //
-// Rendering Utils
-// ========================================================================= //
-
-// NOTE: there isn't ENTITYTEX_BUNKER because it's an unique entity.
-// Take a look at atlas.png and you won't find a bunker image there.
-enum EntityTex
-{
-    ENTITYTEX_TOURIST,
-    ENTITYTEX_TOURIST_DEAD,
-
-    ENTITYTEX_CANNON,
-    ENTITYTEX_CANNON_DEAD0,
-    ENTITYTEX_CANNON_DEAD1,
-
-    ENTITYTEX_INVADER00,
-    ENTITYTEX_INVADER01,
-    ENTITYTEX_INVADER10,
-    ENTITYTEX_INVADER11,
-    ENTITYTEX_INVADER20,
-    ENTITYTEX_INVADER21,
-
-    ENTITYTEX_INVADER_DEAD,
-
-    ENTITYTEX_COUNT
-};
-
-// x and y are in-game coordinates.
-void RenderEntity(int x, int y, enum EntityTex tex);
+#include "../Utils/Timer.h"
 
 
 // ========================================================================= //
@@ -122,16 +92,34 @@ struct Tourist
 // Bunker
 // ========================================================================= //
 
-struct Bunker
+struct BunkerPiece
 {
-    struct BunkerPiece
-    {
-        int x, y;
-
-        bool damaged;
-    } pieces[352]; // 352 = 22 * 16 = w * h
+    int x, y;
+    bool damaged;
 };
 
+#define BUNKER_COUNT 4
+
+#define BUNKER0_X 
+#define BUNKER0_Y
+
+#define BUNKER1_X
+#define BUNKER1_Y
+
+#define BUNKER2_X
+#define BUNKER2_Y
+
+#define BUNKER3_X
+#define BUNKER3_Y
+
+struct Bunker
+{
+    struct BunkerPiece pieces[352]; // 352 = 22 * 16 = w * h
+};
+
+void InitBunkers(struct Bunker bunkers[]);
+void UpdateBunkers(struct Bunker bunkers[]);
+void RenderBunkers(struct Bunker bunkers[]);
 
 
 #endif // ENTITIES_H

@@ -1,5 +1,6 @@
 #include "Entities.h"
 #include "../Application.h"
+#include "../Utils/Renderer.h"
 
 void InitCannon(struct Cannon* cannon)
 {

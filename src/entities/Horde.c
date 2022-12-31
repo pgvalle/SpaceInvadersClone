@@ -1,5 +1,6 @@
 #include "Entities.h"
 #include "../Application.h"
+#include "../Utils/Renderer.h"
 
 void InitHorde(struct Horde* horde)
 {    
