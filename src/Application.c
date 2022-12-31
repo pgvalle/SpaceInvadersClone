@@ -1,6 +1,8 @@
 #include "Application.h"
 #include "States/StateMachine.h"
 
+#include <stdio.h>
+
 struct Application app;
 
 void InitApp();
@@ -32,53 +34,124 @@ int main(int argc, char** args)
     return 0;
 }
 
-void LoadTextures()
+void LoadEntitiesTexture()
 {
+    bool entitiesTexValid = true;
     app.entitiesTex = IMG_LoadTexture(app.renderer, APP_RESOURCE_DIR "atlas.png");
+    if (app.entitiesTex == NULL)
+    {
+        printf("Error loading res/atlas.png!\n");
+        entitiesTexValid = false;
+    }
+    else
+    {
+        int width, height;
+        SDL_QueryTexture(app.entitiesTex, NULL, NULL, &width, &height);
+        if (width < 48 || height < 48)
+        {
+            printf("res/atlas.png should be at least 48x48 pixels!\n");
+            entitiesTexValid = false;
+            SDL_DestroyTexture(app.entitiesTex);
+            app.entitiesTex = NULL;
+        }
+    }
 
-    // The character map
-    // It's spaced in a certain way so that the text rendered is monospaced
-    const char* characterMapMono = APP_CHARACTER_SET;
+    if (!entitiesTexValid)
+    {
+        printf("Entities will be rendered as white rectangles.\n");
 
+        // Create temporary fallback surface
+        SDL_Surface* fallbackSurf = SDL_CreateRGBSurfaceWithFormat(
+            0,
+            48,
+            48,
+            0,
+            SDL_PIXELFORMAT_RGB888
+        );
+        // paint it all white
+        SDL_FillRect(fallbackSurf, NULL, 0xffffffff);
+
+        // create fallback texture
+        app.entitiesTex = SDL_CreateTextureFromSurface(app.renderer, fallbackSurf);
+
+        SDL_FreeSurface(fallbackSurf);
+    }
+}
+
+void CreateCharsTexture()
+{
     TTF_Font* font = TTF_OpenFont(APP_RESOURCE_DIR "font.ttf", APP_FONT_PTSIZE);
+    if (font == NULL)
+    {
+        printf("Error loading res/font.ttf!\n");
+        printf("Text will be rendered as white/red rectangles.\n");
 
-    // render all character set in different surfaces separated by color
-    SDL_Surface* whiteCharsSurf = TTF_RenderUTF8_Solid(
-        font,
-        characterMapMono,
-        (SDL_Color){ 255, 255, 255, 255 }
-    );
-    SDL_Surface* redCharsSurf = TTF_RenderUTF8_Solid(
-        font,
-        characterMapMono,
-        (SDL_Color){ 0xD8, 0x20, 0x20, 255 }
-    );
+        // Create temporary fallback surface
+        SDL_Surface* fallbackSurf = SDL_CreateRGBSurfaceWithFormat(
+            0,
+            42 * APP_FONT_PTSIZE,
+            2 * APP_FONT_PTSIZE,
+            0,
+            SDL_PIXELFORMAT_RGB888
+        );
 
-    // Create temporary surface to merge everything together
-    SDL_Surface* allCharsSurf = SDL_CreateRGBSurfaceWithFormat(
-        0,
-        whiteCharsSurf->w,
-        2 * APP_FONT_PTSIZE,
-        0,
-        SDL_PIXELFORMAT_RGB888
-    );
+        // paint its top-half with white
+        SDL_Rect paintRect = { 0, 0, 42 * APP_FONT_PTSIZE, APP_FONT_PTSIZE };
+        SDL_FillRect(fallbackSurf, &paintRect, 0xffffffff);
+        // now bottom-half with red
+        paintRect.y += APP_FONT_PTSIZE;
+        SDL_FillRect(fallbackSurf, &paintRect, SDL_MapRGB(
+            fallbackSurf->format,
+            216,
+            32,
+            32
+        ));
 
-    // the surfaces to be copied have some unused gaps
-    const SDL_Rect srcRect = { 0, 0,  whiteCharsSurf->w, APP_FONT_PTSIZE };
-    // white goes above
-    SDL_Rect destRect = { 0, 0, 0, 0 };
-    SDL_BlitSurface(whiteCharsSurf, &srcRect, allCharsSurf, &destRect);
-    SDL_FreeSurface(whiteCharsSurf);
-    // red goes down
-    destRect.y += APP_FONT_PTSIZE;
-    SDL_BlitSurface(redCharsSurf, &srcRect, allCharsSurf, &destRect);
-    SDL_FreeSurface(redCharsSurf);
+        // create fallback texture
+        app.charsTex = SDL_CreateTextureFromSurface(app.renderer, fallbackSurf);
 
-    // finally create the texture and free the surface
-    app.charsTex = SDL_CreateTextureFromSurface(app.renderer, allCharsSurf);
-    SDL_FreeSurface(allCharsSurf);
+        SDL_FreeSurface(fallbackSurf);
+    }
+    else
+    {
+        // render all character set in different surfaces separated by color
+        SDL_Surface* whiteCharsSurf = TTF_RenderUTF8_Solid(
+            font,
+            APP_CHARACTER_SET,
+            (SDL_Color){ 255, 255, 255, 255 }
+        );
+        SDL_Surface* redCharsSurf = TTF_RenderUTF8_Solid(
+            font,
+            APP_CHARACTER_SET,
+            (SDL_Color){ 216, 32, 32, 255 }
+        );
 
-    TTF_CloseFont(font);
+        // Create temporary surface to merge everything together
+        SDL_Surface* allCharsSurf = SDL_CreateRGBSurfaceWithFormat(
+            0,
+            whiteCharsSurf->w,
+            2 * APP_FONT_PTSIZE,
+            0,
+            SDL_PIXELFORMAT_RGB888
+        );
+
+        // the surfaces to be copied have some unused gaps
+        const SDL_Rect srcRect = { 0, 0,  whiteCharsSurf->w, APP_FONT_PTSIZE };
+        // white goes above
+        SDL_Rect destRect = { 0, 0, 0, 0 };
+        SDL_BlitSurface(whiteCharsSurf, &srcRect, allCharsSurf, &destRect);
+        SDL_FreeSurface(whiteCharsSurf);
+        // red goes down
+        destRect.y += APP_FONT_PTSIZE;
+        SDL_BlitSurface(redCharsSurf, &srcRect, allCharsSurf, &destRect);
+        SDL_FreeSurface(redCharsSurf);
+
+        // finally create the texture and free the surface
+        app.charsTex = SDL_CreateTextureFromSurface(app.renderer, allCharsSurf);
+        SDL_FreeSurface(allCharsSurf);
+
+        TTF_CloseFont(font);
+    }
 }
 
 void InitApp()
@@ -104,13 +177,22 @@ void InitApp()
     // loading window icon
     {
         SDL_RWops* ops = SDL_RWFromFile(APP_RESOURCE_DIR "icon.svg", "rb");
-        SDL_Surface* icon = IMG_LoadSVG_RW(ops);
-        SDL_SetWindowIcon(app.window, icon);
-        SDL_RWclose(ops);
-        SDL_FreeSurface(icon);
+        if (ops == NULL)
+        {
+            printf("Error loading res/icon.svg!\n");
+            printf("The window icon is undefined.\n");
+        }
+        else
+        {
+            SDL_Surface* iconSurf = IMG_LoadSVG_RW(ops);
+            SDL_SetWindowIcon(app.window, iconSurf);
+            SDL_RWclose(ops);
+            SDL_FreeSurface(iconSurf);
+        }
     }
 
-    LoadTextures();
+    LoadEntitiesTexture();
+    CreateCharsTexture();
 
     InitStateMachine();
 }
