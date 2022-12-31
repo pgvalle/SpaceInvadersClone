@@ -16,9 +16,9 @@ int FindInCharacterMap(char c)
     int j = 0;
     for (int i = 0; i < strlen(characterMap); i++)
     {
-        if (characterMap[i] == upperC)
+        if (characterMap[i] == upperC && characterMap[i] != ' ')
             return j;
-        if (characterMap[i] != ' ')
+        else if (characterMap[i] != ' ')
             j++;
     }
 
