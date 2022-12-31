@@ -49,7 +49,8 @@ void LoadEntitiesTexture()
         SDL_QueryTexture(app.entitiesTex, NULL, NULL, &width, &height);
         if (width < 48 || height < 48)
         {
-            printf("res/atlas.png should be at least 48x48 pixels!\n");
+            printf("res/atlas.png is %dx%d pixels!", width, height);
+            printf(" It should be at least 48x48.\n");
             entitiesTexValid = false;
             SDL_DestroyTexture(app.entitiesTex);
             app.entitiesTex = NULL;
@@ -71,9 +72,8 @@ void LoadEntitiesTexture()
         // paint it all white
         SDL_FillRect(fallbackSurf, NULL, 0xffffffff);
 
-        // create fallback texture
+        // create fallback texture and free surface
         app.entitiesTex = SDL_CreateTextureFromSurface(app.renderer, fallbackSurf);
-
         SDL_FreeSurface(fallbackSurf);
     }
 }
@@ -100,16 +100,14 @@ void CreateCharsTexture()
         SDL_FillRect(fallbackSurf, &paintRect, 0xffffffff);
         // now bottom-half with red
         paintRect.y += APP_FONT_PTSIZE;
-        SDL_FillRect(fallbackSurf, &paintRect, SDL_MapRGB(
-            fallbackSurf->format,
-            216,
-            32,
-            32
-        ));
+        SDL_FillRect(
+            fallbackSurf,
+            &paintRect,
+            SDL_MapRGB(fallbackSurf->format, 216, 32, 32)
+        );
 
-        // create fallback texture
+        // create fallback texture and free surface
         app.charsTex = SDL_CreateTextureFromSurface(app.renderer, fallbackSurf);
-
         SDL_FreeSurface(fallbackSurf);
     }
     else
