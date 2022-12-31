@@ -70,9 +70,7 @@ struct Horde
 
     bool moveRight;
     int moveCount;
-
-    int standTimer;
-    int standTimeout; // lower -> faster invaders
+    struct Timer moveTimer; // lower timeout -> faster invaders
 };
 
 void InitHorde(struct Horde* horde);

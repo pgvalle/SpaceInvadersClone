@@ -43,19 +43,20 @@ void InitHorde(struct Horde* horde)
 
     horde->moveRight = true;
     horde->moveCount = 8;
-
-    horde->standTimer = 0;
-    horde->standTimeout = HORDE_STAND_TIMEOUT_INIT;
+    horde->moveTimer = (struct Timer){
+        .reachedTimeout = false,
+        .time = 0,
+        .timeout = HORDE_STAND_TIMEOUT_INIT
+    };
 }
 
 void UpdateAliveInvaders(struct Horde* horde)
 {
     // update move timer
-    horde->standTimer += app.frameTime;
-    // cant move yet
-    if (horde->standTimer < horde->standTimeout)
+    UpdateTimer(&horde->moveTimer);
+    // can't move yet
+    if (!horde->moveTimer.reachedTimeout)
         return;
-    horde->standTimer = 0;
 
     // should move down
     if (horde->moveCount == 16)
@@ -67,7 +68,7 @@ void UpdateAliveInvaders(struct Horde* horde)
         }
 
         horde->moveCount = 0; // reset move counter
-        horde->standTimeout; // increase invaders speed somehow
+        horde->moveTimer.timeout; // increase invaders speed somehow
         horde->moveRight = !horde->moveRight; // change horizontal movement
     }
     else
