@@ -1,5 +1,5 @@
-#ifndef RENDERER_H
-#define RENDERER_H
+#ifndef UI_RENDER_H
+#define UI_RENDER_H
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -13,4 +13,4 @@ void RenderText(int x, int y, const char* text, bool red);
 void RenderUnsignedInt(int x, int y, uint64_t value, bool red);
 
 
-#endif // RENDERER_H
+#endif // UI_RENDER_H
