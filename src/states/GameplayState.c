@@ -1,7 +1,7 @@
 #include "StatesInternal.h"
 #include "../Application.h"
 #include "../Utils/Menu.h"
-#include "../Utils/Timer.h"
+#include "../Utils/ClipAnimation.h"
 #include "../Utils/Renderer.h"
 #include "../Utils/stb_ds.h"
 
@@ -20,7 +20,7 @@
 bool gamePaused;
 bool startAnimation;
 int startAnimationSteps;
-struct Timer startAnimationStepTimer;
+Timer startAnimationStepTimer;
 
 void InitGlobals();
 void UpdateGlobals();
@@ -51,7 +51,7 @@ struct Horde
 
     bool moveRight;
     int moveCount;
-    struct Timer moveTimer; // lower timeout -> faster invaders
+    Timer moveTimer; // lower timeout -> faster invaders
 } horde;
 
 void InitHorde();
@@ -73,11 +73,11 @@ struct Tourist
     bool dead;
 
     bool spawned;
-    struct Timer spawnTimer;
+    Timer spawnTimer;
 } tourist;
 
 void InitTourist();
-void SpawnAndMoveTourist();
+void UpdateTourist();
 void RenderTourist();
 
 
@@ -85,29 +85,32 @@ void RenderTourist();
 // EXPLOSIONS
 // ========================================================================= //
 
-#define EXPLOSION_INVADER_DEATH_TIMEOUT 400
+#define EXPLOSION_INVADER_DEATH_TIMEOUT 350
 #define EXPLOSION_TOURIST_DEATH_TIMEOUT 1000
-#define EXPLOSION_SHOT_DEATH_TIMEOUT    400
-
-struct AtlasAnimationFrame
-{
-    enum AtlasClip clip;
-    struct Timer timer;
-};
+#define EXPLOSION_SHOT_DEATH_TIMEOUT    350
 
 struct Explosion
 {
     int x, y;
-
-    // Not alocated with stb_ds
-    struct AtlasAnimationFrame* frames;
-    int frameCount;
-    int currentFrame;
+    struct ClipAnimation animation;
 }* explosions;
 
-void AddExplosion(int x, int y, const struct AtlasAnimationFrame* frames, int countFrames);
 void UpdateExplosions();
 void RenderExplosions();
+
+
+// ========================================================================= //
+// SHOTS
+// ========================================================================= //
+
+struct Shots
+{
+    int x, y;
+    struct ClipAnimation animation;
+}* shots;
+
+void UpdateShots();
+void RenderShots();
 
 
 /*****************************************************************************/
@@ -123,7 +126,7 @@ void InitGlobals()
     gamePaused = false;
     startAnimation = true;
     startAnimationSteps = 0;
-    startAnimationStepTimer = (struct Timer){
+    startAnimationStepTimer = (Timer){
         .reachedTimeout = false,
         .time = 0,
         .timeout = START_ANIMATION_STEP
@@ -193,7 +196,7 @@ void InitHorde()
 
     horde.moveRight = true;
     horde.moveCount = 8;
-    horde.moveTimer = (struct Timer){
+    horde.moveTimer = (Timer){
         .reachedTimeout = false,
         .time = 0,
         .timeout = HORDE_MOVE_TIMEOUT_INIT
@@ -266,6 +269,7 @@ void RenderHorde()
     }
 }
 
+
 // ========================================================================= //
 // TOURIST
 // ========================================================================= //
@@ -278,14 +282,14 @@ void InitTourist()
     tourist.dead = false;
 
     tourist.spawned = false;
-    tourist.spawnTimer = (struct Timer){
+    tourist.spawnTimer = (Timer){
         .reachedTimeout = false,
         .time = 0,
         .timeout = 5000
     };
 }
 
-void SpawnAndMoveTourist()
+void UpdateTourist()
 {
     if (tourist.dead && tourist.spawned) // spawned and dead
     {
@@ -293,7 +297,7 @@ void SpawnAndMoveTourist()
 
         // reset spawn status
         tourist.spawned = false;
-        tourist.spawnTimer = (struct Timer){
+        tourist.spawnTimer = (Timer){
             .reachedTimeout = false,
             .time = 0,
             .timeout = rand() % 20000 + 10000
@@ -308,7 +312,7 @@ void SpawnAndMoveTourist()
         {
             // reset spawn status
             tourist.spawned = false;
-            tourist.spawnTimer = (struct Timer){
+            tourist.spawnTimer = (Timer){
                 .reachedTimeout = false,
                 .time = 0,
                 .timeout = rand() % 20000 + 10000
@@ -338,34 +342,15 @@ void RenderTourist()
 // EXPLOSIONS
 // ========================================================================= //
 
-void AddExplosion(int x, int y, const struct AtlasAnimationFrame* frames, int countFrames)
-{
-    const size_t sizeOfFrames = sizeof(*frames) * countFrames;
-    const struct Explosion tmp = {
-        .x = x, .y = y,
-        .frames = malloc(sizeOfFrames),
-        .currentFrame = 0
-    };
-    memcpy(tmp.frames, frames, sizeOfFrames);
-    
-    arrput(explosions, tmp);
-}
-
 void UpdateExplosions()
 {
-    // update explosions timing
     for (int i = 0; i < arrlen(explosions); i++)
     {
-        const int current = explosions[i].currentFrame;
-
-        UpdateTimer(&explosions[i].frames[current].timer);
-        if (explosions[i].frames[current].timer.reachedTimeout)
+        UpdateClipAnimation(&explosions[i].animation);
+        if (HasClipAnimationFinished(&explosions[i].animation))
         {
-            if (++explosions[i].currentFrame == explosions[i].frameCount)
-            {
-                free(explosions[i].frames);
-                arrdel(explosions, i);
-            }
+            FreeClipAnimation(&explosions[i].animation);
+            arrdel(explosions, i);
         }
     }
 }
@@ -374,10 +359,10 @@ void RenderExplosions()
 {
     for (int i = 0; i < arrlen(explosions); i++)
     {
-        RenderAtlasClip(
+        RenderClipAnimation(
             explosions[i].x,
             explosions[i].y,
-            explosions[i].frames[explosions[i].currentFrame].clip
+            &explosions[i].animation
         );
     }
 }
@@ -408,13 +393,48 @@ void UpdateGameplayState()
     if (gamePaused)
         return;
 
-    if (app.event.type == SDL_KEYUP && app.event.key.keysym.sym == SDLK_SPACE)
+    if (app.event.type == SDL_KEYDOWN && app.event.key.keysym.sym == SDLK_SPACE)
     {
-
+        int i = rand() % INVADER_COUNT;
+        /*if (!horde.invaders[i].dead)
+        {
+            const struct Explosion explosion = {
+                .x = horde.invaders[i].x,
+                .y = horde.invaders[i].y
+            };
+            InitClipAnimation(&explosion.animation, 1, (struct ClipAnimationFrame){
+                .clip = ATLASCLIP_INVADER_DEAD,
+                .timer = {
+                    .reachedTimeout = false,
+                    .time = 0,
+                    .timeout = EXPLOSION_INVADER_DEATH_TIMEOUT
+                }
+            });
+            arrput(explosions, explosion);
+        }*/
+        
+        if (!horde.invaders[i].dead)
+        {
+            const struct Explosion explosion = {
+                .x = horde.invaders[i].x,
+                .y = horde.invaders[i].y
+            };
+            InitClipAnimation(&explosion.animation, 1, (ClipAnimationFrame){
+                .clip = ATLASCLIP_INVADER_DEAD,
+                .timer = {
+                    .reachedTimeout = false,
+                    .time = 0,
+                    .timeout = EXPLOSION_INVADER_DEATH_TIMEOUT
+                }
+            });
+            arrput(explosions, explosion);
+        }
+        horde.invaders[i].dead = true;
     }
 
+    UpdateExplosions();
     MoveHorde();
-    SpawnAndMoveTourist();
+    UpdateTourist();
 }
 
 void RenderGameplayState()
@@ -424,6 +444,7 @@ void RenderGameplayState()
     
     RenderHorde();
     RenderTourist();
+    RenderExplosions();
 
     SDL_RenderPresent(app.renderer);
 }
