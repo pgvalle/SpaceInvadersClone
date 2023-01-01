@@ -73,7 +73,7 @@ void RenderText(int x, int y, const char* text, bool red)
         if (indexMapping != -1) // success
         {
             SDL_Rect clipRect = {
-                indexMapping * APP_FONT_PTSIZE,
+                indexMapping * APP_FONT_PTSIZE - 1,
                 clipY,
                 APP_FONT_PTSIZE,
                 APP_FONT_PTSIZE
@@ -86,7 +86,7 @@ void RenderText(int x, int y, const char* text, bool red)
             };
 
             // I and 1 are thinner. This is to correct their placement
-            if (toupper(text[i]) == 'I' || text[i] == '1')
+            if (toupper(text[i]) == 'I' || text[i] == '1' || text[i] == '=')
                 scaleRect.x -= scaleFactor;
 
             SDL_RenderCopy(app.renderer, app.fontTex, &clipRect, &scaleRect);
