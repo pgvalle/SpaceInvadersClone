@@ -41,7 +41,7 @@ void LoadEntitiesTexture()
     app.atlasTex = IMG_LoadTexture(app.renderer, APP_RESOURCE_DIR "atlas.png");
     if (app.atlasTex == NULL)
     {
-        printf("Error loading res/atlas.png!\n");
+        SDL_LogError(0, "res/atlas.png couldn't be opened.\n");
         entitiesTexValid = false;
     }
     else
@@ -50,8 +50,8 @@ void LoadEntitiesTexture()
         SDL_QueryTexture(app.atlasTex, NULL, NULL, &width, &height);
         if (width < 48 || height < 48)
         {
-            printf("res/atlas.png is %dx%d pixels!", width, height);
-            printf(" It should be at least 48x48.\n");
+            SDL_LogError(0, "res/atlas.png is %dx%d pixels.\n", width, height);
+            printf(stderr, "It should be at least 48x48.\n");
 
             entitiesTexValid = false;
             SDL_DestroyTexture(app.atlasTex);
@@ -61,7 +61,7 @@ void LoadEntitiesTexture()
 
     if (!entitiesTexValid)
     {
-        printf("Entities will be rendered as white rectangles.\n");
+        SDL_Log("Game entities will be rendered as white rectangles.\n");
 
         // Create temporary fallback surface
         SDL_Surface* fallbackSurf = SDL_CreateRGBSurfaceWithFormat(
@@ -82,12 +82,12 @@ void CreateCharsTexture()
     TTF_Font* font = TTF_OpenFont(APP_RESOURCE_DIR "font.ttf", APP_FONT_PTSIZE);
     if (font == NULL)
     {
-        printf("Error loading res/font.ttf!\n");
-        printf("Text will be rendered as white rectangles.\n");
+        SDL_LogError(0, "res/font.ttf couldn't be opened.\n");
+        SDL_Log("Text will be rendered as white rectangles.\n");
 
         // Create temporary fallback surface
         SDL_Surface* fallbackSurf = SDL_CreateRGBSurfaceWithFormat(
-            0, 42 * APP_FONT_PTSIZE, 2 * APP_FONT_PTSIZE, 0, SDL_PIXELFORMAT_RGB888
+            0, 50 * APP_FONT_PTSIZE, 2 * APP_FONT_PTSIZE, 0, SDL_PIXELFORMAT_RGB888
         );
 
         // paint it all white
@@ -140,8 +140,8 @@ void InitApp()
         APP_TITLE,
         SDL_WINDOWPOS_CENTERED,
         SDL_WINDOWPOS_CENTERED,
-        app.options.scale * 224,
-        app.options.scale * 256,
+        app.options.scale * APP_VSCREEN_WIDTH,
+        app.options.scale * APP_VSCREEN_HEIGHT,
         0
     );
     app.renderer = SDL_CreateRenderer(
@@ -154,8 +154,8 @@ void InitApp()
         SDL_RWops* ops = SDL_RWFromFile(APP_RESOURCE_DIR "icon.svg", "rb");
         if (ops == NULL)
         {
-            printf("Error loading res/icon.svg!\n");
-            printf("The window icon is undefined.\n");
+            SDL_LogWarn(0, "res/icon.svg couldn't be opened.\n");
+            SDL_Log("The window icon is undefined.\n");
         }
         else
         {
