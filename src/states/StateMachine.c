@@ -25,6 +25,8 @@ void InitStateMachine()
     arrput(states, initialState);
     current = 0; // current state index is 0
 
+    states[current].Init(); // Init the state
+
     // already pushed, not poping and changes already applied
     pushing = false;
     poping = false;
@@ -79,6 +81,7 @@ void UpdateStateMachine()
     {
         states[current].Destroy();
         arrdel(states, current);
+        states[current].Init();
     }
     else if (pushing)
         states[++current].Init();
