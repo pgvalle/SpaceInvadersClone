@@ -1,77 +1,106 @@
 #include "StateMachine.h"
 #include "StatesInternal.h"
+#include "../Application.h"
+#include "../Utils/stb_ds.h"
 
 #include <stdlib.h>
 #include <stdbool.h>
 
 // current state
-Function DestroyState, UpdateState, RenderState;
-Function InitNewState, DestroyNewState, UpdateNewState, RenderNewState;
+State* states;
+int current;
 
+bool pushing, poping;
 bool changeScheduled;
 
 void InitStateMachine()
 {
-    InitGameplayState();
+    // push initial state to stack
+    const State initialState = {
+        .Init = InitGameplayState,
+        .Destroy = DestroyGameplayState,
+        .Update = UpdateGameplayState,
+        .Render = RenderGameplayState
+    };
+    arrput(states, initialState);
+    current = 0; // current state index is 0
 
-    DestroyState = DestroyGameplayState;
-    UpdateState = UpdateGameplayState;
-    RenderState = RenderGameplayState;
-
-    InitNewState = NULL;
-    DestroyNewState = NULL;
-    UpdateNewState = NULL;
-    RenderNewState = NULL;
-    
+    // already pushed, not poping and changes already applied
+    pushing = false;
+    poping = false;
     changeScheduled = false;
 }
 
 void DestroyStateMachine()
 {
     // destroy all states
+    for (int i = 0; i < arrlen(states); i++)
+        states[i].Destroy();
+
+    // free stack
+    arrfree(states);
 }
 
-void ScheduleStateChange(
-    Function Init,
-    Function Destroy,
-    Function Update,
-    Function Render
-)
+void PushState(State state)
 {
-    InitNewState = Init;
-    DestroyNewState = Destroy;
-    UpdateNewState = Update;
-    RenderNewState = Render;
+    if (changeScheduled)
+        return;
 
+    arrput(states, state);
+    pushing = true;
     changeScheduled = true;
 }
 
-void UpdateStateChanges()
+void PopState()
 {
     if (changeScheduled)
+        return;
+
+    poping = true;
+    changeScheduled = true;
+}
+
+void ReplaceState(State state)
+{
+    if (changeScheduled)
+        return;
+
+    arrput(states, state);
+    pushing = poping = true;
+    changeScheduled = true;
+}
+
+void UpdateStateMachine()
+{
+    if (!changeScheduled)
+        return;
+
+    if (pushing && poping)
     {
-        DestroyState();
-        InitNewState();
-
-        DestroyState = DestroyNewState;
-        UpdateState = UpdateNewState;
-        RenderState = RenderNewState;
-
-        InitNewState = NULL;
-        DestroyNewState = NULL;
-        UpdateNewState = NULL;
-        RenderNewState = NULL;
-
-        changeScheduled = false;
+        states[current].Destroy();
+        arrdel(states, current);
     }
+    else if (pushing)
+        states[++current].Init();
+    else if (poping) // stack may get empty !!!
+    {
+        states[current].Destroy();
+        arrdel(states, current--);
+
+        if (current == -1)
+            app.shouldClose = true;
+    }
+
+    // nothing scheduled now
+    changeScheduled = false;
 }
 
 void UpdateCurrentState()
 {
-    UpdateState();
+    states[current].Update();
 }
 
 void RenderCurrentState()
 {
-    RenderState();
+    states[current].Render();
 }

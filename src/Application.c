@@ -203,6 +203,6 @@ void RunApp()
         UpdateCurrentState();
         RenderCurrentState();
 
-        UpdateStateChanges();
+        UpdateStateMachine();
     }
 }

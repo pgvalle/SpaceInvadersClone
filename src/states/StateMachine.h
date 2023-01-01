@@ -6,7 +6,7 @@ void DestroyStateMachine();
 
 // State changes are only applied when this function is called.
 // May be called only after UpdateCurrentSTate and RenderCurrentState were called.
-void UpdateStateChanges();
+void UpdateStateMachine();
 
 void UpdateCurrentState();
 void RenderCurrentState();
