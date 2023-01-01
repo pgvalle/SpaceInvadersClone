@@ -1,23 +1,21 @@
 #ifndef MENU_H
 #define MENU_H
 
-#include "Function.h"
+struct MenuItem
+{
+    char label[32];
+    Function CauseEffect;
+};
+typedef struct MenuItem MenuItem;
 
 struct Menu
 {
-    struct MenuItem
-    {
-        char label[32];
-        Function DoAction;
-    }* items;
-    int itemCount;
-    int itemCurrent;
-
     int x, y;
 
-    Function Update;
-    Function Render;
+    MenuItem* items;
+    int itemSelected;
 };
+typedef struct Menu Menu;
 
 
 #endif // MENU_H
