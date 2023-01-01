@@ -106,6 +106,7 @@ void RenderExplosions();
 struct Shots
 {
     int x, y;
+    int velY;
     struct ClipAnimation animation;
 }* shots;
 
@@ -144,12 +145,12 @@ void UpdateGlobals()
     if (!startAnimation || gamePaused)
         return;
 
-    // Only executes if the game isn't paused and start animation is being played
+    // Only executes if the game isn't paused and start animation is playing
 
     UpdateTimer(&startAnimationStepTimer);
     if (startAnimationStepTimer.reachedTimeout)
     {
-        // "undeading" invaders
+        // "undeading" invaders starting from bottom-left
         const int i = 4 - startAnimationSteps / 11;
         const int j = startAnimationSteps % 11;
         horde.invaders[11 * i + j].dead = false;
@@ -222,7 +223,7 @@ void MoveHorde()
     }
     else
     {
-        int offset = horde.moveRight ? 2 : -2;
+        const int offset = horde.moveRight ? 2 : -2;
         for (int i = 0; i < INVADER_COUNT; i++)
             horde.invaders[i].x += offset;
 
@@ -369,6 +370,36 @@ void RenderExplosions()
 
 
 // ========================================================================= //
+// SHOTS
+// ========================================================================= //
+
+void UpdateShots()
+{
+    for (int i = 0; i < arrlen(shots); i++)
+    {
+        UpdateClipAnimation(&shots[i].animation);
+        // reset animation if finished.
+        if (HasClipAnimationFinished(&shots[i].animation))
+            shots[i].animation.current = 0;
+        // update velocity
+        shots[i].y += shots[i].velY;
+    }
+}
+
+void RenderShots()
+{
+    for (int i = 0; i < arrlen(shots); i++)
+        RenderClipAnimation(shots[i].x, shots[i].y, &shots[i].animation);
+}
+
+// ========================================================================= //
+// COLLISIONS
+// ========================================================================= //
+
+
+
+
+// ========================================================================= //
 // GAMEPLAY STATE
 // ========================================================================= //
 
@@ -432,6 +463,7 @@ void UpdateGameplayState()
         horde.invaders[i].dead = true;
     }
 
+    UpdateShots();
     UpdateExplosions();
     MoveHorde();
     UpdateTourist();
@@ -442,6 +474,7 @@ void RenderGameplayState()
     SDL_SetRenderDrawColor(app.renderer, 0, 0, 0, 255);
     SDL_RenderClear(app.renderer);
     
+    RenderShots();
     RenderHorde();
     RenderTourist();
     RenderExplosions();
