@@ -29,7 +29,6 @@ inline bool HasClipAnimationFinished(const struct ClipAnimation* anim)
 }
 
 void UpdateClipAnimation(struct ClipAnimation* anim);
-
 void RenderClipAnimation(int x, int y, const struct ClipAnimation* anim);
 
 
