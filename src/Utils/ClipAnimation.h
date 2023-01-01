@@ -1,35 +1,44 @@
 #ifndef CLIP_ANIMATION_H
 #define CLIP_ANIMATION_H
 
+#include "Renderer.h"
 #include "Timer.h"
 
 struct ClipAnimationFrame
 {
-    enum AtlasClip clip;
-    struct Timer timer;
+    AtlasClip clip;
+    Timer timer;
 };
+typedef struct ClipAnimationFrame ClipAnimationFrame;
 
 struct ClipAnimation
 {
-    struct ClipAnimationFrame* frames;
-    int frameCount;
-    int currentFrame;
+    ClipAnimationFrame* frames;
+    int size;
+    int current;
 };
+typedef struct ClipAnimation ClipAnimation;
 
-void InitClipAnimation(struct ClipAnimation* anim, int frameCount, ...);
+// Using stdarg here. Really cool syntax sugar to create animations
+void InitClipAnimation(ClipAnimation* anim, int size, ...);
+// Frees anim->frames and reset other fields
+void FreeClipAnimation(ClipAnimation* anim);
 
-inline void ResetClipAnimation(struct ClipAnimation* anim)
+inline void ResetClipAnimation(ClipAnimation* anim)
 {
-    anim->currentFrame = 0;
+    anim->current = 0;
 }
 
-inline bool HasClipAnimationFinished(const struct ClipAnimation* anim)
+inline bool HasClipAnimationFinished(const ClipAnimation* anim)
 {
-    return anim->frameCount == anim->currentFrame;
+    return anim->size == anim->current;
 }
 
-void UpdateClipAnimation(struct ClipAnimation* anim);
-void RenderClipAnimation(int x, int y, const struct ClipAnimation* anim);
+void UpdateClipAnimation(ClipAnimation* anim);
+inline void RenderClipAnimation(int x, int y, const ClipAnimation* anim)
+{
+    RenderAtlasClip(x, y, anim->frames[anim->current].clip);
+}
 
 
 #endif // CLIP_ANIMATION_H

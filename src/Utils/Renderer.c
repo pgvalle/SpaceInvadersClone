@@ -30,7 +30,7 @@ int FindInCharacterMap(char c)
 // Renderer.h Implementations
 // ========================================================================= //
 
-void RenderAtlasClip(int x, int y, enum AtlasClip clip)
+void RenderAtlasClip(int x, int y, AtlasClip clip)
 {
     // all valid clips in atlas.png
     static const SDL_Rect clips[ATLASCLIP_COUNT] = {

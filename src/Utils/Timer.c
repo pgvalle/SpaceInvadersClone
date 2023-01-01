@@ -1,7 +1,7 @@
 #include "Timer.h"
 #include "../Application.h"
 
-void UpdateTimer(struct Timer* timer)
+void UpdateTimer(Timer* timer)
 {
 	// assume timer didn't reach timeout yet
 	timer->reachedTimeout = false;

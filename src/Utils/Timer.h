@@ -11,8 +11,9 @@ struct Timer
 	Uint32 time;         // read-only
 	Uint32 timeout;
 };
+typedef struct Timer Timer;
 
-void UpdateTimer(struct Timer* timer);
+void UpdateTimer(Timer* timer);
 
 
 #endif // TIMER_H

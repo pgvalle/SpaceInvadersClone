@@ -26,9 +26,10 @@ enum AtlasClip
 
     ATLASCLIP_COUNT
 };
+typedef enum AtlasClip AtlasClip;
 
 // x and y are in-game coordinates.
-void RenderAtlasClip(int x, int y, enum AtlasClip clip);
+void RenderAtlasClip(int x, int y, AtlasClip clip);
 
 // x and y are in-game coordinates
 // character set: ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789<>*?
