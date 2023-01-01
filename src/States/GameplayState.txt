@@ -1,0 +1,92 @@
+Uint32 score1, score2, hiScore;
+int score1X, score2X, hiScoreX;
+int scoresY; // all scores share same y position
+
+void InitScores()
+{
+    score1 = score2 = hiScore = 0;
+
+    score1X = 3 * APP_FONT_PTSIZE;
+    score2X = APP_VSCREEN_WIDTH - 7 * APP_FONT_PTSIZE;
+    hiScoreX = 12 * APP_FONT_PTSIZE;
+
+    scoresY = 3 * APP_FONT_PTSIZE;
+}
+
+void RenderScores()
+{
+    char tmpScoreStr[5];
+
+    SDL_snprintf(tmpScoreStr, 5, "%0*u", 4, score1);
+    RenderText(
+        score1X - 2 * APP_FONT_PTSIZE, scoresY - 2 * APP_FONT_PTSIZE, "SCORE<1>", false
+    );
+    RenderText(score1X, scoresY, tmpScoreStr, false);
+
+    SDL_snprintf(tmpScoreStr, 5, "%0*u", 4, score2);
+    RenderText(
+        score2X - 2 * APP_FONT_PTSIZE, scoresY - 2 * APP_FONT_PTSIZE, "<2>SCORE", false
+    );
+    RenderText(score2X, scoresY, tmpScoreStr, false);
+
+    SDL_snprintf(tmpScoreStr, 5, "%0*u", 4, hiScore);
+    RenderText(
+        hiScoreX - 2 * APP_FONT_PTSIZE, scoresY - 2 * APP_FONT_PTSIZE, "HI-SCORE", false
+    );
+    RenderText(hiScoreX, scoresY, tmpScoreStr, false);
+}
+
+// ========================================================================= //
+// PLAYERS
+// ========================================================================= //
+
+struct Cannon
+{
+    int a;
+} c1, c2;
+
+
+// ========================================================================= //
+// MENUS
+// ========================================================================= //
+
+struct Menu pause;
+
+void InitMenu()
+{
+    gamePaused = false;
+}
+
+void UpdateMenu()
+{
+    if (app.event.type == SDL_KEYDOWN && !app.event.key.repeat)
+    {
+        switch (app.event.key.keysym.sym)
+        {
+        case SDLK_RETURN:
+            // do selected action
+            break;
+        case SDLK_UP:
+            // go up
+            break;
+        case SDLK_DOWN:
+            // go down
+            break;
+        }
+    }
+}
+
+void RenderMenu()
+{
+    if (!gamePaused)
+        return;
+
+    SDL_SetRenderDrawBlendMode(app.renderer, SDL_BLENDMODE_BLEND);
+
+    // Semi-transparent background. Feels like a pause menu
+    SDL_SetRenderDrawColor(app.renderer, 0, 0, 0, 100);
+    SDL_RenderFillRect(app.renderer, NULL);
+
+
+    SDL_SetRenderDrawBlendMode(app.renderer, SDL_BLENDMODE_NONE);
+}
