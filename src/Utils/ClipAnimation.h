@@ -24,18 +24,18 @@ void InitClipAnimation(ClipAnimation* anim, int size, ...);
 // Frees anim->frames and reset other fields
 void FreeClipAnimation(ClipAnimation* anim);
 
-inline void ResetClipAnimation(ClipAnimation* anim)
+static inline void ResetClipAnimation(ClipAnimation* anim)
 {
     anim->current = 0;
 }
 
-inline bool HasClipAnimationFinished(const ClipAnimation* anim)
+static inline bool HasClipAnimationFinished(const ClipAnimation* anim)
 {
     return anim->size == anim->current;
 }
 
 void UpdateClipAnimation(ClipAnimation* anim);
-inline void RenderClipAnimation(int x, int y, const ClipAnimation* anim)
+static inline void RenderClipAnimation(int x, int y, const ClipAnimation* anim)
 {
     RenderAtlasClip(x, y, anim->frames[anim->current].clip);
 }

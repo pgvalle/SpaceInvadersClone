@@ -9,7 +9,7 @@
 #include <SDL_mixer.h>
 
 #define APP_TITLE "Space Invaders Clone"
-#define APP_RESOURCE_DIR "../../../res/"
+#define APP_RESOURCE_DIR "../res/"
 #define APP_FONT_PTSIZE 8
 #define APP_VSCREEN_WIDTH  224
 #define APP_VSCREEN_HEIGHT 256

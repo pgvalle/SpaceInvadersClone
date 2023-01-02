@@ -1,4 +1,4 @@
-FLAGS := $(shell pkg-config --cflags --libs sdl2 SDL2_image SDL2_ttf SDL2_mixer) -std=c17
+FLAGS := $(shell pkg-config --cflags --libs sdl2 SDL2_image SDL2_ttf SDL2_mixer) -std=c17 -lm
 
 TARGET_EXEC ?= SpaceInvadersClone.out
 

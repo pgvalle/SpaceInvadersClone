@@ -51,7 +51,7 @@ void LoadEntitiesTexture()
         if (width < 48 || height < 48)
         {
             SDL_LogError(0, "res/atlas.png is %dx%d pixels.\n", width, height);
-            printf(stderr, "It should be at least 48x48.\n");
+            fprintf(stderr, "It should be at least 48x48.\n");
 
             entitiesTexValid = false;
             SDL_DestroyTexture(app.atlasTex);
@@ -134,7 +134,7 @@ void CreateCharsTexture()
 void InitApp()
 {
     app.options.volume = 5;
-    app.options.scale = 3;
+    app.options.scale = 2;
     app.shouldClose = false;
     app.window = SDL_CreateWindow(
         APP_TITLE,
