@@ -2,12 +2,17 @@ cmake_minimum_required(VERSION 3.12)
 
 project(SpaceInvadersClone)
 
-file(GLOB_RECURSE PROJECT_SOURCE_FILES src/**.c)
-file(GLOB_RECURSE PROJECT_HEADER_FILES src/**.h)
+file(GLOB_RECURSE SOURCE_FILES src/**.c)
+file(GLOB_RECURSE HEADER_FILES src/**.h)
 
-add_executable(SpaceInvadersClone ${PROJECT_SOURCE_FILES} ${PROJECT_HEADER_FILES})
+add_executable(SpaceInvadersClone ${SOURCE_FILES} ${HEADER_FILES})
 
-set_property(TARGET SpaceInvadersClone PROPERTY C_STANDARD 17)
+set_target_properties(
+	SpaceInvadersClone PROPERTIES
+	C_STANDARD          17
+	C_STANDARD_REQUIRED TRUE
+	C_EXTENSIONS        FALSE
+)
 
 find_package(SDL2       REQUIRED)
 find_package(SDL2_image REQUIRED)
