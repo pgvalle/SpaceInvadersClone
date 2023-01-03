@@ -88,9 +88,9 @@ void UpdateStateMachine()
     else if (poping) // stack may get empty !!!
     {
         states[current].Destroy();
-        arrdel(states, current--);
+        arrdel(states, current);
 
-        if (current == -1)
+        if (--current == -1)
             app.shouldClose = true;
     }
 
