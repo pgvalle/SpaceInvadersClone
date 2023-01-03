@@ -45,7 +45,7 @@ struct Invader
 
 struct Horde
 {
-    enum AtlasClip row0Clip, row12Clip, row34Clip;
+    int clipIndexOffset; // what clip to use to render invaders
 
     struct Invader invaders[INVADER_COUNT];
 
@@ -64,6 +64,8 @@ void RenderHorde();
 // ========================================================================= //
 
 #define TOURIST_Y HORDE_Y_INIT - 3 * APP_FONT_PTSIZE
+
+#define TOURIST_VEL 0.75f
 
 struct Tourist
 {
@@ -103,13 +105,19 @@ void RenderExplosions();
 // SHOTS
 // ========================================================================= //
 
-struct Shots
+struct InvaderShot
 {
     int x, y;
-    int velY;
-    struct ClipAnimation animation;
-}* shots;
+    struct ClipAnimation animation; // each shot has its own animation state
+}* invadersShots;
+int invaderShotsVel;
 
+struct CannonShot
+{
+    int x, y;
+}* cannonShots;
+
+void InitShots();
 void UpdateShots();
 void RenderShots();
 
@@ -168,9 +176,7 @@ void UpdateGlobals()
 
 void InitHorde()
 {
-    horde.row0Clip  = ATLASCLIP_INVADER00;
-    horde.row12Clip = ATLASCLIP_INVADER10;
-    horde.row34Clip = ATLASCLIP_INVADER20;
+    horde.clipIndexOffset = 1;
 
     for (int i = 0; i < 11; i++)
     {
@@ -230,19 +236,7 @@ void MoveHorde()
         horde.moveCount++;
     }
 
-    // change animation frame for all invaders in horde
-    if (horde.row0Clip  == ATLASCLIP_INVADER00)
-    {
-        horde.row0Clip  = ATLASCLIP_INVADER01;
-        horde.row12Clip = ATLASCLIP_INVADER11;
-        horde.row34Clip = ATLASCLIP_INVADER21;
-    }
-    else
-    {
-        horde.row0Clip  = ATLASCLIP_INVADER00;
-        horde.row12Clip = ATLASCLIP_INVADER10;
-        horde.row34Clip = ATLASCLIP_INVADER20;
-    }
+    horde.clipIndexOffset = !horde.clipIndexOffset;
 }
 
 void RenderHorde()
@@ -258,13 +252,13 @@ void RenderHorde()
         switch (i / 11)
         {
         case 0: // first row
-            RenderAtlasClip(x, y, horde.row0Clip);
+            RenderAtlasClip(x, y, ATLASCLIP_INVADER00 + horde.clipIndexOffset);
             break;
         case 1: case 2: // second or third
-            RenderAtlasClip(x, y, horde.row12Clip);
+            RenderAtlasClip(x, y, ATLASCLIP_INVADER10 + horde.clipIndexOffset);
             break;
         case 3: case 4: // fourth or fifth
-            RenderAtlasClip(x, y, horde.row34Clip);
+            RenderAtlasClip(x, y, ATLASCLIP_INVADER20 + horde.clipIndexOffset);
             break;
         }
     }
@@ -306,7 +300,7 @@ void UpdateTourist()
     }
     else if (tourist.spawned) // spawned and not dead yet
     {
-        float offset = tourist.moveRight ? 0.65f : -0.65f;
+        const float offset = tourist.moveRight ? TOURIST_VEL : -TOURIST_VEL;
         tourist.x += offset;
 
         if (tourist.x <= 0.0f || tourist.x >= APP_VSCREEN_WIDTH - 22.f)
@@ -326,7 +320,7 @@ void UpdateTourist()
         if (tourist.spawnTimer.reachedTimeout) // spawn
         {
             tourist.moveRight = rand() % 2;
-            tourist.x = tourist.moveRight ? 0 : (APP_VSCREEN_WIDTH - 22);
+            tourist.x = tourist.moveRight ? 0 : (APP_VSCREEN_WIDTH - 22.f);
             tourist.spawned = true;
         }
     }
@@ -373,23 +367,43 @@ void RenderExplosions()
 // SHOTS
 // ========================================================================= //
 
+void InitShots()
+{
+    invaderShotsVel = 2;
+}
+
 void UpdateShots()
 {
-    for (int i = 0; i < arrlen(shots); i++)
+    for (int i = 0; i < arrlen(invadersShots); i++)
     {
-        UpdateClipAnimation(&shots[i].animation);
+        UpdateClipAnimation(&invadersShots[i].animation);
         // reset animation if finished.
-        if (HasClipAnimationFinished(&shots[i].animation))
-            shots[i].animation.current = 0;
+        if (HasClipAnimationFinished(&invadersShots[i].animation))
+            invadersShots[i].animation.current = 0;
         // update velocity
-        shots[i].y += shots[i].velY;
+        invadersShots[i].y += invaderShotsVel;
     }
 }
 
 void RenderShots()
 {
-    for (int i = 0; i < arrlen(shots); i++)
-        RenderClipAnimation(shots[i].x, shots[i].y, &shots[i].animation);
+    for (int i = 0; i < arrlen(invadersShots); i++)
+    {
+        RenderClipAnimation(
+            invadersShots[i].x,
+            invadersShots[i].y,
+            &invadersShots[i].animation
+        );
+    }
+
+    for (int i = 0; i < arrlen(cannonShots); i++)
+    {
+        RenderAtlasClip(
+            cannonShots[i].x,
+            cannonShots[i].y,
+            ATLASCLIP_CANNON_SHOT
+        );
+    }
 }
 
 // ========================================================================= //
@@ -434,7 +448,7 @@ void UpdateGameplayState()
                 .y = horde.invaders[i].y
             };
             InitClipAnimation(&explosion.animation, 1, (struct ClipAnimationFrame){
-                .clip = ATLASCLIP_INVADER_DEAD,
+                .clip = ATLASCLIP_INVADER_EXPLOSION,
                 .timer = {
                     .reachedTimeout = false,
                     .time = 0,
@@ -446,12 +460,12 @@ void UpdateGameplayState()
         
         if (!horde.invaders[i].dead)
         {
-            const struct Explosion explosion = {
+            struct Explosion explosion = {
                 .x = horde.invaders[i].x,
                 .y = horde.invaders[i].y
             };
             InitClipAnimation(&explosion.animation, 1, (ClipAnimationFrame){
-                .clip = ATLASCLIP_INVADER_DEAD,
+                .clip = ATLASCLIP_INVADER_EXPLOSION,
                 .timer = {
                     .reachedTimeout = false,
                     .time = 0,
