@@ -86,9 +86,10 @@ void RenderTourist();
 // CANNONS
 // ========================================================================= //
 
-#define CANNON_Y 20 * APP_FONT_PTSIZE
+#define CANNON_Y HORDE_Y_INIT + 152
 
 #define CANNON_VEL 1
+#define CANNON_SHOT_COOLDOWN 512
 
 struct Cannon
 {
@@ -96,10 +97,13 @@ struct Cannon
 
     bool dead;
     int deaths;
+
+    Timer shotTimer;
 } cannon;
 
-void InitCannons();
-
+void InitCannon();
+void UpdateCannon();
+void RenderCannon();
 
 // ========================================================================= //
 // EXPLOSIONS
@@ -360,6 +364,53 @@ void RenderTourist()
 
 
 // ========================================================================= //
+// CANNON
+// ========================================================================= //
+
+void InitCannon()
+{
+    cannon.x = 0;
+
+    cannon.dead = false;
+    cannon.deaths = 0;
+
+    cannon.shotTimer = (Timer){
+        .reachedTimeout = false,
+        .time = 0,
+        .timeout = CANNON_SHOT_COOLDOWN
+    };
+}
+
+void UpdateCannon()
+{
+    const Uint8* keys = SDL_GetKeyboardState(NULL);
+    if (keys[SDL_SCANCODE_A])
+        cannon.x -= 1;
+    if (keys[SDL_SCANCODE_D])
+        cannon.x += 1;
+
+    if (!cannon.shotTimer.reachedTimeout)
+        UpdateTimer(&cannon.shotTimer);
+    if (cannon.shotTimer.reachedTimeout && keys[SDL_SCANCODE_SPACE])
+    {
+        cannon.shotTimer.reachedTimeout = false;
+        // spawn shot
+        struct CannonShot shot = {
+            .x = cannon.x + 6,
+            .y = CANNON_Y
+        };
+        arrput(cannonShots, shot);
+    }
+}
+
+void RenderCannon()
+{
+    if (!cannon.dead)
+        RenderAtlasClip(cannon.x, CANNON_Y, ATLASCLIP_CANNON);
+}
+
+
+// ========================================================================= //
 // EXPLOSIONS
 // ========================================================================= //
 
@@ -560,6 +611,7 @@ void InitGameplayState()
     InitGlobals();
     InitHorde();
     InitTourist();
+    InitCannon();
 }
 
 void DestroyGameplayState()
@@ -575,19 +627,11 @@ void UpdateGameplayState()
     if (gamePaused || startAnimation)
         return;
 
-    if (app.event.type == SDL_KEYDOWN && app.event.key.keysym.sym == SDLK_SPACE)
-    {
-        struct CannonShot shot = {
-            .x = rand() % 180 + 30,
-            .y = 240
-        };
-        arrput(cannonShots, shot);
-    }
-
     UpdateShots();
     ProcessHordeCollisions();
     ProcessTouristCollision();
     UpdateExplosions();
+    UpdateCannon();
     MoveHorde();
     UpdateTourist();
 }
@@ -600,6 +644,7 @@ void RenderGameplayState()
     RenderShots();
     RenderHorde();
     RenderTourist();
+    RenderCannon();
     RenderExplosions();
 
     RenderText(8, 168 + HORDE_Y_INIT, "3", false);
