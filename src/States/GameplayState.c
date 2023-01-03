@@ -113,6 +113,7 @@ struct Explosion
     struct ClipAnimation animation;
 }* explosions;
 
+void AddExplosion(int x, int y, const struct ClipAnimation* anim);
 void UpdateExplosions();
 void RenderExplosions();
 
@@ -306,6 +307,7 @@ void UpdateTourist()
 {
     if (tourist.dead && tourist.spawned) // spawned and dead
     {
+        tourist.x = 1000;
         tourist.dead = false; // not dead anymore. Didn't even spawn yet
 
         // reset spawn status
@@ -347,13 +349,19 @@ void UpdateTourist()
 void RenderTourist()
 {
     if (!tourist.dead && tourist.spawned)
-        RenderAtlasClip((int)roundf(tourist.x), TOURIST_Y, ATLASCLIP_TOURIST);
+        RenderAtlasClip(roundf(tourist.x), TOURIST_Y, ATLASCLIP_TOURIST);
 }
 
 
 // ========================================================================= //
 // EXPLOSIONS
 // ========================================================================= //
+
+void AddExplosion(int x, int y, const struct ClipAnimation* anim)
+{
+    const struct Explosion explosion = { .x = x, .y = y, .animation = *anim };
+    arrput(explosions, explosion);
+}
 
 void UpdateExplosions()
 {
@@ -417,62 +425,88 @@ void RenderShots()
     }
 
     for (int i = 0; i < arrlen(cannonShots); i++)
-    {
-        RenderAtlasClip(
-            cannonShots[i].x,
-            cannonShots[i].y,
-            ATLASCLIP_CANNON_SHOT
-        );
-    }
+        RenderAtlasClip(cannonShots[i].x, cannonShots[i].y, ATLASCLIP_CANNON_SHOT);
 }
 
 // ========================================================================= //
 // COLLISIONS
 // ========================================================================= //
 
-void UpdateHordeCollisions()
+void ProcessTouristCollision()
 {
-    for (int i = 0; i < INVADER_COUNT; i++)
+    const SDL_Rect touristRect = { roundf(tourist.x) + 4, TOURIST_Y, 16, 8};
+
+    for (int i = 0; i < arrlen(cannonShots); i++)
     {
-        if (horde.invaders[i].dead)
-            continue;
-
-        const int invaderX = horde.invaders[i].x;
-        const int invaderY = horde.invaders[i].y;
-        SDL_Rect invaderRect = { invaderX, invaderY, 12, 8 };
-        if (i / 11 == 0)
+        const SDL_Rect shotRect = { cannonShots[i].x, cannonShots[i].y, 1, 4 };
+        if (SDL_HasIntersection(&shotRect, &touristRect))
         {
-            invaderRect.x += 2;
-            invaderRect.w -= 4;
+            ClipAnimation animation;
+            InitClipAnimation(&animation, 1, (ClipAnimationFrame){
+                .clip = ATLASCLIP_TOURIST_EXPLOSION,
+                    .timer = {
+                    .reachedTimeout = false,
+                    .time = 0,
+                    .timeout = EXPLOSION_TOURIST_TIMEOUT
+                }
+            });
+            AddExplosion(tourist.x, TOURIST_Y, &animation);
+
+            tourist.dead = true;
+
+            // remove shot from list
+            arrdel(cannonShots, i);
         }
-        else if (i / 11 <= 2)
-            invaderRect.x += 1;
+    }
+}
 
-        for (int j = 0; j < arrlen(cannonShots); j++)
+void ProcessHordeCollisions()
+{
+    for (int i = 0; i < arrlen(cannonShots); i++)
+    {
+        const SDL_Rect shotRect = { cannonShots[i].x, cannonShots[i].y, 1, 4 };
+    
+        // horde collisions
+        for (int j = 0; j < INVADER_COUNT; j++)
         {
-            const SDL_Rect shotRect = { cannonShots[j].x, cannonShots[j].y, 1, 1 };
+            if (horde.invaders[j].dead)
+                continue;
+
+            const int invaderX = horde.invaders[j].x;
+            const int invaderY = horde.invaders[j].y;
+            SDL_Rect invaderRect = { invaderX, invaderY, 12, 8 };
+            if (j / 11 == 0)
+                invaderRect = (SDL_Rect){ invaderX + 2, invaderY, 8, 8 };
+            else if (j / 11 <= 2)
+                invaderRect = (SDL_Rect){ invaderX + 1, invaderY, 11, 8 };
+
             if (SDL_HasIntersection(&shotRect, &invaderRect))
             {
-                // create invader explosion at x, y
-                struct Explosion explosion = { .x = invaderX, .y = invaderY };
-                InitClipAnimation(&explosion.animation, 1, (ClipAnimationFrame){
+                // create explosion at invaderX, invaderY
+                ClipAnimation animation;
+                InitClipAnimation(&animation, 1, (ClipAnimationFrame){
                     .clip = ATLASCLIP_INVADER_EXPLOSION,
-                        .timer = {
+                    .timer = {
                         .reachedTimeout = false,
                         .time = 0,
                         .timeout = EXPLOSION_INVADER_TIMEOUT
                     }
                 });
-                arrput(explosions, explosion);
+                AddExplosion(invaderX, invaderY, &animation);
 
-                // now invader is dead
-                horde.invaders[i].dead = true;
-                // reset horde timer.
-                // This creates that delay effect in horde when an invader gets shot
-                horde.moveTimer.time = 0;
+                horde.invaders[j].dead = true;
+
+                // This creates that delay effect in horde movement when an invader gets shot
+                if (horde.moveTimer.timeout < horde.moveTimer.time + EXPLOSION_INVADER_TIMEOUT)
+                {
+                    if (horde.moveTimer.time >= EXPLOSION_INVADER_TIMEOUT)
+                        horde.moveTimer.time -= EXPLOSION_INVADER_TIMEOUT;
+                    else
+                        horde.moveTimer.time = 0;
+                }
 
                 // remove shot from list
-                arrdel(cannonShots, j);
+                arrdel(cannonShots, i);
             }
         }
     }
@@ -514,7 +548,8 @@ void UpdateGameplayState()
     }
 
     UpdateShots();
-    UpdateHordeCollisions();
+    ProcessHordeCollisions();
+    ProcessTouristCollision();
     UpdateExplosions();
     MoveHorde();
     UpdateTourist();
