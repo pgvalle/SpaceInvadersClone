@@ -144,9 +144,7 @@ void InitApp()
         app.options.scale * APP_VSCREEN_HEIGHT,
         0
     );
-    app.renderer = SDL_CreateRenderer(
-        app.window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC
-    );
+    app.renderer = SDL_CreateRenderer(app.window, -1, SDL_RENDERER_ACCELERATED);
     app.frameTime = 0;
 
     // loading window icon
@@ -186,12 +184,16 @@ void DestroyApp()
 
 void RunApp()
 {
-    Uint32 before = 0;
+    Uint32 before = SDL_GetTicks();
 
     while (!app.shouldClose)
     {
-        // calculate last frame time
+        // calculate frame deltatime
         app.frameTime = SDL_GetTicks() - before;
+        if (app.frameTime < 17) // only finish frame if fps is around 60
+            continue;
+
+        // now a new frame started
         before = SDL_GetTicks();
 
         // reset event and poll for next in queue
