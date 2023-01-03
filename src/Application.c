@@ -137,7 +137,7 @@ void InitApp()
     app.options.scale = 2;
     app.shouldClose = false;
     app.window = SDL_CreateWindow(
-        APP_TITLE,
+        "Space Invaders Clone",
         SDL_WINDOWPOS_CENTERED,
         SDL_WINDOWPOS_CENTERED,
         app.options.scale * APP_VSCREEN_WIDTH,
