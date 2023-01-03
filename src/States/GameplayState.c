@@ -377,10 +377,9 @@ void UpdateShots()
     for (int i = 0; i < arrlen(invadersShots); i++)
     {
         UpdateClipAnimation(&invadersShots[i].animation);
-        // reset animation if finished.
         if (HasClipAnimationFinished(&invadersShots[i].animation))
-            invadersShots[i].animation.current = 0;
-        // update velocity
+            ResetClipAnimation(&invadersShots[i].animation);
+
         invadersShots[i].y += invaderShotsVel;
     }
 }
