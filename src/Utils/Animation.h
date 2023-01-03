@@ -35,6 +35,7 @@ static inline bool HasAnimationFinished(const Animation* anim)
 }
 
 void UpdateAnimation(Animation* anim);
+
 static inline void RenderAnimation(int x, int y, const Animation* anim)
 {
     RenderAtlasClip(x, y, anim->frames[anim->current].clip);
