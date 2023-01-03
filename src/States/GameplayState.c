@@ -38,9 +38,9 @@ struct Invader
 };
 
 #define HORDE_X_INIT 26
-#define HORDE_Y_INIT 9 * APP_FONT_PTSIZE
+#define HORDE_Y_INIT 72
 
-#define HORDE_MOVE_TIMEOUT_INIT 1000
+#define HORDE_MOVE_TIMEOUT_INIT 1024
 
 struct Horde
 {
@@ -93,7 +93,9 @@ void RenderTourist();
 struct Cannon
 {
     int x;
-}* p1Cannons, * p2Cannons;
+
+    bool dead;
+} p1Cannon, p2Cannon;
 
 void InitCannons();
 
@@ -128,7 +130,7 @@ struct InvaderShot
 }* invadersShots;
 int invaderShotsVel;
 
-#define CANNON_SHOT_VEL 2
+#define CANNON_SHOT_VEL 4
 
 struct CannonShot
 {
@@ -219,6 +221,21 @@ void InitHorde()
     };
 }
 
+bool HasHordeReachedBounds()
+{
+    for (int i = 0; i < INVADER_COUNT; i++)
+    {
+        if (horde.invaders[i].dead)
+            continue;
+
+        const int x = horde.invaders[i].x;
+        if (x <= 10 || x >= APP_VSCREEN_WIDTH - 22)
+            return true;
+    }
+
+    return false;
+}
+
 void MoveHorde()
 {
     UpdateTimer(&horde.moveTimer);
@@ -227,24 +244,22 @@ void MoveHorde()
         return;
 
     // should move down
-    if (horde.moveCount == 16)
+    if (HasHordeReachedBounds())
     {
         for (int i = 0; i < INVADER_COUNT; i++)
             horde.invaders[i].y += 8;
 
         horde.moveCount = 0; // reset move counter
-        horde.moveTimer.timeout; // increase invaders speed somehow
+        if (horde.moveTimer.timeout >= 16)
+            horde.moveTimer.timeout -= 16;
         horde.moveRight = !horde.moveRight; // change horizontal movement
     }
-    else
-    {
-        const int offset = horde.moveRight ? 2 : -2;
-        for (int i = 0; i < INVADER_COUNT; i++)
-            horde.invaders[i].x += offset;
+    
+    const int offset = horde.moveRight ? 2 : -2;
+    for (int i = 0; i < INVADER_COUNT; i++)
+        horde.invaders[i].x += offset;
 
-        horde.moveCount++;
-    }
-
+    horde.moveCount++;
     horde.clipIndexOffset = !horde.clipIndexOffset;
 }
 
@@ -400,7 +415,7 @@ void UpdateShots()
     }
 
     for (int i = 0; i < arrlen(cannonShots); i++)
-        cannonShots[i].y -= 2;
+        cannonShots[i].y -= CANNON_SHOT_VEL;
 }
 
 void RenderShots()
@@ -485,6 +500,9 @@ void ProcessHordeCollisions()
                 AddExplosion(invaderX, invaderY, &animation);
 
                 horde.invaders[j].dead = true;
+                // increate invader speed
+                if (horde.moveTimer.timeout >= 16)
+                    horde.moveTimer.timeout -= 16;
 
                 // This creates that delay effect in horde movement when an invader gets shot
                 if (horde.moveTimer.timeout < horde.moveTimer.time + EXPLOSION_INVADER_TIMEOUT)
@@ -564,6 +582,8 @@ void RenderGameplayState()
     RenderHorde();
     RenderTourist();
     RenderExplosions();
+
+    RenderText(8, 168 + HORDE_Y_INIT, "3", false);
 
     SDL_RenderPresent(app.renderer);
 }

@@ -190,7 +190,7 @@ void RunApp()
     {
         // calculate frame deltatime
         app.frameTime = SDL_GetTicks() - before;
-        if (app.frameTime < 17) // only finish frame if fps is around 60
+        if (app.frameTime < 16) // only finish frame if fps is around 60
             continue;
 
         // now a new frame started
