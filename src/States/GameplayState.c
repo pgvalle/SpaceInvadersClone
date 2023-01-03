@@ -95,7 +95,8 @@ struct Cannon
     int x;
 
     bool dead;
-} p1Cannon, p2Cannon;
+    int deaths;
+} cannon;
 
 void InitCannons();
 
@@ -415,7 +416,26 @@ void UpdateShots()
     }
 
     for (int i = 0; i < arrlen(cannonShots); i++)
+    {
         cannonShots[i].y -= CANNON_SHOT_VEL;
+
+        if (cannonShots[i].y <= TOURIST_Y)
+        {
+            Animation animation;
+            InitAnimation(&animation, 1, (AnimationFrame) {
+                .clip = ATLASCLIP_CANNON_SHOT_EXPLOSION,
+                .timer = {
+                    .reachedTimeout = false,
+                    .time = 0,
+                    .timeout = EXPLOSION_SHOT_TIMEOUT
+                }
+            });
+            AddExplosion(cannonShots[i].x - 3, cannonShots[i].y, &animation);
+
+            // remove shot
+            arrdel(cannonShots, i);
+        }
+    }
 }
 
 void RenderShots()
@@ -550,10 +570,9 @@ void DestroyGameplayState()
 void UpdateGameplayState()
 {
     UpdateGlobals();
-    if (startAnimation)
-        return;
 
-    if (gamePaused)
+    // Don't update if starting animation is being played or the game is paused
+    if (gamePaused || startAnimation)
         return;
 
     if (app.event.type == SDL_KEYDOWN && app.event.key.keysym.sym == SDLK_SPACE)
