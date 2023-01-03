@@ -1,7 +1,7 @@
 #include "StatesInternal.h"
 #include "../Application.h"
 #include "../Utils/Menu.h"
-#include "../Utils/ClipAnimation.h"
+#include "../Utils/Animation.h"
 #include "../Utils/Renderer.h"
 #include "../Utils/stb_ds.h"
 
@@ -15,12 +15,11 @@
 // GLOBALS
 // ========================================================================= //
 
-#define START_ANIMATION_STEP 20
+#define START_ANIMATION_STEP 10
 
 bool gamePaused;
 bool startAnimation;
 int startAnimationSteps;
-Timer startAnimationStepTimer;
 
 void InitGlobals();
 void UpdateGlobals();
@@ -110,10 +109,10 @@ void InitCannons();
 struct Explosion
 {
     int x, y;
-    struct ClipAnimation animation;
+    struct Animation animation;
 }* explosions;
 
-void AddExplosion(int x, int y, const struct ClipAnimation* anim);
+void AddExplosion(int x, int y, const struct Animation* anim);
 void UpdateExplosions();
 void RenderExplosions();
 
@@ -125,7 +124,7 @@ void RenderExplosions();
 struct InvaderShot
 {
     int x, y;
-    struct ClipAnimation animation; // each shot has its own animation state
+    struct Animation animation; // each shot has its own animation state
 }* invadersShots;
 int invaderShotsVel;
 
@@ -154,11 +153,6 @@ void InitGlobals()
     gamePaused = false;
     startAnimation = true;
     startAnimationSteps = 0;
-    startAnimationStepTimer = (Timer){
-        .reachedTimeout = false,
-        .time = 0,
-        .timeout = START_ANIMATION_STEP
-    };
 }
 
 void UpdateGlobals()
@@ -174,18 +168,14 @@ void UpdateGlobals()
 
     // Only executes if the game isn't paused and start animation is playing
 
-    UpdateTimer(&startAnimationStepTimer);
-    if (startAnimationStepTimer.reachedTimeout)
-    {
-        // "undeading" invaders starting from bottom-left
-        const int i = 4 - startAnimationSteps / 11;
-        const int j = startAnimationSteps % 11;
-        horde.invaders[11 * i + j].dead = false;
+    // "undeading" invaders starting from bottom-left
+    const int i = 4 - startAnimationSteps / 11;
+    const int j = startAnimationSteps % 11;
+    horde.invaders[11 * i + j].dead = false;
 
-        // updating animation status
-        if (++startAnimationSteps == INVADER_COUNT)
-            startAnimation = false;
-    }
+    // updating animation status
+    if (++startAnimationSteps == INVADER_COUNT)
+        startAnimation = false;
 }
 
 
@@ -357,7 +347,7 @@ void RenderTourist()
 // EXPLOSIONS
 // ========================================================================= //
 
-void AddExplosion(int x, int y, const struct ClipAnimation* anim)
+void AddExplosion(int x, int y, const struct Animation* anim)
 {
     const struct Explosion explosion = { .x = x, .y = y, .animation = *anim };
     arrput(explosions, explosion);
@@ -367,10 +357,10 @@ void UpdateExplosions()
 {
     for (int i = 0; i < arrlen(explosions); i++)
     {
-        UpdateClipAnimation(&explosions[i].animation);
-        if (HasClipAnimationFinished(&explosions[i].animation))
+        UpdateAnimation(&explosions[i].animation);
+        if (HasAnimationFinished(&explosions[i].animation))
         {
-            FreeClipAnimation(&explosions[i].animation);
+            FreeAnimation(&explosions[i].animation);
             arrdel(explosions, i);
         }
     }
@@ -380,7 +370,7 @@ void RenderExplosions()
 {
     for (int i = 0; i < arrlen(explosions); i++)
     {
-        RenderClipAnimation(
+        RenderAnimation(
             explosions[i].x,
             explosions[i].y,
             &explosions[i].animation
@@ -402,9 +392,9 @@ void UpdateShots()
 {
     for (int i = 0; i < arrlen(invadersShots); i++)
     {
-        UpdateClipAnimation(&invadersShots[i].animation);
-        if (HasClipAnimationFinished(&invadersShots[i].animation))
-            ResetClipAnimation(&invadersShots[i].animation);
+        UpdateAnimation(&invadersShots[i].animation);
+        if (HasAnimationFinished(&invadersShots[i].animation))
+            ResetAnimation(&invadersShots[i].animation);
 
         invadersShots[i].y += invaderShotsVel;
     }
@@ -417,7 +407,7 @@ void RenderShots()
 {
     for (int i = 0; i < arrlen(invadersShots); i++)
     {
-        RenderClipAnimation(
+        RenderAnimation(
             invadersShots[i].x,
             invadersShots[i].y,
             &invadersShots[i].animation
@@ -441,8 +431,8 @@ void ProcessTouristCollision()
         const SDL_Rect shotRect = { cannonShots[i].x, cannonShots[i].y, 1, 4 };
         if (SDL_HasIntersection(&shotRect, &touristRect))
         {
-            ClipAnimation animation;
-            InitClipAnimation(&animation, 1, (ClipAnimationFrame){
+            Animation animation;
+            InitAnimation(&animation, 1, (AnimationFrame){
                 .clip = ATLASCLIP_TOURIST_EXPLOSION,
                     .timer = {
                     .reachedTimeout = false,
@@ -483,8 +473,8 @@ void ProcessHordeCollisions()
             if (SDL_HasIntersection(&shotRect, &invaderRect))
             {
                 // create explosion at invaderX, invaderY
-                ClipAnimation animation;
-                InitClipAnimation(&animation, 1, (ClipAnimationFrame){
+                Animation animation;
+                InitAnimation(&animation, 1, (AnimationFrame){
                     .clip = ATLASCLIP_INVADER_EXPLOSION,
                     .timer = {
                         .reachedTimeout = false,
@@ -510,6 +500,16 @@ void ProcessHordeCollisions()
             }
         }
     }
+}
+
+void ProcessBunkersCollisions()
+{
+
+}
+
+void ProcessPlayerCollision()
+{
+    
 }
 
 

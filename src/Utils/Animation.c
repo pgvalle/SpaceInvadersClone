@@ -1,9 +1,9 @@
-#include "ClipAnimation.h"
+#include "Animation.h"
 #include "Renderer.h"
 #include "stb_ds.h"
 #include <stdarg.h>
 
-void InitClipAnimation(ClipAnimation* anim, int size, ...)
+void InitAnimation(Animation* anim, int size, ...)
 {
     anim->frames = NULL;
     anim->size = size;
@@ -12,18 +12,18 @@ void InitClipAnimation(ClipAnimation* anim, int size, ...)
     va_list args;
     va_start(args, size);
     for (int i = 0; i < size; i++)
-        arrput(anim->frames, va_arg(args, ClipAnimationFrame));
+        arrput(anim->frames, va_arg(args, AnimationFrame));
     va_end(args);
 }
 
-void FreeClipAnimation(ClipAnimation* anim)
+void FreeAnimation(Animation* anim)
 {
     arrfree(anim->frames);
     anim->size = 0;
     anim->current = 0;
 }
 
-void UpdateClipAnimation(ClipAnimation* anim)
+void UpdateAnimation(Animation* anim)
 {
     const int current = anim->current;
 
