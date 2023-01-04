@@ -79,7 +79,7 @@ void RenderGameplayState()
     RenderExplosions();
     RenderBunkers();
 
-    RenderText(8, 168 + HORDE_Y_INIT, "3", false);
+    RenderWhiteText(8, 168 + HORDE_Y_INIT, "3");
 
     SDL_RenderPresent(app.renderer);
 }

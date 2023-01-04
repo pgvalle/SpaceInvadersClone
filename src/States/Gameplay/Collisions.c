@@ -16,7 +16,7 @@ void ProcessTouristCollision()
             // create explosion animation
             Animation animation;
             InitAnimation(&animation, 1, (AnimationFrame){
-                .clip = ATLASCLIP_TOURIST_EXPLOSION,
+                .clip = CLIP_TOURIST_EXPLOSION,
                     .timer = {
                     .reachedTimeout = false,
                     .time = 0,
@@ -57,7 +57,7 @@ void ProcessHordeCollisions()
                 // create explosion
                 Animation animation;
                 InitAnimation(&animation, 1, (AnimationFrame){
-                    .clip = ATLASCLIP_INVADER_EXPLOSION,
+                    .clip = CLIP_INVADER_EXPLOSION,
                         .timer = {
                         .reachedTimeout = false,
                         .time = 0,

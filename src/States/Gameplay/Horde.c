@@ -94,13 +94,13 @@ void RenderHorde()
         switch (i / 11)
         {
         case 0: // first row
-            RenderAtlasClip(x, y, ATLASCLIP_INVADER00 + horde.clipIndexOffset);
+            RenderClip(x, y, CLIP_INVADER00 + horde.clipIndexOffset);
             break;
         case 1: case 2: // second or third
-            RenderAtlasClip(x, y, ATLASCLIP_INVADER10 + horde.clipIndexOffset);
+            RenderClip(x, y, CLIP_INVADER10 + horde.clipIndexOffset);
             break;
         case 3: case 4: // fourth or fifth
-            RenderAtlasClip(x, y, ATLASCLIP_INVADER20 + horde.clipIndexOffset);
+            RenderClip(x, y, CLIP_INVADER20 + horde.clipIndexOffset);
             break;
         }
     }

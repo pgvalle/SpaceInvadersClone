@@ -66,7 +66,7 @@ void RenderText(int x, int y, int clipY, const char* text)
 // Renderer.h Implementations
 // ========================================================================= //
 
-void RenderAtlasClip(int x, int y, Clip clip)
+void RenderClip(int x, int y, Clip clip)
 {
     // all valid clips for atlas.png
     static const SDL_Rect clips[CLIP_COUNT] = {

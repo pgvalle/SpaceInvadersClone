@@ -28,7 +28,7 @@ void UpdateShots()
         {
             Animation animation;
             InitAnimation(&animation, 1, (AnimationFrame) {
-                .clip = ATLASCLIP_CANNON_SHOT_EXPLOSION,
+                .clip = CLIP_CANNON_SHOT_EXPLOSION,
                     .timer = {
                     .reachedTimeout = false,
                     .time = 0,
@@ -55,5 +55,5 @@ void RenderShots()
     }
 
     for (int i = 0; i < arrlen(cannonShots); i++)
-        RenderAtlasClip(cannonShots[i].x, cannonShots[i].y, ATLASCLIP_CANNON_SHOT);
+        RenderClip(cannonShots[i].x, cannonShots[i].y, CLIP_CANNON_SHOT);
 }

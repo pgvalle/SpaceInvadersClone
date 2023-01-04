@@ -28,7 +28,7 @@ enum Clip
 typedef enum Clip Clip;
 
 // x and y are in-game coordinates.
-void RenderAtlasClip(int x, int y, Clip clip);
+void RenderClip(int x, int y, Clip clip);
 
 // x and y are in-game coordinates.
 // character set: ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789<>*?

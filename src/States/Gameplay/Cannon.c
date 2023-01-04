@@ -41,5 +41,5 @@ void UpdateCannon()
 void RenderCannon()
 {
     if (!cannon.dead)
-        RenderAtlasClip(cannon.x, CANNON_Y, ATLASCLIP_CANNON);
+        RenderClip(cannon.x, CANNON_Y, CLIP_CANNON);
 }

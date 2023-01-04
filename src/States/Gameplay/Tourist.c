@@ -61,5 +61,5 @@ void UpdateTourist()
 void RenderTourist()
 {
     if (!tourist.dead && tourist.spawned)
-        RenderAtlasClip(roundf(tourist.x), TOURIST_Y, ATLASCLIP_TOURIST);
+        RenderClip(roundf(tourist.x), TOURIST_Y, CLIP_TOURIST);
 }
