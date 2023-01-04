@@ -3,8 +3,6 @@
 
 #include <SDL_render.h>
 
-
-
 void LoadTextures();
 void DestroyTextures();
 

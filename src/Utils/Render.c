@@ -27,7 +27,7 @@ void RenderText(int x, int y, int clipY, const char* text);
 // Renderer.h Implementations
 // ========================================================================= //
 
-void LoadTextures(int scale)
+void LoadTextures()
 {
     LoadAtlasTexture();
     CreateCharsTexture();
