@@ -1,8 +1,8 @@
 #ifndef RENDERER_H
 #define RENDERER_H
 
-// NOTE: there isn't ATLASCLIP_BUNKER because it's an unique entity.
-// Take a look at atlas.png. You won't find a bunker image there.
+// NOTE: there isn't CLIP_BUNKER because it's an unique entity.
+// Take a look at atlas.png. You won't find a bunker sprite there.
 enum Clip
 {
     CLIP_TOURIST,
