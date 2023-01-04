@@ -1,42 +1,41 @@
 #ifndef RENDERER_H
 #define RENDERER_H
 
-#include <stdbool.h>
-
 // NOTE: there isn't ATLASCLIP_BUNKER because it's an unique entity.
-// Take a look at atlas.png and you won't find a bunker image there.
-enum AtlasClip
+// Take a look at atlas.png. You won't find a bunker image there.
+enum Clip
 {
-    ATLASCLIP_TOURIST,
-    ATLASCLIP_TOURIST_EXPLOSION,
+    CLIP_TOURIST,
+    CLIP_TOURIST_EXPLOSION,
 
-    ATLASCLIP_CANNON,
-    ATLASCLIP_CANNON_EXPLOSION0,
-    ATLASCLIP_CANNON_EXPLOSION1,
+    CLIP_CANNON,
+    CLIP_CANNON_EXPLOSION0,
+    CLIP_CANNON_EXPLOSION1,
 
-    ATLASCLIP_CANNON_SHOT,
-    ATLASCLIP_CANNON_SHOT_EXPLOSION,
+    CLIP_CANNON_SHOT,
+    CLIP_CANNON_SHOT_EXPLOSION,
 
-    ATLASCLIP_INVADER00,
-    ATLASCLIP_INVADER01,
-    ATLASCLIP_INVADER10,
-    ATLASCLIP_INVADER11,
-    ATLASCLIP_INVADER20,
-    ATLASCLIP_INVADER21,
-    ATLASCLIP_INVADER_EXPLOSION,
+    CLIP_INVADER00,
+    CLIP_INVADER01,
+    CLIP_INVADER10,
+    CLIP_INVADER11,
+    CLIP_INVADER20,
+    CLIP_INVADER21,
+    CLIP_INVADER_EXPLOSION,
 
-    ATLASCLIP_COUNT
+    CLIP_COUNT
 };
-typedef enum AtlasClip AtlasClip;
+typedef enum Clip Clip;
 
 // x and y are in-game coordinates.
-void RenderAtlasClip(int x, int y, AtlasClip clip);
+void RenderAtlasClip(int x, int y, Clip clip);
 
 // x and y are in-game coordinates.
 // character set: ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789<>*?
 // All other characters are interpreted as spaces.
-// So, for example: "i$love$u" -> "i love u"
-void RenderText(int x, int y, const char* text, bool red);
+// So, for example: "i$love$u" gets rendered as "i love u"
+void RenderWhiteText(int x, int y, const char* text),
+     RenderRedText  (int x, int y, const char* text);
 
 
 #endif // RENDERER_H
