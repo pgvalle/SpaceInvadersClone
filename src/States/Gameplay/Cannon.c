@@ -19,9 +19,9 @@ void InitCannon()
 void UpdateCannon()
 {
     const Uint8* keys = SDL_GetKeyboardState(NULL);
-    if (keys[SDL_SCANCODE_LEFT])
+    if (keys[SDL_SCANCODE_LEFT] && cannon.x > CANNON_X_INIT)
         cannon.x -= 1;
-    if (keys[SDL_SCANCODE_RIGHT])
+    if (keys[SDL_SCANCODE_RIGHT] && cannon.x < APP_VSCREEN_WIDTH - 31)
         cannon.x += 1;
 
     if (!cannon.shotTimer.reachedTimeout)

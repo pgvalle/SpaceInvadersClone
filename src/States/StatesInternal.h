@@ -33,5 +33,10 @@ void DestroyGameplayState();
 void UpdateGameplayState();
 void RenderGameplayState();
 
+void InitMenuState();
+void DestroyMenuState();
+void UpdateMenuState();
+void RenderMenuState();
+
 
 #endif // STATES_INTERNAL_H

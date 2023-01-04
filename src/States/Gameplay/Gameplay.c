@@ -16,6 +16,9 @@ void UpdateGlobals()
 {
     if (app.event.type == SDL_KEYDOWN && !app.event.key.repeat)
     {
+        if (gamePaused && app.event.key.keysym.sym == SDLK_q)
+            PopState();
+
         if (app.event.key.keysym.sym == SDLK_ESCAPE)
             gamePaused = !gamePaused;
     }
@@ -37,6 +40,8 @@ void UpdateGlobals()
 
 void InitGameplayState()
 {
+    SDL_Log("Inside gameplay state...");
+
     InitGlobals();
     InitHorde();
     InitTourist();

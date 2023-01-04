@@ -82,8 +82,7 @@ void RunApp()
         // now a new frame started
         before = SDL_GetTicks();
 
-        // reset event and poll for next in queue
-        app.event.type = SDL_FIRSTEVENT;
+        // poll for next event in queue
         SDL_PollEvent(&app.event);
         if (app.event.type == SDL_QUIT)
             app.shouldClose = true;

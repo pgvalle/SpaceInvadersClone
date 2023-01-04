@@ -17,10 +17,10 @@ void InitStateMachine()
 {
     // push initial state to stack
     const State initialState = {
-        .Init = InitGameplayState,
-        .Destroy = DestroyGameplayState,
-        .Update = UpdateGameplayState,
-        .Render = RenderGameplayState
+        .Init = InitMenuState,
+        .Destroy = DestroyMenuState,
+        .Update = UpdateMenuState,
+        .Render = RenderMenuState
     };
     arrput(states, initialState);
     current = 0; // current state index is 0
