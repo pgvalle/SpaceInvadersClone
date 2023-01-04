@@ -64,20 +64,18 @@ void InitBunkers()
 
 void RenderBunkers()
 {
-    SDL_SetRenderDrawColor(app.renderer, 32, 255, 32, 255);
 
     for (int i = 0; i < 4; i++)
     {
         for (int j = 0; j < 352; j++)
         {
-            const SDL_Rect pieceRect = {
-                bunkers[i].pieces[j].x * app.options.scale,
-                bunkers[i].pieces[j].y * app.options.scale,
-                app.options.scale,
-                app.options.scale
-            };
-
-            SDL_RenderFillRect(app.renderer, &pieceRect);
+            RenderFilledRect(
+                bunkers[i].pieces[j].x,
+                bunkers[i].pieces[j].y,
+                1,
+                1,
+                0x20ff20ff
+            );
         }
     }
 }

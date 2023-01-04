@@ -69,9 +69,6 @@ void UpdateGameplayState()
 
 void RenderGameplayState()
 {
-    SDL_SetRenderDrawColor(app.renderer, 0, 0, 0, 255);
-    SDL_RenderClear(app.renderer);
-
     RenderShots();
     RenderHorde();
     RenderTourist();
@@ -80,6 +77,4 @@ void RenderGameplayState()
     RenderBunkers();
 
     RenderWhiteText(8, 168 + HORDE_Y_INIT, "3");
-
-    SDL_RenderPresent(app.renderer);
 }

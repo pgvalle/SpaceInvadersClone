@@ -1,5 +1,4 @@
 #include "Animation.h"
-#include "Renderer.h"
 #include "stb_ds.h"
 #include <stdarg.h>
 

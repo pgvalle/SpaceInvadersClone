@@ -1,6 +1,7 @@
 #include "StateMachine.h"
 #include "StatesInternal.h"
 #include "../Application.h"
+#include "../Utils/Render.h"
 #include "../Utils/stb_ds.h"
 
 #include <stdlib.h>
@@ -11,7 +12,6 @@ State* states;
 int current;
 
 bool pushing, poping;
-bool changeScheduled;
 
 void InitStateMachine()
 {
@@ -30,7 +30,6 @@ void InitStateMachine()
     // already pushed, not poping and changes already applied
     pushing = false;
     poping = false;
-    changeScheduled = false;
 }
 
 void DestroyStateMachine()
@@ -45,36 +44,33 @@ void DestroyStateMachine()
 
 void PushState(State state)
 {
-    if (changeScheduled)
+    if (pushing || poping)
         return;
 
     arrput(states, state);
     pushing = true;
-    changeScheduled = true;
 }
 
 void PopState()
 {
-    if (changeScheduled)
+    if (pushing || poping)
         return;
 
     poping = true;
-    changeScheduled = true;
 }
 
 void ReplaceState(State state)
 {
-    if (changeScheduled)
+    if (pushing || poping)
         return;
 
     arrput(states, state);
     pushing = poping = true;
-    changeScheduled = true;
 }
 
 void UpdateStateMachine()
 {
-    if (!changeScheduled)
+    if (!pushing && !poping)
         return;
 
     if (pushing && poping)
@@ -95,7 +91,7 @@ void UpdateStateMachine()
     }
 
     // nothing scheduled now
-    changeScheduled = false;
+    pushing = poping = false;
 }
 
 void UpdateCurrentState()
@@ -105,5 +101,8 @@ void UpdateCurrentState()
 
 void RenderCurrentState()
 {
+    SDL_SetRenderDrawColor(app.renderer, 0, 0, 0, 255);
+    SDL_RenderClear(app.renderer);
     states[current].Render();
+    SDL_RenderPresent(app.renderer);
 }

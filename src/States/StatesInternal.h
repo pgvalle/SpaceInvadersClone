@@ -20,7 +20,9 @@ typedef struct State State;
 // ...
 // PopState();
 // In This example, PopState is ignored because PushState was called first.
-void PushState(State state), PopState(), ReplaceState(State state);
+void PushState(State state);
+void PopState();
+void ReplaceState(State state);
 
 // ========================================================================= //
 // State Methods

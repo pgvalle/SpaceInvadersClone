@@ -1,12 +1,12 @@
 #ifndef ANIMATION_H
 #define ANIMATION_H
 
-#include "Renderer.h"
+#include "Render.h"
 #include "Timer.h"
 
 struct AnimationFrame
 {
-    AtlasClip clip;
+    Clip clip;
     Timer timer;
 };
 typedef struct AnimationFrame AnimationFrame;
@@ -38,7 +38,7 @@ void UpdateAnimation(Animation* anim);
 
 static inline void RenderAnimation(int x, int y, const Animation* anim)
 {
-    RenderAtlasClip(x, y, anim->frames[anim->current].clip);
+    RenderClip(x, y, anim->frames[anim->current].clip);
 }
 
 

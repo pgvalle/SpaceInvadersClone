@@ -1,5 +1,23 @@
-#ifndef RENDERER_H
-#define RENDERER_H
+#ifndef RENDER_H
+#define RENDER_H
+
+#include <SDL_render.h>
+
+
+
+void LoadTextures();
+void DestroyTextures();
+
+// x and y are in-game coordinates.
+// color is in RGBA format.
+void RenderFilledRect(int x, int y, int w, int h, Uint32 color);
+
+// x and y are in-game coordinates.
+// character set: ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789<>*?
+// All other characters are interpreted as spaces.
+// So, for example: "i$love$u" gets rendered as "i love u"
+void RenderWhiteText(int x, int y, const char* text);
+void RenderRedText(int x, int y, const char* text);
 
 // NOTE: there isn't CLIP_BUNKER because it's an unique entity.
 // Take a look at atlas.png. You won't find a bunker sprite there.
@@ -30,12 +48,5 @@ typedef enum Clip Clip;
 // x and y are in-game coordinates.
 void RenderClip(int x, int y, Clip clip);
 
-// x and y are in-game coordinates.
-// character set: ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789<>*?
-// All other characters are interpreted as spaces.
-// So, for example: "i$love$u" gets rendered as "i love u"
-void RenderWhiteText(int x, int y, const char* text),
-     RenderRedText  (int x, int y, const char* text);
 
-
-#endif // RENDERER_H
+#endif // RENDER_H
