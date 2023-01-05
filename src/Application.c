@@ -1,5 +1,5 @@
 #include "Application.h"
-#include "States/StateMachine.h"
+#include "States/fsm.h"
 #include "Utils/Render.h"
 
 #include <stdio.h>
@@ -54,13 +54,13 @@ void InitApp()
 
     LoadTextures();
 
-    InitStateMachine();
+    fsm_init();
 }
 
 void DestroyApp()
 {
     // destroy all states properly because we're quitting the app.
-    DestroyStateMachine();
+    fsm_destroy();
     
     DestroyTextures();
 
@@ -87,9 +87,9 @@ void RunApp()
         if (app.event.type == SDL_QUIT)
             app.shouldClose = true;
 
-        UpdateCurrentState();
-        RenderCurrentState();
+        fsm_update_current();
+        fsm_render_current();
 
-        UpdateStateMachine();
+        fsm_update();
     }
 }

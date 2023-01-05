@@ -1,4 +1,4 @@
-#include "../StateMachine.h"
+#include "../fsm.h"
 #include "../StatesInternal.h"
 #include "../../Application.h"
 
@@ -18,7 +18,7 @@ void UpdateMenuState()
     {
         if (app.event.key.keysym.sym == SDLK_RETURN)
         {
-            PushState((State) {
+            fsm_push((state_t) {
                 InitGameplayState,
                     DestroyGameplayState,
                     UpdateGameplayState,
