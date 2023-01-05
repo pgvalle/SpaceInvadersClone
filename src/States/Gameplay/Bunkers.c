@@ -69,7 +69,7 @@ void RenderBunkers()
     {
         for (int j = 0; j < 352; j++)
         {
-            RenderFilledRect(
+            rect_filled_render(
                 bunkers[i].pieces[j].x,
                 bunkers[i].pieces[j].y,
                 1,

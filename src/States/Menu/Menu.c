@@ -18,7 +18,7 @@ void UpdateMenuState()
     {
         if (app.event.key.keysym.sym == SDLK_RETURN)
         {
-            fsm_push((state_t) {
+            fsm_push((fsm_state_t) {
                 InitGameplayState,
                     DestroyGameplayState,
                     UpdateGameplayState,

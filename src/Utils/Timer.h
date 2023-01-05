@@ -1,19 +1,17 @@
 #ifndef TIMER_H
 #define TIMER_H
 
-#include <SDL_types.h>
+#include <stdint.h>
 #include <stdbool.h>
 
 // This kind of thing is appearing too much.
-struct Timer
-{
-	bool reachedTimeout; // read-only
-	Uint32 time;         // read-only
-	Uint32 timeout;
-};
-typedef struct Timer Timer;
+typedef struct timer_t {
+	bool has_timed_out;
+	uint32_t time;
+	uint32_t timeout;
+} timer_t;
 
-void UpdateTimer(Timer* timer);
+void timer_update(timer_t* timer);
 
 
 #endif // TIMER_H

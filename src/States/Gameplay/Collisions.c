@@ -6,7 +6,7 @@ void ProcessTouristCollision()
     if (tourist.dead || !tourist.spawned)
         return;
 
-    const SDL_Rect touristRect = { roundf(tourist.x) + 4, TOURIST_Y, 16, 8 };
+    const SDL_Rect touristRect = { (int)roundf(tourist.x) + 4, TOURIST_Y, 16, 8 };
 
     for (int i = 0; i < arrlen(cannonShots); i++)
     {
@@ -18,12 +18,12 @@ void ProcessTouristCollision()
             InitAnimation(&animation, 1, (AnimationFrame){
                 .clip = CLIP_TOURIST_EXPLOSION,
                     .timer = {
-                    .reachedTimeout = false,
+                    .has_timed_out = false,
                     .time = 0,
                     .timeout = EXPLOSION_TOURIST_TIMEOUT
                 }
             });
-            AddExplosion(tourist.x, TOURIST_Y, &animation);
+            AddExplosion((int)tourist.x, TOURIST_Y, &animation);
 
             tourist.dead = true;
 
@@ -59,7 +59,7 @@ void ProcessHordeCollisions()
                 InitAnimation(&animation, 1, (AnimationFrame){
                     .clip = CLIP_INVADER_EXPLOSION,
                         .timer = {
-                        .reachedTimeout = false,
+                        .has_timed_out = false,
                         .time = 0,
                         .timeout = EXPLOSION_INVADER_TIMEOUT
                     }

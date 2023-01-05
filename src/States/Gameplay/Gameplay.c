@@ -81,5 +81,5 @@ void RenderGameplayState()
     RenderExplosions();
     RenderBunkers();
 
-    RenderWhiteText(8, 168 + HORDE_Y_INIT, "3");
+    text_white_render(8, 168 + HORDE_Y_INIT, "3");
 }

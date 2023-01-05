@@ -30,7 +30,7 @@ void UpdateShots()
             InitAnimation(&animation, 1, (AnimationFrame) {
                 .clip = CLIP_CANNON_SHOT_EXPLOSION,
                     .timer = {
-                    .reachedTimeout = false,
+                    .has_timed_out = false,
                     .time = 0,
                     .timeout = EXPLOSION_SHOT_TIMEOUT
                 }
@@ -55,5 +55,5 @@ void RenderShots()
     }
 
     for (int i = 0; i < arrlen(cannonShots); i++)
-        RenderClip(cannonShots[i].x, cannonShots[i].y, CLIP_CANNON_SHOT);
+        clip_render(cannonShots[i].x, cannonShots[i].y, CLIP_CANNON_SHOT);
 }

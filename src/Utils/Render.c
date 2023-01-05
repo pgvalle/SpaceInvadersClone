@@ -39,7 +39,7 @@ void DestroyTextures()
     SDL_DestroyTexture(fontTex);
 }
 
-void RenderFilledRect(int x, int y, int w, int h, Uint32 color)
+void rect_filled_render(int x, int y, int w, int h, Uint32 color)
 {
     const int factor = app.options.scale;
     const SDL_Rect rect = { factor * x, factor * y, factor * w, factor * h };
@@ -58,7 +58,7 @@ void RenderFilledRect(int x, int y, int w, int h, Uint32 color)
         SDL_SetRenderDrawBlendMode(app.renderer, SDL_BLENDMODE_NONE);
 }
 
-void RenderClip(int x, int y, Clip clip)
+void clip_render(int x, int y, clip_t clip)
 {
     // all valid clips for atlas.png
     static const SDL_Rect clips[CLIP_COUNT] = {
@@ -99,13 +99,13 @@ void RenderClip(int x, int y, Clip clip)
     SDL_RenderCopy(app.renderer, atlasTex, &clips[clip], &scale);
 }
 
-void RenderWhiteText(int x, int y, const char* text)
+void text_white_render(int x, int y, const char* text)
 {
     const int clipY = 0;
     RenderText(x, y, clipY, text);
 }
 
-void RenderRedText(int x, int y, const char* text)
+void text_red_render(int x, int y, const char* text)
 {
     const int clipY = APP_FONT_PTSIZE;
     RenderText(x, y, clipY, text);

@@ -5,7 +5,6 @@
 void InitAnimation(Animation* anim, int size, ...)
 {
     anim->frames = NULL;
-    anim->size = size;
     anim->current = 0;
 
     va_list args;
@@ -18,7 +17,6 @@ void InitAnimation(Animation* anim, int size, ...)
 void FreeAnimation(Animation* anim)
 {
     arrfree(anim->frames);
-    anim->size = 0;
     anim->current = 0;
 }
 
@@ -26,11 +24,11 @@ void UpdateAnimation(Animation* anim)
 {
     const int current = anim->current;
 
-    UpdateTimer(&anim->frames[current].timer);
-    if (anim->frames[current].timer.reachedTimeout)
+    timer_update(&anim->frames[current].timer);
+    if (anim->frames[current].timer.has_timed_out)
     {
         // only update frame pointer if it is valid
-        if (current + 1 <= anim->size)
+        if (current + 1 <= arrlen(anim->frames))
             anim->current++;
     }
 }

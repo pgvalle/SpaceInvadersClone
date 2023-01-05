@@ -9,8 +9,8 @@ void InitCannon()
     cannon.dead = false;
     cannon.deaths = 0;
 
-    cannon.shotTimer = (Timer){
-        .reachedTimeout = false,
+    cannon.shotTimer = (timer_t){
+        .has_timed_out = false,
         .time = 0,
         .timeout = CANNON_SHOT_COOLDOWN
     };
@@ -24,11 +24,11 @@ void UpdateCannon()
     if (keys[SDL_SCANCODE_RIGHT] && cannon.x < APP_VSCREEN_WIDTH - 31)
         cannon.x += 1;
 
-    if (!cannon.shotTimer.reachedTimeout)
-        UpdateTimer(&cannon.shotTimer);
-    if (cannon.shotTimer.reachedTimeout && keys[SDL_SCANCODE_SPACE])
+    if (!cannon.shotTimer.has_timed_out)
+        timer_update(&cannon.shotTimer);
+    if (cannon.shotTimer.has_timed_out && keys[SDL_SCANCODE_SPACE])
     {
-        cannon.shotTimer.reachedTimeout = false;
+        cannon.shotTimer.has_timed_out = false;
         // spawn shot
         struct CannonShot shot = {
             .x = cannon.x + 8,
@@ -41,5 +41,5 @@ void UpdateCannon()
 void RenderCannon()
 {
     if (!cannon.dead)
-        RenderClip(cannon.x, CANNON_Y, CLIP_CANNON);
+        clip_render(cannon.x, CANNON_Y, CLIP_CANNON);
 }

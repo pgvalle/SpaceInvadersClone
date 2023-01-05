@@ -31,8 +31,8 @@ void InitHorde()
 
     horde.moveRight = true;
     horde.moveCount = 0;
-    horde.moveTimer = (Timer){
-        .reachedTimeout = false,
+    horde.moveTimer = (timer_t){
+        .has_timed_out = false,
         .time = 0,
         .timeout = HORDE_MOVE_TIMEOUT_INIT
     };
@@ -55,9 +55,9 @@ bool HasHordeReachedBounds()
 
 void MoveHorde()
 {
-    UpdateTimer(&horde.moveTimer);
+    timer_update(&horde.moveTimer);
     // can't move yet
-    if (!horde.moveTimer.reachedTimeout)
+    if (!horde.moveTimer.has_timed_out)
         return;
 
     // should move down
@@ -94,13 +94,13 @@ void RenderHorde()
         switch (i / 11)
         {
         case 0: // first row
-            RenderClip(x, y, CLIP_INVADER00 + horde.clipIndexOffset);
+            clip_render(x, y, CLIP_INVADER00 + horde.clipIndexOffset);
             break;
         case 1: case 2: // second or third
-            RenderClip(x, y, CLIP_INVADER10 + horde.clipIndexOffset);
+            clip_render(x, y, CLIP_INVADER10 + horde.clipIndexOffset);
             break;
         case 3: case 4: // fourth or fifth
-            RenderClip(x, y, CLIP_INVADER20 + horde.clipIndexOffset);
+            clip_render(x, y, CLIP_INVADER20 + horde.clipIndexOffset);
             break;
         }
     }

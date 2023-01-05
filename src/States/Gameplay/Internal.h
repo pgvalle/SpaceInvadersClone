@@ -5,7 +5,7 @@
 #include <stdbool.h>
 #include "../../Application.h"
 #include "../../Utils/stb_ds.h"
-#include "../../Utils/Timer.h"
+#include "../../Utils/timer.h"
 #include "../../Utils/Animation.h"
 #include "../../Utils/Render.h"
 
@@ -38,7 +38,7 @@ extern struct Horde
     struct Invader invaders[HORDE_INVADER_COUNT];
     bool moveRight;
     int moveCount;
-    Timer moveTimer; // lower timeout -> faster invaders
+    timer_t moveTimer; // lower timeout -> faster invaders
 } horde;
 
 void InitHorde();
@@ -59,7 +59,7 @@ extern struct Tourist
     bool moveRight;
     bool dead;
     bool spawned;
-    Timer spawnTimer;
+    timer_t spawnTimer;
 } tourist;
 
 void InitTourist();
@@ -82,7 +82,7 @@ extern struct Cannon
     int x;
     bool dead;
     int deaths;
-    Timer shotTimer;
+    timer_t shotTimer;
 } cannon;
 
 void InitCannon();

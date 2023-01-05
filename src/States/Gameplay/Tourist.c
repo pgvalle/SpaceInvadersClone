@@ -11,8 +11,8 @@ void InitTourist()
     tourist.dead = false;
 
     tourist.spawned = false;
-    tourist.spawnTimer = (Timer){
-        .reachedTimeout = false,
+    tourist.spawnTimer = (timer_t){
+        .has_timed_out = false,
         .time = 0,
         .timeout = 5000
     };
@@ -25,8 +25,8 @@ void UpdateTourist()
         tourist.dead = false; // not dead anymore. Didn't even spawn yet
         // reset spawn status
         tourist.spawned = false;
-        tourist.spawnTimer = (Timer){
-            .reachedTimeout = false,
+        tourist.spawnTimer = (timer_t){
+            .has_timed_out = false,
             .time = 0,
             .timeout = rand() % 20000 + 10000
         };
@@ -39,8 +39,8 @@ void UpdateTourist()
         {
             // reset spawn status
             tourist.spawned = false;
-            tourist.spawnTimer = (Timer){
-                .reachedTimeout = false,
+            tourist.spawnTimer = (timer_t){
+                .has_timed_out = false,
                 .time = 0,
                 .timeout = rand() % 20000 + 10000
             };
@@ -48,8 +48,8 @@ void UpdateTourist()
     }
     else // neither spawned nor dead
     {
-        UpdateTimer(&tourist.spawnTimer);
-        if (tourist.spawnTimer.reachedTimeout) // spawn
+        timer_update(&tourist.spawnTimer);
+        if (tourist.spawnTimer.has_timed_out) // spawn
         {
             tourist.moveRight = rand() % 2;
             tourist.x = tourist.moveRight ? 8.f : (APP_VSCREEN_WIDTH - 32.f);
@@ -61,5 +61,5 @@ void UpdateTourist()
 void RenderTourist()
 {
     if (!tourist.dead && tourist.spawned)
-        RenderClip(roundf(tourist.x), TOURIST_Y, CLIP_TOURIST);
+        clip_render((int)roundf(tourist.x), TOURIST_Y, CLIP_TOURIST);
 }

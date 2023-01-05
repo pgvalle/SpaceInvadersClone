@@ -8,7 +8,7 @@
 #include <SDL_ttf.h>
 #include <SDL_mixer.h>
 
-#define APP_RESOURCE_DIR "../../../res/"
+#define APP_RESOURCE_DIR "../../res/"
 
 #define APP_FONT_PTSIZE 8
 

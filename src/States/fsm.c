@@ -8,7 +8,7 @@
 #include <stdbool.h>
 
 // stack
-state_t* stack;
+fsm_state_t* stack;
 int top;
 
 bool pushing, poping;
@@ -16,13 +16,13 @@ bool pushing, poping;
 void fsm_init()
 {
     // push initial state to stack
-    const state_t initialState = {
-        .init = InitMenuState,
+    const fsm_state_t first = {
+        .init    = InitMenuState,
         .destroy = DestroyMenuState,
-        .update = UpdateMenuState,
-        .render = RenderMenuState
+        .update  = UpdateMenuState,
+        .render  = RenderMenuState
     };
-    arrput(stack, initialState);
+    arrput(stack, first);
     top = 0; // top index is 0
 
     stack[top].init(); // Init the state
@@ -42,7 +42,7 @@ void fsm_destroy()
     arrfree(stack);
 }
 
-void fsm_push(state_t state)
+void fsm_push(fsm_state_t state)
 {
     if (!pushing && !poping)
     {
@@ -51,13 +51,12 @@ void fsm_push(state_t state)
     }
 }
 
-void fsm_pop()
-{
+void fsm_pop() {
     if (!pushing && !poping)
         poping = true;
 }
 
-void fsm_replace(state_t state)
+void fsm_replace(fsm_state_t state)
 {
     if (!pushing && !poping)
     {

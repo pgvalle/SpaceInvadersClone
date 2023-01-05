@@ -2,19 +2,19 @@
 #define ANIMATION_H
 
 #include "Render.h"
-#include "Timer.h"
+#include "timer.h"
+#include "stb_ds.h"
 
 struct AnimationFrame
 {
-    Clip clip;
-    Timer timer;
+    clip_t clip;
+    timer_t timer;
 };
 typedef struct AnimationFrame AnimationFrame;
 
 struct Animation
 {
     AnimationFrame* frames;
-    int size;
     int current;
 };
 typedef struct Animation Animation;
@@ -31,14 +31,14 @@ static inline void ResetAnimation(Animation* anim)
 
 static inline bool HasAnimationFinished(const Animation* anim)
 {
-    return anim->size == anim->current;
+    return anim->current == arrlen(anim->frames);
 }
 
 void UpdateAnimation(Animation* anim);
 
 static inline void RenderAnimation(int x, int y, const Animation* anim)
 {
-    RenderClip(x, y, anim->frames[anim->current].clip);
+    clip_render(x, y, anim->frames[anim->current].clip);
 }
 
 

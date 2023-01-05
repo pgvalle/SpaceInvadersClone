@@ -7,11 +7,9 @@
 // State Machine
 // ========================================================================= //
 
-struct state_t
-{
+typedef struct fsm_state_t {
     Function init, destroy, update, render;
-};
-typedef struct state_t state_t;
+} fsm_state_t;
 
 // These functions are called by the states. Changes aren't applied just yet.
 // Only the first call will be considered.
@@ -20,9 +18,9 @@ typedef struct state_t state_t;
 // ...
 // fsm_pop();
 // In This example, fsm_pop is ignored because fsm_push was called first.
-void fsm_push(state_t state);
+void fsm_push(fsm_state_t state);
 void fsm_pop();
-void fsm_replace(state_t state);
+void fsm_replace(fsm_state_t state);
 
 // ========================================================================= //
 // State Methods
