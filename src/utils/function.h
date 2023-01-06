@@ -2,7 +2,7 @@
 #define FUNCTION_H
 
 // Quick alias for void (*)()
-typedef void (*Function)();
+typedef void (*function_t)();
 
 
 #endif // FUNCTION_H
