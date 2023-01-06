@@ -1,5 +1,4 @@
 #include "fsm.h"
-#include "app.h"
 #include "../utils/stb_ds.h"
 
 #include <stdlib.h>
@@ -16,8 +15,6 @@ fsm_state_t* stack = NULL;
 int top = -1;
 // stack update status
 bool pushing = false, poping = false;
-
-bool fsm_initialized = false;
 
 void fsm_init()
 {
@@ -36,15 +33,10 @@ void fsm_init()
     arrput(stack, first);
 
     stack[top].init(); // Init the state
-
-    fsm_initialized = true;
 }
 
 void fsm_destroy()
-{
-    if (!fsm_initialized)
-        return;
-    
+{    
     // destroy all states
     for (; top >= 0; top--)
         stack[top].destroy();
@@ -55,12 +47,12 @@ void fsm_destroy()
 
 bool fsm_empty()
 {
-    return arrlen(stack) > 0;
+    return top < 0;
 }
 
 void fsm_update()
 {
-    if (!fsm_initialized || fsm_empty())
+    if (fsm_empty())
         return;
     
     if (pushing && poping) // replacing
@@ -89,28 +81,25 @@ void fsm_update_current_state()
 void fsm_render_current_state()
 {
     stack[top].render();
-    SDL_RenderPresent(app.renderer);
 }
 
 void fsm_push(fsm_state_t state)
 {
-    if (!fsm_empty() && !pushing && !poping)
+    if (!fsm_empty() && !pushing)
     {
         arrput(stack, state);
         pushing = true;
     }
 }
 
-void fsm_pop() {
-    if (!fsm_empty() && !pushing && !poping)
+void fsm_pop()
+{
+    if (!fsm_empty())
         poping = true;
 }
 
 void fsm_replace(fsm_state_t state)
 {
-    if (!fsm_empty() && !pushing && !poping)
-    {
-        arrput(stack, state);
-        pushing = poping = true;
-    }
+    fsm_push(state);
+    fsm_pop();
 }

@@ -4,8 +4,6 @@
 #include "../utils/function.h"
 #include <stdbool.h>
 
-#define FSM_STACK_LIMIT 16
-
 void fsm_init();
 void fsm_destroy();
 
