@@ -1,39 +1,49 @@
 #include "fsm.h"
-#include "StatesInternal.h"
-#include "../Application.h"
-#include "../Utils/Render.h"
-#include "../Utils/stb_ds.h"
+#include "app.h"
 
 #include <stdlib.h>
 #include <stdbool.h>
 
-// stack
-fsm_state_t* stack;
-int top;
+// First state
+void start_state_init();
+void start_state_destroy();
+void start_state_update();
+void start_state_render();
 
-bool pushing, poping;
+// stack
+fsm_state_t* stack = NULL;
+int top = -1;
+// stack update status
+bool pushing = false, poping = false;
+
+bool initialized = false;
 
 void fsm_init()
 {
+    stack = NULL;
+    top = 0;
+    // changes are going to be applied immediately
+    pushing = poping = false;
+
     // push initial state to stack
     const fsm_state_t first = {
-        .init    = InitMenuState,
-        .destroy = DestroyMenuState,
-        .update  = UpdateMenuState,
-        .render  = RenderMenuState
+        .init    = start_state_init,
+        .destroy = start_state_destroy,
+        .update  = start_state_update,
+        .render  = start_state_render
     };
     arrput(stack, first);
-    top = 0; // top index is 0
 
     stack[top].init(); // Init the state
 
-    // changes already applied
-    pushing = false;
-    poping = false;
+    initialized = true;
 }
 
 void fsm_destroy()
 {
+    if (!initialized)
+        return;
+    
     // destroy all states
     for (; top >= 0; top--)
         stack[top].destroy();
@@ -42,31 +52,16 @@ void fsm_destroy()
     arrfree(stack);
 }
 
-void fsm_push(fsm_state_t state)
+bool fsm_empty()
 {
-    if (!pushing && !poping)
-    {
-        arrput(stack, state);
-        pushing = true;
-    }
-}
-
-void fsm_pop() {
-    if (!pushing && !poping)
-        poping = true;
-}
-
-void fsm_replace(fsm_state_t state)
-{
-    if (!pushing && !poping)
-    {
-        arrput(stack, state);
-        pushing = poping = true;
-    }
+    return arrlen(stack) > 0;
 }
 
 void fsm_update()
 {
+    if (!initialized || fsm_empty())
+        return;
+    
     if (pushing && poping) // replacing
     {
         stack[top].destroy();
@@ -78,10 +73,7 @@ void fsm_update()
     else if (poping) // stack may get empty !!!
     {
         stack[top].destroy();
-        arrdel(stack, top);
-
-        if (--top == -1)
-            app.shouldClose = true;
+        arrdel(stack, top--);
     }
 
     // already did what had to be done
@@ -95,8 +87,29 @@ void fsm_update_current()
 
 void fsm_render_current()
 {
-    SDL_SetRenderDrawColor(app.renderer, 0, 0, 0, 255);
-    SDL_RenderClear(app.renderer);
     stack[top].render();
     SDL_RenderPresent(app.renderer);
+}
+
+void fsm_push(fsm_state_t state)
+{
+    if (!fsm_empty() && !pushing && !poping)
+    {
+        arrput(stack, state);
+        pushing = true;
+    }
+}
+
+void fsm_pop() {
+    if (!fsm_empty() && !pushing && !poping)
+        poping = true;
+}
+
+void fsm_replace(fsm_state_t state)
+{
+    if (!fsm_empty() && !pushing && !poping)
+    {
+        arrput(stack, state);
+        pushing = poping = true;
+    }
 }
