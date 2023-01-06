@@ -15,8 +15,8 @@ void app_init(const app_options_t* options)
         "Space Invaders Clone",
         SDL_WINDOWPOS_CENTERED,
         SDL_WINDOWPOS_CENTERED,
-        app.options.scale * APP_VSCREEN_WIDTH,
-        app.options.scale * APP_VSCREEN_HEIGHT,
+        800,
+        480,
         options->fullscreen ? SDL_WINDOW_FULLSCREEN : 0
     );
     app.renderer = SDL_CreateRenderer(app.window, -1, SDL_RENDERER_ACCELERATED);
@@ -33,7 +33,7 @@ void app_destroy()
     fsm_destroy();
     // destroy all resources
     asset_man_destroy();
-    
+
     // app stuff
     SDL_DestroyRenderer(app.renderer);
     SDL_DestroyWindow(app.window);

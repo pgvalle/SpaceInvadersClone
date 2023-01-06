@@ -24,7 +24,7 @@ void asset_man_init();
 // Deletes all assets, including default ones
 void asset_man_destroy();
 
-// id 0 is reserved to default textures (fonts don't have defaults)
+// id 0 is reserved to default assets (fonts don't have defaults)
 // id may repeat for different asset types.
 // In case asset loading fails, returns false and assign a "default" resource to that id
 // Error codes:

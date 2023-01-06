@@ -3,7 +3,7 @@
 int main(int argc, char** args)
 {
     app_options_t options = {
-        .fullscreen = true,
+        .fullscreen = false,
         .volume = 4,
         .scale = 1
     };

@@ -2,16 +2,16 @@
 #include "app.h"
 #include "../utils/stb_ds.h"
 
-SDL_Texture** textures;
-TTF_Font** fonts;
-Mix_Music** songs;
-Mix_Chunk** chunks;
-bool initialized;
+SDL_Texture** textures = NULL;
+TTF_Font** fonts = NULL;
+Mix_Music** songs = NULL;
+Mix_Chunk** chunks = NULL;
+bool asset_man_initialized = false;
 
 void asset_man_init()
 {
-    // do not initialize if already initialized
-    if (initialized)
+    // do not initialize if already asset_man_initialized
+    if (asset_man_initialized)
         return;
 
     // adding default texture to textures
@@ -34,21 +34,21 @@ void asset_man_init()
 
     chunks = NULL;
 
-    initialized = true;
+    asset_man_initialized = true;
 }
 
 void asset_man_destroy()
 {
     // do not try to destroy if didn't even initialize
-    if (!initialized)
+    if (!asset_man_initialized)
         return;
 
     // delete all assets (including default ones)
     
     // first get rid of the default ones
     SDL_DestroyTexture(textures[0]);
-    Mix_FreeMusic(songs[0]);
-    Mix_FreeChunk(chunks[0]);
+    //Mix_FreeMusic(songs[0]);
+    //Mix_FreeChunk(chunks[0]);
 
     asset_man_free_all(); // free all the rest
     
@@ -58,12 +58,12 @@ void asset_man_destroy()
     arrfree(songs);
     arrfree(chunks);
 
-    initialized = false;
+    asset_man_initialized = false;
 }
 
 int asset_man_load(asset_type_t type, uint8_t id, const char* file)
 {
-    if (!initialized)
+    if (!asset_man_initialized)
         return -2;
     if (id == 0)
         return -1;

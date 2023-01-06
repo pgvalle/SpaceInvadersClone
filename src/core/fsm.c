@@ -17,7 +17,7 @@ int top = -1;
 // stack update status
 bool pushing = false, poping = false;
 
-bool initialized = false;
+bool fsm_initialized = false;
 
 void fsm_init()
 {
@@ -37,12 +37,12 @@ void fsm_init()
 
     stack[top].init(); // Init the state
 
-    initialized = true;
+    fsm_initialized = true;
 }
 
 void fsm_destroy()
 {
-    if (!initialized)
+    if (!fsm_initialized)
         return;
     
     // destroy all states
@@ -60,7 +60,7 @@ bool fsm_empty()
 
 void fsm_update()
 {
-    if (!initialized || fsm_empty())
+    if (!fsm_initialized || fsm_empty())
         return;
     
     if (pushing && poping) // replacing
@@ -81,12 +81,12 @@ void fsm_update()
     pushing = poping = false;
 }
 
-void fsm_update_current()
+void fsm_update_current_state()
 {
     stack[top].update();
 }
 
-void fsm_render_current()
+void fsm_render_current_state()
 {
     stack[top].render();
     SDL_RenderPresent(app.renderer);
