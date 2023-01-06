@@ -5,23 +5,23 @@
 #include <stdbool.h>
 
 // This kind of thing is appearing too much.
-typedef struct timer_t {
+typedef struct tymer_t {
 	bool has_timed_out; // READ-ONLY
 	uint32_t time;      // READ-ONLY
 	uint32_t timeout;   // set with timer_set_timeout
-} timer_t;
+} tymer_t;
 
-void timer_update(timer_t* timer);
+void timer_update(tymer_t* timer);
 
-static inline void timer_reset(timer_t* timer)
+static inline void timer_reset(tymer_t* timer)
 {
 	timer->has_timed_out = false;
 	timer->time = 0;
 }
 
-static inline void timer_set_timeout(timer_t* timer, uint32_t timeout)
+static inline void timer_set_timeout(tymer_t* timer, uint32_t timeout)
 {
-	timer_reset();
+	timer_reset(timer);
 	timer->timeout = timeout;
 }
 

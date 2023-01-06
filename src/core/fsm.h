@@ -2,6 +2,7 @@
 #define FSM_H
 
 #include "../utils/function.h"
+#include <stdbool.h>
 
 #define FSM_STACK_LIMIT 16
 

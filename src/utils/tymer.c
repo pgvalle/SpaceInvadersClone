@@ -1,13 +1,13 @@
-#include "Timer.h"
+#include "tymer.h"
 #include "../core/app.h"
 
-void timer_update(timer_t* timer)
+void timer_update(tymer_t* timer)
 {
 	// assume timer didn't reach timeout yet
 	timer->has_timed_out = false;
 
 	// update timer in fact
-	timer->time += app.frameTime;
+	timer->time += app.frame_time;
 	if (timer->time >= timer->timeout)
 	{
 		timer->time = 0;
