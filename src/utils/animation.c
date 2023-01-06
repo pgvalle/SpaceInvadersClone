@@ -36,7 +36,6 @@ bool animation_is_over(const animation_t* anim)
 
 void animation_update(animation_t* anim)
 {
-    
     timer_update(&animation_get_current_frame(anim)->timer);
     if (animation_get_current_frame(anim)->timer.has_timed_out)
     {

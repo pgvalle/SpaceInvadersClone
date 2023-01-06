@@ -6,18 +6,18 @@
 #include <SDL_image.h>
 #include <SDL_mixer.h>
 
-#ifndef ASSET_MAN_BASEDIR
-    #define ASSET_MAN_BASEDIR "./res"
+#ifndef ASSETS_BASEDIR
+    #define ASSETS_BASEDIR "./res"
 #endif
 
 #define ASSET_MAN_DEFAULT_TEXTURE_W 48
 #define ASSET_MAN_DEFAULT_TEXTURE_H 48
 
 typedef enum asset_type_t {
-    ASSETTYPE_TEXTURE, // png, jpg
-    ASSETTYPE_FONT,    // ttf, otf
-    ASSETTYPE_MUSIC,   // A song
-    ASSETTYPE_CHUNK    // An audio effect
+    ASSETTYPE_TEXTURE,
+    ASSETTYPE_FONT,
+    ASSETTYPE_MUSIC, // A song
+    ASSETTYPE_CHUNK  // An audio effect
 } asset_type_t;
 
 void asset_man_init();

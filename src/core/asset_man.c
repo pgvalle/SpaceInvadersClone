@@ -26,6 +26,7 @@ void asset_man_init()
     SDL_Texture* default_tex = SDL_CreateTextureFromSurface(
         app.renderer, tmp_surf
     );
+    SDL_FreeSurface(tmp_surf);
     arrput(textures, default_tex);
 
     fonts = NULL;
