@@ -9,8 +9,6 @@
 #include <SDL_ttf.h>
 #include <SDL_mixer.h>
 
-#define APP_RESOURCE_DIR "../../res/"
-
 #define APP_FONT_PTSIZE 8
 
 #define APP_VSCREEN_WIDTH  224
@@ -19,14 +17,12 @@
 #define APP_CHARACTER_SET "A B C D E F G H  I J K L M N O P Q R S T "\
     "U V W X Y Z 0  1 2 3 4 5 6 7 8 9 <  > * ? -  = "
 
-typedef struct app_options_t {
+extern struct app_t {
+    // some app settings
     bool fullscreen;
+    int fs_scale;
     int scale;
     int volume;
-} app_options_t;
-
-extern struct app_t {
-    app_options_t options;
 
     bool should_close;
 
@@ -38,7 +34,7 @@ extern struct app_t {
     uint32_t frame_time;
 } app; // single instance
 
-void app_init(const app_options_t* options);
+void app_init();
 void app_destroy();
 void app_run();
 

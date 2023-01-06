@@ -4,26 +4,43 @@
 
 #include <stdio.h>
 
+#define APP_DEFAULT_SCALE 2
+#define APP_DEFAULT_VOLUME 50
+
 struct app_t app;
 
-void app_init(const app_options_t* options)
+void app_init()
 {
-    app.options = *options;
+    app.fullscreen = false;
+    
+    // calculate actual scale in fullscreen
+    SDL_DisplayMode mode;
+    SDL_GetCurrentDisplayMode(0, &mode);
+    int hscale = mode.w / APP_VSCREEN_WIDTH;
+    int vscale = mode.h / APP_VSCREEN_HEIGHT;
+    // minimal scale factor to fit cool in fullscreen
+    app.fs_scale = hscale < vscale ? hscale : vscale;
+
+    app.scale = APP_DEFAULT_SCALE;
+    app.volume = APP_DEFAULT_VOLUME;
 
     app.should_close = false;
+
     app.window = SDL_CreateWindow(
         "Space Invaders Clone",
         SDL_WINDOWPOS_CENTERED,
         SDL_WINDOWPOS_CENTERED,
-        800,
-        480,
-        options->fullscreen ? SDL_WINDOW_FULLSCREEN : 0
+        app.scale * APP_VSCREEN_WIDTH,
+        app.scale * APP_VSCREEN_HEIGHT,
+        app.fullscreen ? SDL_WINDOW_FULLSCREEN : 0
     );
+    
     app.renderer = SDL_CreateRenderer(app.window, -1, SDL_RENDERER_ACCELERATED);
     
     app.frame_time = 0;
 
     asset_man_init();
+
     fsm_init();
 }
 
@@ -43,7 +60,7 @@ void app_run()
 {
     uint32_t before = SDL_GetTicks();
 
-    while (!app.should_close)
+    while (!app.should_close && !fsm_empty())
     {
         // calculate frame deltatime
         app.frame_time = SDL_GetTicks() - before;
