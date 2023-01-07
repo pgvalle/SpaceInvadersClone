@@ -1,13 +1,13 @@
 #ifndef ANIMATION_H
 #define ANIMATION_H
 
-#include "tymer.h"
+#include "timer.h"
 #include "stb_ds.h"
 #include <SDL_rect.h>
 
 typedef struct animation_frame_t {
     SDL_Rect rect;
-    tymer_t timer;
+    t1mer_t timer;
 } animation_frame_t;
 
 typedef struct animation_t {

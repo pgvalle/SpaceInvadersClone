@@ -4,7 +4,7 @@
 #include "utils/animation.h"
 #include "utils/function.h"
 #include "utils/stb_ds.h"
-#include "utils/tymer.h"
+#include "utils/timer.h"
 
 
 #endif // UTILS_H

@@ -1,7 +1,7 @@
-#include "tymer.h"
+#include "timer.h"
 #include "../core/app.h"
 
-void timer_update(tymer_t* timer)
+void timer_update(t1mer_t* timer)
 {
 	// assume timer didn't reach timeout yet
 	timer->has_timed_out = false;
