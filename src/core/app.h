@@ -3,13 +3,15 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-
 #include <SDL.h>
 #include <SDL_image.h>
 #include <SDL_ttf.h>
 #include <SDL_mixer.h>
 
 #define APP_FONT_PTSIZE 8
+
+#define APP_DEFAULT_SCALE 2
+#define APP_DEFAULT_VOLUME 50
 
 #define APP_VSCREEN_WIDTH  224
 #define APP_VSCREEN_HEIGHT 256

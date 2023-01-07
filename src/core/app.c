@@ -1,26 +1,19 @@
-#include "app.h"
-#include "fsm.h"
-#include "asset_man.h"
-
+#include "internal.h"
 #include <stdio.h>
-
-#define APP_DEFAULT_SCALE 2
-#define APP_DEFAULT_VOLUME 50
 
 struct app_t app;
 
 void app_init()
 {
-    app.fullscreen = false;
-    
-    // calculate actual scale in fullscreen
+    app.fullscreen = false;    
+    // calculate scale in fullscreen
     SDL_DisplayMode mode;
     SDL_GetCurrentDisplayMode(0, &mode);
     int hscale = mode.w / APP_VSCREEN_WIDTH;
     int vscale = mode.h / APP_VSCREEN_HEIGHT;
     // minimal scale factor to fit cool in fullscreen
     app.fs_scale = hscale < vscale ? hscale : vscale;
-
+    SDL_Log("fs_scale: %d\n", app.fs_scale);
     app.scale = APP_DEFAULT_SCALE;
     app.volume = APP_DEFAULT_VOLUME;
 

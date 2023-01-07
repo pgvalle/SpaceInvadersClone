@@ -1,6 +1,4 @@
-#include "fsm.h"
-#include "../utils/stb_ds.h"
-
+#include "internal.h"
 #include <stdlib.h>
 #include <stdbool.h>
 

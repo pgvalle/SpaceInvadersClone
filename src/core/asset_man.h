@@ -20,10 +20,6 @@ typedef enum asset_type_t {
     ASSETTYPE_CHUNK  // An audio effect
 } asset_type_t;
 
-void asset_man_init();
-// Deletes all assets, including default ones
-void asset_man_destroy();
-
 // id 0 is reserved to default assets (fonts don't have defaults)
 // id may repeat for different asset types.
 // In case asset loading fails, returns false and assign a "default" resource to that id
@@ -42,9 +38,6 @@ SDL_Texture* asset_man_get_texture(uint8_t id);
 TTF_Font* asset_man_get_font(uint8_t id);
 Mix_Music* asset_man_get_music(uint8_t id);
 Mix_Chunk* asset_man_get_chunk(uint8_t id);
-
-// playchannel -> sound effects
-// playmusic -> songs
 
 
 #endif // ASSET_MAN_H

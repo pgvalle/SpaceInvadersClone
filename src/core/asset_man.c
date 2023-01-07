@@ -1,12 +1,15 @@
-#include "asset_man.h"
-#include "app.h"
+#include "internal.h"
 #include "../utils/stb_ds.h"
 
 SDL_Texture** textures = NULL;
 TTF_Font** fonts = NULL;
 Mix_Music** songs = NULL;
 Mix_Chunk** chunks = NULL;
+
 bool asset_man_initialized = false;
+
+// playchannel -> sound effects
+// playmusic -> songs
 
 void asset_man_init()
 {

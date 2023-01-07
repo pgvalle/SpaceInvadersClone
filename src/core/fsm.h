@@ -1,20 +1,8 @@
 #ifndef FSM_H
 #define FSM_H
 
-#include "../utils/function.h"
+#include "../utils.h"
 #include <stdbool.h>
-
-void fsm_init();
-void fsm_destroy();
-
-bool fsm_empty();
-
-// State changes are only applied when this function is called.
-// May be called only after fsm_update_current and fsm_render_current were called.
-void fsm_update();
-
-void fsm_update_current_state();
-void fsm_render_current_state();
 
 // All states can be represented in 4 procedures:
 // 1. initialize
@@ -32,8 +20,10 @@ typedef struct fsm_state_t {
 // ...
 // fsm_pop();
 // In This example, fsm_pop is ignored because fsm_push was called first.
+
 void fsm_push(fsm_state_t state);
 void fsm_pop();
+// You may as well call fsm_push and fsm_pop (the order doesn't matter)
 void fsm_replace(fsm_state_t state);
 
 
