@@ -1,7 +1,6 @@
 #include "animation.h"
 #include "stb_ds.h"
-#include "../core/app.h"
-#include "../core/asset_man.h"
+#include "../core.h"
 #include <stdarg.h>
 
 static inline animation_frame_t* animation_get_current_frame(const animation_t* anim)
@@ -47,11 +46,16 @@ void animation_update(animation_t* anim)
 
 void animation_render(const animation_t* anim, int x, int y)
 {
+    const int factor = app.fullscreen ? app.fs_scale : app.scale;
+    const SDL_Rect clip = animation_get_current_frame(anim)->rect;
+    const SDL_Rect scale = {
+        factor * x, factor * y, factor * clip.w, factor * clip.h
+    };
+
     SDL_RenderCopy(
         app.renderer,
         asset_man_get_texture(anim->texture_id),
-        // this is not dangerous. It's all right
-        &animation_get_current_frame(anim)->rect,
-        NULL
+        &clip,
+        &scale
     );
 }
