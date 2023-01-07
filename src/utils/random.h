@@ -17,11 +17,30 @@ typedef struct random_t {
 } random_t;
 
 void random_init(random_t* rand, uint32_t seed);
-// returns a integer in the range [0, 4294967296]
+// returns an integer in the range [0, 4294967296]
 // or [-2147483647, 2147483648] if you will
 uint32_t random_get_uint32(random_t* rand);
-// Generates a pseudo-random float in the range [0..1].
+
+// returns an integer in the range [a, b]
+static inline
+uint32_t random_get_uint32_range(random_t* rand, uint32_t a, uint32_t b)
+{
+    const int min = a < b ? a : b;
+    const int max = a > b ? a : b;
+    return random_get_uint32(rand) % (max - min + 1) + min;
+}
+
+// returns a pseudo-random float in the range [0..1].
 float random_get_float(random_t* rand);
+
+// returns a pseudo-random float in the range [a..b].
+static inline
+float random_get_float_range(random_t* rand, float a, float b)
+{
+    const float min = a < b ? a : b;
+    const float max = a > b ? a : b;
+    return random_get_float(rand) * (max - min) + min;
+}
 
 
 #endif // RANDOM_H
