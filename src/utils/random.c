@@ -35,7 +35,7 @@ uint32_t random_get_uint32(random_t* rand) {
     /* generate STATE_VECTOR_LENGTH words at a time */
     int kk;
     if(rand->index >= STATE_VECTOR_LENGTH+1 || rand->index < 0) {
-      m_seedRand(rand, 4357);
+      random_init(rand, 4357);
     }
     for(kk=0; kk<STATE_VECTOR_LENGTH-STATE_VECTOR_M; kk++) {
       y = (rand->mt[kk] & UPPER_MASK) | (rand->mt[kk+1] & LOWER_MASK);
