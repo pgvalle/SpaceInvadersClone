@@ -10,8 +10,7 @@ typedef struct animation_frame_t {
     tymer_t timer;
 } animation_frame_t;
 
-typedef struct animation_t
-{
+typedef struct animation_t {
     uint16_t texture_id;
     animation_frame_t* frames;
     uint8_t current;
@@ -22,7 +21,8 @@ void animation_init(animation_t* anim, uint16_t texture_id, uint8_t size, ...);
 // Frees anim->frames and reset other fields
 void animation_free(animation_t* anim);
 
-static inline void animation_reset(animation_t* anim)
+static inline
+void animation_reset(animation_t* anim)
 {
     anim->current = 0;
 }
