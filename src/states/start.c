@@ -62,8 +62,6 @@ void start_state_render()
     SDL_RenderClear(app.renderer);
 
     
-
-    SDL_RenderPresent(app.renderer);
 }
 
 void load_atlas()

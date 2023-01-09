@@ -3,22 +3,23 @@
 #include "../core.h"
 #include <stdarg.h>
 
-static inline animation_frame_t* animation_get_current_frame(const animation_t* anim)
+static inline
+animation_frame_t* animation_get_current_frame(const animation_t* anim)
 {
     return &anim->frames[anim->current];
 }
 
-void animation_init(animation_t* anim, uint16_t texture_id, uint8_t size, ...)
+void animation_init(animation_t* anim, uint8_t texture_id, uint8_t size, ...)
 {
     anim->texture_id = texture_id;
     anim->frames = NULL;
     anim->current = 0;
 
-    va_list args;
-    va_start(args, size);
+    va_list frame_list;
+    va_start(frame_list, size);
     for (int i = 0; i < size; i++)
-        arrput(anim->frames, va_arg(args, animation_frame_t));
-    va_end(args);
+        arrput(anim->frames, va_arg(frame_list, animation_frame_t));
+    va_end(frame_list);
 }
 
 void animation_free(animation_t* anim)
@@ -47,14 +48,14 @@ void animation_update(animation_t* anim)
 void animation_render(const animation_t* anim, int x, int y)
 {
     const int factor = app.fullscreen ? app.fs_scale : app.scale;
-    const SDL_Rect clip = animation_get_current_frame(anim)->rect;
+    const SDL_Rect clip = animation_get_current_frame(anim)->clip;
     const SDL_Rect scale = {
         factor * x, factor * y, factor * clip.w, factor * clip.h
     };
 
     SDL_RenderCopy(
         app.renderer,
-        asset_man_get_texture(anim->texture_id),
+        asset_man_get(ASSETTYPE_TEXTURE, anim->texture_id),
         &clip,
         &scale
     );
