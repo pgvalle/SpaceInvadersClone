@@ -14,6 +14,58 @@
 #define WORLD_WIDTH  224
 #define WORLD_HEIGHT 256
 
+void load_atlas();
+void load_font_atlas();
+
+void start_state_init()
+{
+    app.fullscreen = false;
+    // calculate scale in fullscreen
+    {
+        SDL_DisplayMode mode;
+        SDL_GetCurrentDisplayMode(0, &mode);
+        int wscale = mode.w / WORLD_WIDTH;
+        int hscale = mode.h / WORLD_HEIGHT;
+        app.fs_scale = wscale < hscale ? wscale : hscale;
+    }
+    app.scale = DEFAULT_SCALE;
+    app.volume = DEFAULT_VOLUME;
+
+    SDL_SetWindowTitle(app.window, "Space Invaders Clone");
+    // change window size
+    SDL_SetWindowSize(
+        app.window,
+        app.scale * WORLD_WIDTH,
+        app.scale * WORLD_HEIGHT
+    );
+
+    SDL_ShowWindow(app.window);
+
+    load_atlas();
+    load_font_atlas();
+}
+
+void start_state_destroy()
+{
+
+}
+
+void start_state_update()
+{
+    if (app.event.type == SDL_QUIT)
+        app.should_close = true;
+}
+
+void start_state_render()
+{
+    SDL_SetRenderDrawColor(app.renderer, 0, 0, 0, 255);
+    SDL_RenderClear(app.renderer);
+
+    
+
+    SDL_RenderPresent(app.renderer);
+}
+
 void load_atlas()
 {
     SDL_Texture* atlas = asset_man_load_texture(0, RESOURCE_DIR "/atlas.png");
@@ -92,53 +144,4 @@ void load_font_atlas()
 
         TTF_CloseFont(font);
     }
-}
-
-void start_state_init()
-{
-    app.fullscreen = false;
-    // calculate scale in fullscreen
-    {
-        SDL_DisplayMode mode;
-        SDL_GetCurrentDisplayMode(0, &mode);
-        int wscale = mode.w / WORLD_WIDTH;
-        int hscale = mode.h / WORLD_HEIGHT;
-        app.fs_scale = wscale < hscale ? wscale : hscale;
-    }
-    app.scale = DEFAULT_SCALE;
-    app.volume = DEFAULT_VOLUME;
-
-    SDL_SetWindowTitle(app.window, "Space Invaders Clone");
-    // change window size
-    SDL_SetWindowSize(
-        app.window,
-        app.scale * WORLD_WIDTH,
-        app.scale * WORLD_HEIGHT
-    );
-
-    SDL_ShowWindow(app.window);
-
-    load_atlas();
-    load_font_atlas();
-}
-
-void start_state_destroy()
-{
-
-}
-
-void start_state_update()
-{
-    if (app.event.type == SDL_QUIT)
-        app.should_close = true;
-}
-
-void start_state_render()
-{
-    SDL_SetRenderDrawColor(app.renderer, 0, 0, 0, 255);
-    SDL_RenderClear(app.renderer);
-
-    
-
-    SDL_RenderPresent(app.renderer);
 }
