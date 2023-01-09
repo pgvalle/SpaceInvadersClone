@@ -3,48 +3,56 @@
 
 struct app_t app;
 
+void app_init();
+void app_destroy();
+void app_run();
+
+int main(int argc, char** args)
+{
+    SDL_Init(SDL_INIT_EVERYTHING);
+    IMG_Init(IMG_INIT_PNG);
+    TTF_Init();
+    Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048);
+
+    app_init();
+    app_run();
+    app_destroy();
+
+    Mix_CloseAudio();
+    TTF_Quit();
+    IMG_Quit();
+    SDL_Quit();
+}
+
 void app_init()
 {
-    app.fullscreen = false;    
-    // calculate scale in fullscreen
-    SDL_DisplayMode mode;
-    SDL_GetCurrentDisplayMode(0, &mode);
-    int hscale = mode.w / APP_VSCREEN_WIDTH;
-    int vscale = mode.h / APP_VSCREEN_HEIGHT;
-    // minimal scale factor to fit cool in fullscreen
-    app.fs_scale = hscale < vscale ? hscale : vscale;
-    SDL_Log("fs_scale: %d\n", app.fs_scale);
-    app.scale = APP_DEFAULT_SCALE;
-    app.volume = APP_DEFAULT_VOLUME;
-
+    app.fullscreen = false;
+    app.fs_scale = 0;
+    app.scale = 0;
+    app.volume = 0;
     app.should_close = false;
-
     app.window = SDL_CreateWindow(
-        "Space Invaders Clone",
+        "",
         SDL_WINDOWPOS_CENTERED,
         SDL_WINDOWPOS_CENTERED,
-        app.scale * APP_VSCREEN_WIDTH,
-        app.scale * APP_VSCREEN_HEIGHT,
-        app.fullscreen ? SDL_WINDOW_FULLSCREEN : 0
+        0,
+        0,
+        SDL_WINDOW_HIDDEN | SDL_WINDOW_INPUT_FOCUS | SDL_WINDOW_MOUSE_FOCUS
     );
-    
     app.renderer = SDL_CreateRenderer(app.window, -1, SDL_RENDERER_ACCELERATED);
-    
     app.frame_time = 0;
 
     asset_man_init();
 
+    // last thing to initialize so that state can access asset_man
     fsm_init();
 }
 
 void app_destroy()
 {
-    // destroy all states properly because we're quitting the app.
     fsm_destroy();
-    // destroy all resources
     asset_man_destroy();
 
-    // app stuff
     SDL_DestroyRenderer(app.renderer);
     SDL_DestroyWindow(app.window);
 }
@@ -63,10 +71,7 @@ void app_run()
         // now a new frame started
         before = SDL_GetTicks();
 
-        // poll for next event in queue
         SDL_PollEvent(&app.event);
-        if (app.event.type == SDL_QUIT)
-            app.should_close = true;
 
         fsm_update_current_state();
         fsm_render_current_state();

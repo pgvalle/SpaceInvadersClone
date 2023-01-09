@@ -1,6 +1,6 @@
 /**
  * This header is, as the name suggests, may only be accessed from core
-*/
+ */
 #ifndef CORE_INTERNAL_H
 #define CORE_INTERNAL_H
 
@@ -10,7 +10,7 @@
 
 /**
  * STATE MACHINE
-*/
+ */
 
 void fsm_init();
 void fsm_destroy();
@@ -26,10 +26,9 @@ void fsm_render_current_state();
 
 /**
  * ASSET MANAGER
-*/
+ */
 
 void asset_man_init();
-// Deletes all assets, including default ones
 void asset_man_destroy();
 
 
