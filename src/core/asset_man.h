@@ -1,5 +1,5 @@
-#ifndef ASSET_MAN_H
-#define ASSET_MAN_H
+#ifndef CORE_ASSET_MAN_H
+#define CORE_ASSET_MAN_H
 
 #include <SDL.h>
 #include <SDL_ttf.h>
@@ -7,37 +7,39 @@
 #include <SDL_mixer.h>
 
 #ifndef ASSETS_BASEDIR
-    #define ASSETS_BASEDIR "./res"
+    #define ASSETS_BASEDIR "../res"
 #endif
 
-#define ASSET_MAN_DEFAULT_TEXTURE_W 48
-#define ASSET_MAN_DEFAULT_TEXTURE_H 48
+#define ASSETS_STORAGE_SIZE 16
 
-typedef enum asset_type_t {
+typedef enum asset_type_t
+{
     ASSETTYPE_TEXTURE,
     ASSETTYPE_FONT,
-    ASSETTYPE_MUSIC, // A song
+    ASSETTYPE_MUSIC,
     ASSETTYPE_CHUNK  // An audio effect
 } asset_type_t;
 
-// id 0 is reserved to default assets (fonts don't have defaults)
-// id may repeat for different asset types.
-// In case asset loading fails, returns false and assign a "default" resource to that id
-// Error codes:
-//  -2 = INVALID
-//  -1 = OVERWTITING
-//   0 = OK
-//   1 = FAILED
-int asset_man_load(asset_type_t type, uint8_t id, const char* file);
-// Type is required because different asset types can have the same id.
+SDL_Texture* asset_man_load_texture(uint8_t id, const char* file);
+TTF_Font* asset_man_load_font(uint8_t id, const char* file, int ptsize);
+Mix_Music* asset_man_load_music(uint8_t id, const char* file);
+Mix_Chunk* asset_man_load_sound(uint8_t id, const char* file);
+
+// Maybe you want to procedurally generate textures or sound effects or something else.
+// Note 1: Be sure to bind available ids to the new asset.
+// Note 2: if you pass asset=NULL, that's valid and will be bound to the id.
+void asset_man_store(asset_type_t type, uint8_t id, void* asset);
+
+// frees an specific asset
+// If you allocated some assets without sdl.
+// You should free them by secure means yourself
 void asset_man_free(asset_type_t type, uint8_t id);
-// Deletes all assets, but not the default ones
+// Deletes all assets of the given type
+void asset_man_free_all_type(asset_type_t type); 
+// Deletes all assets
 void asset_man_free_all();
 
-SDL_Texture* asset_man_get_texture(uint8_t id);
-TTF_Font* asset_man_get_font(uint8_t id);
-Mix_Music* asset_man_get_music(uint8_t id);
-Mix_Chunk* asset_man_get_chunk(uint8_t id);
+void* asset_man_get(asset_type_t type, uint8_t id);
 
 
-#endif // ASSET_MAN_H
+#endif // CORE_ASSET_MAN_H

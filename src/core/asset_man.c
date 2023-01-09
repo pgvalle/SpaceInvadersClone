@@ -1,15 +1,12 @@
 #include "internal.h"
-#include "../utils/stb_ds.h"
+#include <string.h>
 
-SDL_Texture** textures = NULL;
-TTF_Font** fonts = NULL;
-Mix_Music** songs = NULL;
-Mix_Chunk** chunks = NULL;
+SDL_Texture* textures[ASSETS_STORAGE_SIZE];
+TTF_Font* fonts[ASSETS_STORAGE_SIZE];
+Mix_Music* musics[ASSETS_STORAGE_SIZE];
+Mix_Chunk* chunks[ASSETS_STORAGE_SIZE];
 
 bool asset_man_initialized = false;
-
-// playchannel -> sound effects
-// playmusic -> songs
 
 void asset_man_init()
 {
@@ -17,26 +14,10 @@ void asset_man_init()
     if (asset_man_initialized)
         return;
 
-    // adding default texture to textures
-    textures = NULL;
-    SDL_Surface* tmp_surf = SDL_CreateRGBSurfaceWithFormat(
-        0,
-        ASSET_MAN_DEFAULT_TEXTURE_W,
-        ASSET_MAN_DEFAULT_TEXTURE_H,
-        0,
-        SDL_PIXELFORMAT_RGB888
-    );
-    SDL_Texture* default_tex = SDL_CreateTextureFromSurface(
-        app.renderer, tmp_surf
-    );
-    SDL_FreeSurface(tmp_surf);
-    arrput(textures, default_tex);
-
-    fonts = NULL;
-
-    songs = NULL;
-
-    chunks = NULL;
+    memset(textures, NULL, ASSETS_STORAGE_SIZE * sizeof(void*));
+    memset(fonts, NULL, ASSETS_STORAGE_SIZE * sizeof(void*));
+    memset(musics, NULL, ASSETS_STORAGE_SIZE * sizeof(void*));
+    memset(chunks, NULL, ASSETS_STORAGE_SIZE * sizeof(void*));
 
     asset_man_initialized = true;
 }
@@ -47,123 +28,131 @@ void asset_man_destroy()
     if (!asset_man_initialized)
         return;
 
-    // delete all assets (including default ones)
-    
-    // first get rid of the default ones
-    SDL_DestroyTexture(textures[0]);
-    //Mix_FreeMusic(songs[0]);
-    //Mix_FreeChunk(chunks[0]);
-
-    asset_man_free_all(); // free all the rest
-    
-    // delete the arrays themselves
-    arrfree(textures);
-    arrfree(fonts);
-    arrfree(songs);
-    arrfree(chunks);
+    // delete all assets
+    asset_man_free_all();
 
     asset_man_initialized = false;
 }
 
-int asset_man_load(asset_type_t type, uint8_t id, const char* file)
+SDL_Texture* asset_man_load_texture(uint8_t id, const char* file)
 {
     if (!asset_man_initialized)
-        return -2;
-    if (id == 0)
-        return -1;
+        return NULL;
+ 
+    textures[id] = IMG_LoadTexture(app.renderer, file);
+    return textures[id];
+}
+
+TTF_Font* asset_man_load_font(uint8_t id, const char* file, int ptsize)
+{
+    if (!asset_man_initialized)
+        return NULL;
+
+    fonts[id] = TTF_OpenFont(file, ptsize);
+    return fonts[id];
+}
+
+void asset_man_store(asset_type_t type, uint8_t id, void* asset)
+{
+    if (!asset_man_initialized)
+        return;
+
+    if (id >= ASSETS_STORAGE_SIZE)
+        return;
 
     switch (type)
     {
     case ASSETTYPE_TEXTURE:
-        SDL_Texture* texture = IMG_LoadTexture(app.renderer, file);
-        if (texture == NULL)
-            texture = textures[0];
-        if (textures[id] != NULL)
-            arrins(textures, id, texture);
+        textures[id] = asset;
+        break;
+    case ASSETTYPE_FONT:
+        fonts[id] = asset;
+        break;
+    case ASSETTYPE_MUSIC:
+        musics[id] = asset;
+        break;
+    case ASSETTYPE_SOUND:
+        chunks[id] = asset;
         break;
     }
 }
 
 void asset_man_free(asset_type_t type, uint8_t id)
 {
-    // safety check (asset_type[i] != asset_type[0])
-    // So that the default asset isn't deleted by accident
+    if (id >= ASSETS_STORAGE_SIZE)
+        return;
+    
     switch (type)
     {
     case ASSETTYPE_TEXTURE:
-        if (textures[id] != textures[0])
+        if (textures[id])
+        {
             SDL_DestroyTexture(textures[id]);
+            textures[id] = NULL;
+        }
         break;
     case ASSETTYPE_FONT:
-        if (fonts[id] != fonts[0])
+        if (fonts[id])
+        {
             TTF_CloseFont(fonts[id]);
+            fonts[id] = NULL;
+        }
         break;
     case ASSETTYPE_MUSIC:
-        if (songs[id] != songs[0])
-            Mix_FreeMusic(songs[id]);
+        if (musics[id])
+        {
+            Mix_FreeMusic(musics[id]);
+            musics[id] = NULL;
+        }
         break;
-    case ASSETTYPE_CHUNK:
-        if (chunks[id] != chunks[0])
+    case ASSETTYPE_SOUND:
+        if (chunks[id])
+        {
             Mix_FreeChunk(chunks[id]);
+            chunks[id] = NULL;
+        }
         break;
     }
 }
 
 void asset_man_free_all()
 {
-    for (int i = 1; i < arrlen(textures); i++)
+    for (int i = 0; i < ASSETS_STORAGE_SIZE; i++)
     {
-        // free all textures that aren't references to the default
-        if (textures[i] && textures[i] != textures[0])
+        if (textures[i])
             SDL_DestroyTexture(textures[i]);
-    }
-
-    // repeat the process for all other resource types
-
-    for (int i = 1; i < arrlen(songs); i++)
-    {
-        if (songs[i] && songs[i] != songs[0])
-            Mix_FreeMusic(songs[i]);
-    }
-
-    for (int i = 1; i < arrlen(chunks); i++)
-    {
-        if (chunks[i] && chunks[i] != chunks[0])
-            Mix_FreeChunk(chunks[i]);
-    }
-
-    // fonts don't have defaults
-    for (int i = 0; i < arrlen(songs); i++)
-    {
-        if (fonts[i] && fonts[i] != fonts[0])
+        if (fonts[i])
             TTF_CloseFont(fonts[i]);
+        if (musics[i])
+            Mix_FreeMusic(musics[i]);
+        if (chunks[i])
+            Mix_FreeChunk(chunks[i]);
+
+        textures[i] = fonts[i] = musics[i] = chunks[i] = NULL;
     }
 }
 
-SDL_Texture* asset_man_get_texture(uint8_t id)
+void* asset_man_get(asset_type_t type, uint8_t id)
 {
-    if (id >= arrlen(textures))
-        return NULL;
-    return textures[id];
-}
+    switch (type)
+    {
+    case ASSETTYPE_TEXTURE:
+        if (id < arrlen(textures))
+            return textures[id];
+        break;
+    case ASSETTYPE_FONT:
+        if (id < arrlen(fonts))
+            return fonts[id];
+        break;
+    case ASSETTYPE_MUSIC:
+        if (id < arrlen(musics))
+            return musics[id];
+        break;
+    case ASSETTYPE_SOUND:
+        if (id < arrlen(chunks))
+            return chunks[id];
+        break;
+    }
 
-TTF_Font* asset_man_get_font(uint8_t id)
-{
-    if (id >= arrlen(fonts))
-        return NULL;
-    return fonts[id];
-}
-
-Mix_Music* asset_man_get_music(uint8_t id)
-{
-    if (id >= arrlen(songs))
-        return NULL;
-    return songs[id];
-}
-
-Mix_Chunk* asset_man_get_chunk(uint8_t id)
-{
-    if (id >= arrlen(chunks))
-        return NULL;
-    return chunks[id];
+    return NULL;
 }
