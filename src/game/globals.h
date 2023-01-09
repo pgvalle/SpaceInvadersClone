@@ -1,5 +1,5 @@
 #ifndef GAME_DEFINES_H
-#define GAME_DEFINES_H
+#define GAME_GLOBALS_H
 
 #define RESOURCE_DIR "./res"
 
@@ -17,4 +17,4 @@
 #define WORLD_HEIGHT 256
 
 
-#endif // GAME_DEFINES_H
+#endif // GAME_GLOBALS_H

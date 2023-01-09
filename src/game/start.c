@@ -4,6 +4,7 @@
 
 void load_atlas();
 void load_font_atlas();
+void load_window_icon();
 
 void start_state_init()
 {
@@ -22,21 +23,7 @@ void start_state_init()
     SDL_SetWindowTitle(app.window, "Space Invaders Clone");
     
     // load window icon
-    {
-        SDL_RWops* ops = SDL_RWFromFile(RESOURCE_DIR "/icon.svg", "rb");
-        if (ops == NULL)
-        {
-            SDL_LogError(0, "Could not load res/icon.svg.\n");
-            SDL_Log("The window icon is undefined.\n");
-        }
-        else
-        {
-            SDL_Surface* icon_surf = IMG_LoadSVG_RW(ops);
-            SDL_SetWindowIcon(app.window, icon_surf);
-            SDL_RWclose(ops);
-            SDL_FreeSurface(icon_surf);
-        }
-    }
+    load_window_icon();
 
     // change window size
     SDL_SetWindowSize(
@@ -147,5 +134,22 @@ void load_font_atlas()
         SDL_FreeSurface(chars_surf);
 
         TTF_CloseFont(font);
+    }
+}
+
+void load_window_icon()
+{
+    SDL_RWops* ops = SDL_RWFromFile(RESOURCE_DIR "/icon.svg", "rb");
+    if (ops == NULL)
+    {
+        SDL_LogError(0, "Could not load res/icon.svg.\n");
+        SDL_Log("The window icon is undefined.\n");
+    }
+    else
+    {
+        SDL_Surface* icon_surf = IMG_LoadSVG_RW(ops);
+        SDL_SetWindowIcon(app.window, icon_surf);
+        SDL_RWclose(ops);
+        SDL_FreeSurface(icon_surf);
     }
 }
