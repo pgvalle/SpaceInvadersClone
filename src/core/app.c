@@ -1,5 +1,4 @@
 #include "internal.h"
-#include <stdio.h>
 
 struct app_t app;
 

@@ -6,10 +6,6 @@
 #include <SDL_image.h>
 #include <SDL_mixer.h>
 
-#ifndef ASSETS_BASEDIR
-    #define ASSETS_BASEDIR "../res"
-#endif
-
 #define ASSETS_STORAGE_SIZE 16
 
 typedef enum asset_type_t
@@ -17,7 +13,7 @@ typedef enum asset_type_t
     ASSETTYPE_TEXTURE,
     ASSETTYPE_FONT,
     ASSETTYPE_MUSIC,
-    ASSETTYPE_CHUNK  // An audio effect
+    ASSETTYPE_SOUND  // An audio effect
 } asset_type_t;
 
 SDL_Texture* asset_man_load_texture(uint8_t id, const char* file);
