@@ -79,6 +79,7 @@ void fsm_update_current_state()
 void fsm_render_current_state()
 {
     stack[top].render();
+    SDL_RenderPresent(app.renderer);
 }
 
 void fsm_push(fsm_state_t state)
