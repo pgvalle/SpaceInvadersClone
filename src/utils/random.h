@@ -3,15 +3,16 @@
  * Implemented by: https://github.com/ESultanik/mtwister
  * Originaly developed by: http://www.math.sci.hiroshima-u.ac.jp/m-mat/MT/emt.html
 */
-#ifndef RANDOM_H
-#define RANDOM_H
+#ifndef UTILS_RANDOM_H
+#define UTILS_RANDOM_H
 
 #include <stdint.h>
 
 #define STATE_VECTOR_LENGTH 624
 #define STATE_VECTOR_M      397 /* changes to STATE_VECTOR_LENGTH also require changes to this */
 
-typedef struct random_t {
+typedef struct random_t
+{
   uint32_t mt[STATE_VECTOR_LENGTH];
   int index;
 } random_t;
@@ -43,4 +44,4 @@ float random_get_float_range(random_t* rand, float a, float b)
 }
 
 
-#endif // RANDOM_H
+#endif // UTILS_RANDOM_H

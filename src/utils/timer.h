@@ -1,11 +1,12 @@
-#ifndef TIMER_H
-#define TIMER_H
+#ifndef UTILS_TIMER_H
+#define UTILS_TIMER_H
 
 #include <stdint.h>
 #include <stdbool.h>
 
 // This kind of thing is appearing too much.
-typedef struct t1mer_t {
+typedef struct t1mer_t
+{
 	bool has_timed_out; // READ-ONLY
 	uint32_t time;      // READ-ONLY
 	uint32_t timeout;   // set with timer_set_timeout
@@ -28,4 +29,4 @@ timer_set_timeout(t1mer_t* timer, uint32_t timeout)
 }
 
 
-#endif // TIMER_H
+#endif // UTILS_TIMER_H

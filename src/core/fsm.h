@@ -1,5 +1,5 @@
-#ifndef FSM_H
-#define FSM_H
+#ifndef CORE_FSM_H
+#define CORE_FSM_H
 
 #include "../utils.h"
 #include <stdbool.h>
@@ -9,7 +9,8 @@
 // 2. update - game loop
 // 3. render - game loop
 // 4. destroy
-typedef struct fsm_state_t {
+typedef struct fsm_state_t
+{
     function_t init, destroy, update, render;
 } fsm_state_t;
 
@@ -27,4 +28,4 @@ void fsm_pop();
 void fsm_replace(fsm_state_t state);
 
 
-#endif // FSM_H
+#endif // CORE_FSM_H
