@@ -13,9 +13,9 @@ void UpdateShots()
 {
     for (int i = 0; i < arrlen(invaderShots); i++)
     {
-        UpdateAnimation(&invaderShots[i].animation);
-        if (HasAnimationFinished(&invaderShots[i].animation))
-            ResetAnimation(&invaderShots[i].animation);
+        animation_update(&invaderShots[i].animation);
+        if (animation_is_over(&invaderShots[i].animation))
+            animation_reset(&invaderShots[i].animation);
 
         invaderShots[i].y += invaderShotsVel;
     }
@@ -26,9 +26,9 @@ void UpdateShots()
 
         if (cannonShots[i].y <= TOURIST_Y - 8)
         {
-            Animation animation;
-            InitAnimation(&animation, 1, (AnimationFrame) {
-                .clip = CLIP_CANNON_SHOT_EXPLOSION,
+            animation_t animation;
+            animation_init(&animation, ATLAS_INDEX, 1, (animation_frame_t) {
+                .clip = { 36 ,24,  8,  8 },
                     .timer = {
                     .has_timed_out = false,
                     .time = 0,
@@ -47,13 +47,28 @@ void RenderShots()
 {
     for (int i = 0; i < arrlen(invaderShots); i++)
     {
-        RenderAnimation(
+        animation_render(
+            &invaderShots[i].animation,
             invaderShots[i].x,
-            invaderShots[i].y,
-            &invaderShots[i].animation
+            invaderShots[i].y
         );
     }
 
+    const SDL_Rect clip = { 39, 18,  1,  4 };
+
     for (int i = 0; i < arrlen(cannonShots); i++)
-        clip_render(cannonShots[i].x, cannonShots[i].y, CLIP_CANNON_SHOT);
+    {
+        const SDL_Rect scale = {
+            app.scale * cannonShots[i].x,
+            app.scale * cannonShots[i].y,
+            app.scale * clip.w,
+            app.scale * clip.h
+        };
+        SDL_RenderCopy(
+            app.renderer,
+            asset_man_get(ASSETTYPE_TEXTURE, ATLAS_INDEX),
+            &clip,
+            &scale
+        );
+    }
 }

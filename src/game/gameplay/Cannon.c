@@ -9,7 +9,7 @@ void InitCannon()
     cannon.dead = false;
     cannon.deaths = 0;
 
-    cannon.shotTimer = (timer_t){
+    cannon.shotTimer = (t1mer_t){
         .has_timed_out = false,
         .time = 0,
         .timeout = CANNON_SHOT_COOLDOWN
@@ -21,7 +21,7 @@ void UpdateCannon()
     const Uint8* keys = SDL_GetKeyboardState(NULL);
     if (keys[SDL_SCANCODE_LEFT] && cannon.x > CANNON_X_INIT)
         cannon.x -= 1;
-    if (keys[SDL_SCANCODE_RIGHT] && cannon.x < APP_VSCREEN_WIDTH - 31)
+    if (keys[SDL_SCANCODE_RIGHT] && cannon.x < WORLD_WIDTH - 31)
         cannon.x += 1;
 
     if (!cannon.shotTimer.has_timed_out)
@@ -40,6 +40,21 @@ void UpdateCannon()
 
 void RenderCannon()
 {
-    if (!cannon.dead)
-        clip_render(cannon.x, CANNON_Y, CLIP_CANNON);
+    if (cannon.dead)
+        return;
+
+    SDL_Rect clip = {  0,  8, 16,  8 };
+    SDL_Rect scale = {
+        app.scale * cannon.x,
+        app.scale * CANNON_Y,
+        clip.w * app.scale,
+        clip.h * app.scale
+    };
+
+    SDL_RenderCopy(
+        app.renderer,
+        asset_man_get(ASSETTYPE_TEXTURE, ATLAS_INDEX),
+        &clip,
+        &scale
+    );
 }

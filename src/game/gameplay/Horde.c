@@ -88,15 +88,65 @@ void RenderHorde()
         if (horde.invaders[i].dead)
             continue;
 
+        /*{  0,  0, 24,  8 }, // tourist
+        { 24,  0, 24,  8 }, // tourist explosion
+
+        {  0,  8, 16,  8 }, // cannon
+        { 16,  8, 16,  8 }, // cannon explosion 0
+        { 32,  8, 16,  8 }, // cannon explosion 1
+
+        { 39, 18,  1,  4 }, // cannon shot
+        { 36 ,24,  8,  8 }, // cannon shot explosion
+
+        {  0, 16, 12,  8 }, // invader 0 0
+        { 12, 16, 12,  8 }, // invader 0 1
+        {  0, 24, 12,  8 }, // invader 1 0
+        { 12, 24, 12,  8 }, // invader 1 1
+        {  0, 32, 12,  8 }, // invader 2 0
+        { 12, 32, 12,  8 }, // invader 2 1
+        {  0, 40, 13,  8 }, // invader explosion
+        
+        //{}, // invader shot 1
+        //{}, // invader shot 2
+        //{}, // invader shot 3
+
+        //{}, // invader shot explosion*/
+
+        SDL_Rect clip = {horde.clipIndexOffset ? 0 : 12, 16, 12, 8};
+        SDL_Rect scale = {
+            app.scale * horde.invaders[i].x,
+            app.scale * horde.invaders[i].y,
+            12 * app.scale,
+            8 * app.scale
+        };
+
         switch (i / 11)
         {
         case 0: // first row
+            SDL_RenderCopy(
+                app.renderer,
+                asset_man_get(ASSETTYPE_TEXTURE, ATLAS_INDEX),
+                &clip,
+                &scale
+            );
             break;
         case 1: case 2: // second or third
-            // clip_render(x, y, CLIP_INVADER10 + horde.clipIndexOffset);
+            clip.y = 24;
+            SDL_RenderCopy(
+                app.renderer,
+                asset_man_get(ASSETTYPE_TEXTURE, ATLAS_INDEX),
+                &clip,
+                &scale
+            );
             break;
         case 3: case 4: // fourth or fifth
-            // clip_render(x, y, CLIP_INVADER20 + horde.clipIndexOffset);
+            clip.y = 32;
+            SDL_RenderCopy(
+                app.renderer,
+                asset_man_get(ASSETTYPE_TEXTURE, ATLAS_INDEX),
+                &clip,
+                &scale
+            );
             break;
         }
     }

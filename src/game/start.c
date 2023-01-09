@@ -1,6 +1,6 @@
 #include "../core.h"
 #include "../utils.h"
-#include "defines.h"
+#include "globals.h"
 
 void load_atlas();
 void load_font_atlas();
@@ -40,26 +40,30 @@ void start_state_init()
 
 void start_state_destroy()
 {
-
 }
+
+void InitGameplayState();
+void DestroyGameplayState();
+void UpdateGameplayState();
+void RenderGameplayState();
 
 void start_state_update()
 {
-    if (app.event.type == SDL_QUIT)
-        app.should_close = true;
+    fsm_replace((fsm_state_t){
+        .init = InitGameplayState,
+        .destroy = DestroyGameplayState,
+        .update = UpdateGameplayState,
+        .render = RenderGameplayState
+    });
 }
 
 void start_state_render()
-{
-    SDL_SetRenderDrawColor(app.renderer, 0, 0, 0, 255);
-    SDL_RenderClear(app.renderer);
-
-    
+{    
 }
 
 void load_atlas()
 {
-    SDL_Texture* atlas = asset_man_load_texture(0, RESOURCE_DIR "/atlas.png");
+    SDL_Texture* atlas = asset_man_load_texture(ATLAS_INDEX, RESOURCE_DIR "/atlas.png");
     if (!atlas)
     {
         SDL_LogError(0, "res/atlas.png couldn't be opened.\n");
@@ -75,7 +79,7 @@ void load_atlas()
 
         // create fallback texture and free surface
         atlas = SDL_CreateTextureFromSurface(app.renderer, fallback_surf);
-        asset_man_store(ASSETTYPE_TEXTURE, 0, (void*)atlas);
+        asset_man_store(ASSETTYPE_TEXTURE, ATLAS_INDEX, (void*)atlas);
         SDL_FreeSurface(fallback_surf);
     }
     
@@ -99,7 +103,7 @@ void load_font_atlas()
 
         // create fallback texture and free surface
         SDL_Texture* char_atlas = SDL_CreateTextureFromSurface(app.renderer, fallback_surf);
-        asset_man_store(ASSETTYPE_TEXTURE, 0, (void*)char_atlas);
+        asset_man_store(ASSETTYPE_TEXTURE, FONT_ATLAS_INDEX, (void*)char_atlas);
         SDL_FreeSurface(fallback_surf);
     }
     else
@@ -130,7 +134,7 @@ void load_font_atlas()
 
         // finally create the texture and free the surface
         SDL_Texture* char_atlas = SDL_CreateTextureFromSurface(app.renderer, chars_surf);
-        asset_man_store(ASSETTYPE_TEXTURE, 0, (void*)char_atlas);
+        asset_man_store(ASSETTYPE_TEXTURE, FONT_ATLAS_INDEX, (void*)char_atlas);
         SDL_FreeSurface(chars_surf);
 
         TTF_CloseFont(font);

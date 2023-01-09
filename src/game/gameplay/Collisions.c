@@ -14,14 +14,14 @@ void ProcessTouristCollision()
         if (SDL_HasIntersection(&shotRect, &touristRect)) // collided
         {
             // create explosion animation
-            Animation animation;
-            InitAnimation(&animation, 1, (AnimationFrame){
-                .clip = CLIP_TOURIST_EXPLOSION,
+            animation_t animation;
+            animation_init(&animation, ATLAS_INDEX, 1, (animation_frame_t){
+                    .clip = { 24,  0, 24,  8 },
                     .timer = {
-                    .has_timed_out = false,
-                    .time = 0,
-                    .timeout = EXPLOSION_TOURIST_TIMEOUT
-                }
+                        .has_timed_out = false,
+                        .time = 0,
+                        .timeout = EXPLOSION_TOURIST_TIMEOUT
+                    }
             });
             AddExplosion((int)tourist.x, TOURIST_Y, &animation);
 
@@ -55,10 +55,10 @@ void ProcessHordeCollisions()
             if (SDL_HasIntersection(&shotRect, &invaderRect))
             {
                 // create explosion
-                Animation animation;
-                InitAnimation(&animation, 1, (AnimationFrame){
-                    .clip = CLIP_INVADER_EXPLOSION,
-                        .timer = {
+                animation_t animation;
+                animation_init(&animation, ATLAS_INDEX, 1, (animation_frame_t){
+                    .clip = {  0, 40, 13,  8 },
+                    .timer = {
                         .has_timed_out = false,
                         .time = 0,
                         .timeout = EXPLOSION_INVADER_TIMEOUT

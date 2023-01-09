@@ -16,5 +16,8 @@
 #define WORLD_WIDTH  224
 #define WORLD_HEIGHT 256
 
+#define ATLAS_INDEX      0
+#define FONT_ATLAS_INDEX 1
+
 
 #endif // GAME_GLOBALS_H

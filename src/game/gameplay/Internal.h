@@ -57,7 +57,7 @@ extern struct Tourist
     bool moveRight;
     bool dead;
     bool spawned;
-    timer_t spawnTimer;
+    t1mer_t spawnTimer;
 } tourist;
 
 void InitTourist();
@@ -69,7 +69,7 @@ void RenderTourist();
 // ========================================================================= //
 
 #define CANNON_X_INIT 14
-#define CANNON_Y      HORDE_Y_INIT + 19 * FONT_PTSIZE
+#define CANNON_Y      (HORDE_Y_INIT + 19 * FONT_PTSIZE)
 
 #define CANNON_VEL 2
 
@@ -80,7 +80,7 @@ extern struct Cannon
     int x;
     bool dead;
     int deaths;
-    timer_t shotTimer;
+    t1mer_t shotTimer;
 } cannon;
 
 void InitCannon();
