@@ -44,7 +44,9 @@ void animation_reset(animation_t* anim)
 bool animation_is_over(const animation_t* anim);
 
 void animation_update(animation_t* anim);
-void animation_render(const animation_t* anim, int x, int y);
+void animation_render(
+    const animation_t* anim, int world_w, int world_h, int x, int y
+);
 
 
 #endif // UTILS_ANIMATION_H

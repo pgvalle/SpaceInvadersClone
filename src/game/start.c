@@ -6,17 +6,19 @@ void load_atlas();
 void load_font_atlas();
 void load_window_icon();
 
-void start_state_init()
-{
-    app.fullscreen = false;
-    // calculate scale in fullscreen
+/*
+// calculate scale in fullscreen
     {
         SDL_DisplayMode mode;
         SDL_GetCurrentDisplayMode(0, &mode);
         int wscale = mode.w / WORLD_WIDTH;
         int hscale = mode.h / WORLD_HEIGHT;
-        app.fs_scale = wscale < hscale ? wscale : hscale;
     }
+*/
+
+void start_state_init()
+{
+    app.fullscreen = false;
     app.scale = DEFAULT_SCALE;
     app.volume = DEFAULT_VOLUME;
 

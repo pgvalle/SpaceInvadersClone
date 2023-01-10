@@ -26,7 +26,6 @@ int main(int argc, char** args)
 void app_init()
 {
     app.fullscreen = false;
-    app.fs_scale = 0;
     app.scale = 0;
     app.volume = 0;
     app.should_close = false;

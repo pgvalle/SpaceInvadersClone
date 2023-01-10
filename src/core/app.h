@@ -9,9 +9,8 @@
 #include <SDL_mixer.h>
 
 extern struct app_t {
-    // some app settings
+    // some basic app settings
     bool fullscreen;
-    int fs_scale;
     int scale;
     int volume;
 
@@ -24,5 +23,6 @@ extern struct app_t {
 
     uint32_t frame_time;
 } app; // single instance
+
 
 #endif // CORE_APP_H

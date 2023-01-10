@@ -1,5 +1,6 @@
 #include "animation.h"
 #include "stb_ds.h"
+#include "render.h"
 #include "../core.h"
 #include <stdarg.h>
 
@@ -45,18 +46,16 @@ void animation_update(animation_t* anim)
     }
 }
 
-void animation_render(const animation_t* anim, int x, int y)
+void animation_render(
+    const animation_t* anim, int world_w, int world_h, int x, int y
+)
 {
-    const int factor = app.fullscreen ? app.fs_scale : app.scale;
-    const SDL_Rect clip = animation_get_current_frame(anim)->clip;
-    const SDL_Rect scale = {
-        factor * x, factor * y, factor * clip.w, factor * clip.h
-    };
-
-    SDL_RenderCopy(
-        app.renderer,
-        asset_man_get(ASSETTYPE_TEXTURE, anim->texture_id),
-        &clip,
-        &scale
+    clip_render(
+        &animation_get_current_frame(anim)->clip,
+        anim->texture_id,
+        world_w,
+        world_h,
+        x,
+        y
     );
 }
