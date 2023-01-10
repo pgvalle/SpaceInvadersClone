@@ -145,17 +145,17 @@ void load_font_atlas()
 
 void load_window_icon()
 {
-    SDL_RWops* ops = SDL_RWFromFile(RESOURCE_DIR "/icon.svg", "rb");
-    if (ops == NULL)
+    SDL_RWops* ops = SDL_RWFromFile(RESOURCE_DIR "/icon.png", "rb");
+    if (!ops)
     {
         SDL_LogError(0, "Could not load res/icon.svg.\n");
         SDL_Log("The window icon is undefined.\n");
     }
     else
     {
-        //SDL_Surface* icon_surf = IMG_LoadSVG_RW(ops);
-        //SDL_SetWindowIcon(app.window, icon_surf);
-        //SDL_RWclose(ops);
-        //SDL_FreeSurface(icon_surf);
+        SDL_Surface* icon_surf = IMG_LoadPNG_RW(ops);
+        SDL_SetWindowIcon(app.window, icon_surf);
+        SDL_RWclose(ops);
+        SDL_FreeSurface(icon_surf);
     }
 }
