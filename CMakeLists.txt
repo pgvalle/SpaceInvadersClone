@@ -9,7 +9,7 @@ add_executable(SpaceInvadersClone ${SOURCE_FILES} ${HEADER_FILES})
 
 set_target_properties(
 	SpaceInvadersClone PROPERTIES
-	C_STANDARD          17
+	C_STANDARD          99
 	C_STANDARD_REQUIRED TRUE
 	C_EXTENSIONS        FALSE
 )
