@@ -43,18 +43,13 @@ void RenderCannon()
     if (cannon.dead)
         return;
 
-    SDL_Rect clip = {  0,  8, 16,  8 };
-    SDL_Rect scale = {
-        app.scale * cannon.x,
-        app.scale * CANNON_Y,
-        clip.w * app.scale,
-        clip.h * app.scale
-    };
-
-    SDL_RenderCopy(
-        app.renderer,
-        asset_man_get(ASSETTYPE_TEXTURE, ATLAS_INDEX),
+    static const SDL_Rect clip = {  0,  8, 16,  8 };
+    clip_render(
         &clip,
-        &scale
+        ATLAS_INDEX,
+        WORLD_WIDTH,
+        WORLD_HEIGHT,
+        cannon.x,
+        CANNON_Y
     );
 }

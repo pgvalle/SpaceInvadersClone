@@ -113,39 +113,38 @@ void RenderHorde()
         //{}, // invader shot explosion*/
 
         SDL_Rect clip = {horde.clipIndexOffset ? 0 : 12, 16, 12, 8};
-        SDL_Rect scale = {
-            app.scale * horde.invaders[i].x,
-            app.scale * horde.invaders[i].y,
-            12 * app.scale,
-            8 * app.scale
-        };
-
         switch (i / 11)
         {
         case 0: // first row
-            SDL_RenderCopy(
-                app.renderer,
-                asset_man_get(ASSETTYPE_TEXTURE, ATLAS_INDEX),
+            clip_render(
                 &clip,
-                &scale
-            );
+                ATLAS_INDEX,
+                WORLD_WIDTH,
+                WORLD_HEIGHT,
+                horde.invaders[i].x,
+                horde.invaders[i].y
+            ); 
             break;
         case 1: case 2: // second or third
             clip.y = 24;
-            SDL_RenderCopy(
-                app.renderer,
-                asset_man_get(ASSETTYPE_TEXTURE, ATLAS_INDEX),
+            clip_render(
                 &clip,
-                &scale
+                ATLAS_INDEX,
+                WORLD_WIDTH,
+                WORLD_HEIGHT,
+                horde.invaders[i].x,
+                horde.invaders[i].y
             );
             break;
         case 3: case 4: // fourth or fifth
             clip.y = 32;
-            SDL_RenderCopy(
-                app.renderer,
-                asset_man_get(ASSETTYPE_TEXTURE, ATLAS_INDEX),
+            clip_render(
                 &clip,
-                &scale
+                ATLAS_INDEX,
+                WORLD_WIDTH,
+                WORLD_HEIGHT,
+                horde.invaders[i].x,
+                horde.invaders[i].y
             );
             break;
         }
