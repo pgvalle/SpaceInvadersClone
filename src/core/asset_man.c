@@ -15,10 +15,10 @@ void asset_man_init()
     if (asset_man_initialized)
         return;
 
-    memset(textures, NULL, ASSETS_STORAGE_SIZE * sizeof(void*));
-    memset(fonts, NULL, ASSETS_STORAGE_SIZE * sizeof(void*));
-    memset(musics, NULL, ASSETS_STORAGE_SIZE * sizeof(void*));
-    memset(chunks, NULL, ASSETS_STORAGE_SIZE * sizeof(void*));
+    memset(textures, 0, ASSETS_STORAGE_SIZE * sizeof(void*));
+    memset(fonts, 0, ASSETS_STORAGE_SIZE * sizeof(void*));
+    memset(musics, 0, ASSETS_STORAGE_SIZE * sizeof(void*));
+    memset(chunks, 0, ASSETS_STORAGE_SIZE * sizeof(void*));
 
     asset_man_initialized = true;
 }
@@ -129,7 +129,10 @@ void asset_man_free_all()
         if (chunks[i])
             Mix_FreeChunk(chunks[i]);
 
-        textures[i] = fonts[i] = musics[i] = chunks[i] = NULL;
+        textures[i] = NULL;
+        fonts[i] = NULL;
+        musics[i] = NULL;
+        chunks[i] = NULL;
     }
 }
 
