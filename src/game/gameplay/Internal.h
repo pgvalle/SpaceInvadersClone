@@ -47,7 +47,7 @@ void RenderHorde();
 // TOURIST
 // ========================================================================= //
 
-#define TOURIST_Y HORDE_Y_INIT - 3 * FONT_PTSIZE
+#define TOURIST_Y (HORDE_Y_INIT - 3 * FONT_PTSIZE)
 
 #define TOURIST_VEL 0.65f
 

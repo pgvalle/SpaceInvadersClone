@@ -63,5 +63,18 @@ void RenderTourist()
     if (tourist.dead || !tourist.spawned)
         return;
 
-    
+    SDL_Rect clip = {  0,  0, 24,  8 };
+    SDL_Rect scale = {
+        app.scale * tourist.x,
+        app.scale * TOURIST_Y,
+        clip.w * app.scale,
+        clip.h * app.scale
+    };
+
+    SDL_RenderCopy(
+        app.renderer,
+        asset_man_get(ASSETTYPE_TEXTURE, ATLAS_INDEX),
+        &clip,
+        &scale
+    );
 }
