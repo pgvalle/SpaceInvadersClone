@@ -72,8 +72,8 @@ void load_atlas()
         SDL_Log("Game entities will be rendered as white rectangles.\n");
 
         // Create temporary fallback surface
-        SDL_Surface* fallback_surf = SDL_CreateRGBSurfaceWithFormat(
-            0, 48, 48, 0, SDL_PIXELFORMAT_RGB888
+        SDL_Surface* fallback_surf = SDL_CreateRGBSurface(
+            0, 48, 48, 0, 0xff000000, 0x00ff0000, 0x0000ff00, 0 
         );
 
         // paint it all white
@@ -96,8 +96,8 @@ void load_font_atlas()
         SDL_Log("Text will be rendered as white rectangles.\n");
 
         // Create temporary fallback surface
-        SDL_Surface* fallback_surf = SDL_CreateRGBSurfaceWithFormat(
-            0, 50 * FONT_PTSIZE, 2 * FONT_PTSIZE, 0, SDL_PIXELFORMAT_RGB888
+        SDL_Surface* fallback_surf = SDL_CreateRGBSurface(
+            0, 50 * FONT_PTSIZE, 2 * FONT_PTSIZE, 0, 0xff000000, 0x00ff0000, 0x0000ff00, 0 
         );
 
         // paint it all white
@@ -119,8 +119,8 @@ void load_font_atlas()
         );
 
         // Create temporary surface to merge everything together
-        SDL_Surface* chars_surf = SDL_CreateRGBSurfaceWithFormat(
-            0, white_chars_surf->w, 2 * FONT_PTSIZE, 0, SDL_PIXELFORMAT_RGB888
+        SDL_Surface* chars_surf = SDL_CreateRGBSurface(
+            0, white_chars_surf->w, 2 * FONT_PTSIZE, 0, 0xff000000, 0x00ff0000, 0x0000ff00, 0 
         );
 
         // the surfaces to be copied have some unused gaps
@@ -153,9 +153,9 @@ void load_window_icon()
     }
     else
     {
-        SDL_Surface* icon_surf = IMG_LoadSVG_RW(ops);
-        SDL_SetWindowIcon(app.window, icon_surf);
-        SDL_RWclose(ops);
-        SDL_FreeSurface(icon_surf);
+        //SDL_Surface* icon_surf = IMG_LoadSVG_RW(ops);
+        //SDL_SetWindowIcon(app.window, icon_surf);
+        //SDL_RWclose(ops);
+        //SDL_FreeSurface(icon_surf);
     }
 }
