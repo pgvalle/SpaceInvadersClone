@@ -27,6 +27,8 @@ void RenderExplosions()
     {
         animation_render(
             &explosions[i].animation,
+            WORLD_WIDTH,
+            WORLD_HEIGHT,
             explosions[i].x,
             explosions[i].y
         );

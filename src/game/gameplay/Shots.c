@@ -49,26 +49,23 @@ void RenderShots()
     {
         animation_render(
             &invaderShots[i].animation,
+            WORLD_WIDTH,
+            WORLD_HEIGHT,
             invaderShots[i].x,
             invaderShots[i].y
         );
     }
 
-    const SDL_Rect clip = { 39, 18,  1,  4 };
-
+    static const SDL_Rect clip = { 39, 18,  1,  4 };
     for (int i = 0; i < arrlen(cannonShots); i++)
     {
-        const SDL_Rect scale = {
-            app.scale * cannonShots[i].x,
-            app.scale * cannonShots[i].y,
-            app.scale * clip.w,
-            app.scale * clip.h
-        };
-        SDL_RenderCopy(
-            app.renderer,
-            asset_man_get(ASSETTYPE_TEXTURE, ATLAS_INDEX),
+        clip_render(
             &clip,
-            &scale
+            ATLAS_INDEX,
+            WORLD_WIDTH,
+            WORLD_HEIGHT,
+            cannonShots[i].x,
+            cannonShots[i].y
         );
     }
 }

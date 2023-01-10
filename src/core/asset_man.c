@@ -1,3 +1,4 @@
+#include "asset_man.h"
 #include "internal.h"
 #include <string.h>
 
@@ -134,24 +135,19 @@ void asset_man_free_all()
 
 void* asset_man_get(asset_type_t type, uint8_t id)
 {
+    if (id >= ASSETS_STORAGE_SIZE)
+        return NULL;
+
     switch (type)
     {
     case ASSETTYPE_TEXTURE:
-        if (id < arrlen(textures))
-            return textures[id];
-        break;
+        return textures[id];
     case ASSETTYPE_FONT:
-        if (id < arrlen(fonts))
-            return fonts[id];
-        break;
+        return fonts[id];
     case ASSETTYPE_MUSIC:
-        if (id < arrlen(musics))
-            return musics[id];
-        break;
+        return musics[id];
     case ASSETTYPE_SOUND:
-        if (id < arrlen(chunks))
-            return chunks[id];
-        break;
+        return chunks[id];
     }
 
     return NULL;
