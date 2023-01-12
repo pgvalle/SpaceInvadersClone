@@ -14,6 +14,11 @@ set_target_properties(
 	C_EXTENSIONS        FALSE
 )
 
+target_include_directories(
+	SpaceInvadersClone PRIVATE
+	${CMAKE_SOURCE_DIR}/src
+)
+
 find_package(SDL2       REQUIRED)
 find_package(SDL2_image REQUIRED)
 find_package(SDL2_ttf   REQUIRED)

@@ -1,6 +1,4 @@
-#include "../core.h"
-#include "../utils.h"
-#include "globals.h"
+#include "internal.h"
 
 void load_atlas();
 void load_font_atlas();
@@ -44,18 +42,19 @@ void start_state_destroy()
 {
 }
 
-void InitGameplayState();
-void DestroyGameplayState();
-void UpdateGameplayState();
-void RenderGameplayState();
+// declaring gameplay state function pointers
+void gameplay_state_init();
+void gameplay_state_destroy();
+void gameplay_state_update();
+void gameplay_state_render();
 
 void start_state_update()
 {
     fsm_replace((fsm_state_t){
-        .init = InitGameplayState,
-        .destroy = DestroyGameplayState,
-        .update = UpdateGameplayState,
-        .render = RenderGameplayState
+        .init = gameplay_state_init,
+        .destroy = gameplay_state_destroy,
+        .update = gameplay_state_update,
+        .render = gameplay_state_render
     });
 }
 

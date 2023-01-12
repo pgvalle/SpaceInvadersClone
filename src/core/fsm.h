@@ -1,9 +1,6 @@
 #ifndef CORE_FSM_H
 #define CORE_FSM_H
 
-#include "../utils.h"
-#include <stdbool.h>
-
 // All states can be represented in 4 procedures:
 // 1. initialize
 // 2. update - game loop
