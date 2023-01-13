@@ -1,6 +1,5 @@
 #include "internal.h"
-#include <stdlib.h>
-#include <stdbool.h>
+#include "common.h"
 
 // First state
 void start_state_init();

@@ -1,5 +1,5 @@
 #include "internal.h"
-#include <string.h>
+#include "common.h"
 
 SDL_Texture* textures[ASSETS_STORAGE_SIZE];
 TTF_Font* fonts[ASSETS_STORAGE_SIZE];

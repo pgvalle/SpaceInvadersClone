@@ -4,9 +4,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <SDL.h>
-#include <SDL_image.h>
-#include <SDL_ttf.h>
-#include <SDL_mixer.h>
 
 extern struct app_t {
     // some basic app settings

@@ -4,9 +4,7 @@
 #ifndef CORE_INTERNAL_H
 #define CORE_INTERNAL_H
 
-#include "app.h"
-#include "fsm.h"
-#include "asset_man.h"
+#include "stdbool.h"
 
 /**
  * STATE MACHINE
