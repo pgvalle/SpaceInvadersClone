@@ -1,4 +1,4 @@
-#include "constants.h"
+#include "internal.h"
 #include "common.h"
 
 void load_atlas();
@@ -42,12 +42,6 @@ void start_state_init()
 void start_state_destroy()
 {
 }
-
-// declaring gameplay state function pointers
-void gameplay_state_init();
-void gameplay_state_destroy();
-void gameplay_state_update();
-void gameplay_state_render();
 
 void start_state_update()
 {
