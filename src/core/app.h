@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <SDL.h>
+#include "utils/random.h"
 
 extern struct app_t {
     // some basic app settings
@@ -17,6 +18,8 @@ extern struct app_t {
     SDL_Event event;
 
     SDL_Renderer* renderer;
+
+    random_t random;
 
     uint32_t frame_time;
 } app; // single instance

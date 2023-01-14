@@ -3,6 +3,7 @@
 #include <SDL_ttf.h>
 #include <SDL_image.h>
 #include <SDL_mixer.h>
+#include <time.h>
 
 struct app_t app;
 
@@ -42,6 +43,7 @@ void app_init()
         SDL_WINDOW_HIDDEN | SDL_WINDOW_INPUT_FOCUS | SDL_WINDOW_MOUSE_FOCUS
     );
     app.renderer = SDL_CreateRenderer(app.window, -1, SDL_RENDERER_ACCELERATED);
+    random_init(&app.random, 0xab803fc1);
     app.frame_time = 0;
 
     asset_man_init();
