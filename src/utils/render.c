@@ -1,5 +1,6 @@
 #include "render.h"
-#include "../core.h"
+#include "core/app.h"
+#include "core/asset_man.h"
 
 void clip_render(
     const SDL_Rect* clip, uint8_t texture, int world_w, int world_h, int x, int y

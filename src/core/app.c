@@ -1,5 +1,8 @@
+#include "app.h"
 #include "internal.h"
-#include "common.h"
+#include <SDL_ttf.h>
+#include <SDL_image.h>
+#include <SDL_mixer.h>
 
 struct app_t app;
 

@@ -4,7 +4,7 @@
 #ifndef CORE_INTERNAL_H
 #define CORE_INTERNAL_H
 
-#include "stdbool.h"
+#include <stdbool.h>
 
 /**
  * STATE MACHINE

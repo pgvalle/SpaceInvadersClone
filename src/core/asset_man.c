@@ -1,5 +1,8 @@
+#include "asset_man.h"
+#include "app.h"
 #include "internal.h"
-#include "common.h"
+#include <stdlib.h>
+#include <string.h>
 
 SDL_Texture* textures[ASSETS_STORAGE_SIZE];
 TTF_Font* fonts[ASSETS_STORAGE_SIZE];

@@ -1,5 +1,5 @@
-#include "internal.h"
-#include "common.h"
+#include "constants.h"
+#include "core.h"
 
 void load_atlas();
 void load_font_atlas();

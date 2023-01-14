@@ -1,7 +1,7 @@
 #include "animation.h"
 #include "stb_ds.h"
 #include "render.h"
-#include "../core.h"
+#include "core/app.h"
 #include <stdarg.h>
 
 static inline

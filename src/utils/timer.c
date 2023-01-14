@@ -1,5 +1,5 @@
 #include "timer.h"
-#include "../core/app.h"
+#include "core/app.h"
 
 void timer_update(t1mer_t* timer)
 {

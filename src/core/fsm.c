@@ -1,5 +1,7 @@
+#include "fsm.h"
+#include "app.h"
 #include "internal.h"
-#include "common.h"
+#include "utils/stb_ds.h"
 
 // First state
 void start_state_init();
