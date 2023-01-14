@@ -1,4 +1,5 @@
 #include "constants.h"
+#include "states.h"
 #include "core.h"
 
 void load_atlas();
@@ -37,29 +38,22 @@ void start_state_init()
 
     load_atlas();
     load_font_atlas();
+
+    // push first state to stack
+    fsm_push((fsm_state_t){
+        .init    = gameplay_state_init,
+        .destroy = gameplay_state_destroy,
+        .update  = gameplay_state_update,
+        .render  = gameplay_state_render
+    });
 }
 
 void start_state_destroy()
 {
 }
 
-void start_state_update()
-{
-    /*
-    fsm_replace((fsm_state_t){
-        .init = gameplay_state_init,
-        .destroy = gameplay_state_destroy,
-        .update = gameplay_state_update,
-        .render = gameplay_state_render
-    });
-     */
-    if (app.event.type == SDL_QUIT)
-        app.should_close = true;
-}
-
-void start_state_render()
-{    
-}
+void start_state_update() {} // unused
+void start_state_render() {} // unused
 
 void load_atlas()
 {
