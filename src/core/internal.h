@@ -7,6 +7,13 @@
 #include <stdbool.h>
 
 /**
+ * ASSET MANAGER
+ */
+
+void asset_man_init();
+void asset_man_destroy();
+
+/**
  * STATE MACHINE
  */
 
@@ -21,13 +28,6 @@ void fsm_update();
 
 void fsm_update_current_state();
 void fsm_render_current_state();
-
-/**
- * ASSET MANAGER
- */
-
-void asset_man_init();
-void asset_man_destroy();
 
 
 #endif // CORE_INTERNAL_H

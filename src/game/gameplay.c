@@ -25,6 +25,8 @@ void gameplay_state_update()
 
 void gameplay_state_render()
 {
+    SDL_RenderClear(app.renderer);
+
     horde_render();
     tourist_render();
 }

@@ -6,9 +6,6 @@
 
 #define RESOURCE_DIR "./res"
 
-#define DEFAULT_VOLUME 50
-#define DEFAULT_SCALE 2
-
 #define FONT_PTSIZE 8
 
 #define CHARACTER_SET_MONO " A B C D E F G H  I J K L M N O P Q R S T U V W X"\

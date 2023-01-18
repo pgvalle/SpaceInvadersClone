@@ -1,10 +1,20 @@
 #include "tourist.h"
 #include "game/constants.h"
 #include "core/app.h"
-#include "utils/render.h"
+#include "core/asset_man.h"
+#include <math.h>
 #include <SDL_rect.h>
 
 struct tourist_t tourist;
+
+static inline
+uint32_t get_spawn_timeout_ms()
+{
+    return 17 * 60 * random_get_range(
+        TOURIST_SPAWN_TIME_MIN_SEC,
+        TOURIST_SPAWN_TIME_MAX_SEC
+    );
+}
 
 
 void tourist_init()
@@ -15,11 +25,7 @@ void tourist_init()
     tourist.spawnTimer = (t1mer_t){
         .has_timed_out = false,
         .time = 0,
-        .timeout = 17 * 60 * random_get_uint32_range(
-            &app.random,
-            TOURIST_SPAWN_TIME_MIN,
-            TOURIST_SPAWN_TIME_MAX
-        )
+        .timeout = get_spawn_timeout_ms()
     };
 }
 
@@ -33,17 +39,11 @@ void tourist_update()
             TOURIST_VEL : -TOURIST_VEL;
         if (tourist.x <= 8.f || tourist.x >= WORLD_WIDTH - 32.f)
         {
-            const uint32_t seconds = random_get_uint32_range(
-                    &app.random,
-                    TOURIST_SPAWN_TIME_MIN,
-                    TOURIST_SPAWN_TIME_MAX
-                );
-                SDL_LogInfo(0, "%u\n", seconds);
             tourist.state = TOURIST_UNAVAILABLE;
             tourist.spawnTimer = (t1mer_t){
                 .has_timed_out = false,
                 .time = 0,
-                .timeout = 17 * 60 * seconds
+                .timeout = get_spawn_timeout_ms()
             };
         }
         break;
@@ -51,7 +51,7 @@ void tourist_update()
         timer_update(&tourist.spawnTimer);
         if (tourist.spawnTimer.has_timed_out) // spawn
         {
-            tourist.state = rand() % 2 ?
+            tourist.state = random_get_range(0, 1) ?
                 TOURIST_AVAILABLE_LEFT : TOURIST_AVAILABLE_RIGHT;
             tourist.x = tourist.state == TOURIST_AVAILABLE_LEFT ?
                 8.f : (WORLD_WIDTH - 32.f);
@@ -66,7 +66,17 @@ void tourist_render()
         return;
     
     static const SDL_Rect clip = {  0,  0, 24,  8 };
-    clip_render(
-        &clip, ATLAS_INDEX, WORLD_WIDTH, WORLD_HEIGHT, tourist.x, TOURIST_Y
+    const SDL_Rect scale = {
+        APP_SCALE * roundf(tourist.x),
+        APP_SCALE * TOURIST_Y,
+        APP_SCALE * clip.w,
+        APP_SCALE * clip.h
+    };
+
+    SDL_RenderCopy(
+        app.renderer,
+        asset_man_get(ASSETTYPE_TEXTURE, ATLAS_INDEX),
+        &clip,
+        &scale
     );
 }

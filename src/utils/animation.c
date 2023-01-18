@@ -1,7 +1,7 @@
 #include "animation.h"
 #include "stb_ds.h"
-#include "render.h"
 #include "core/app.h"
+#include "core/asset_man.h"
 #include <stdarg.h>
 
 static inline
@@ -46,16 +46,20 @@ void animation_update(animation_t* anim)
     }
 }
 
-void animation_render(
-    const animation_t* anim, int world_w, int world_h, int x, int y
-)
+void animation_render(const animation_t* anim, int x, int y)
 {
-    clip_render(
-        &animation_get_current_frame(anim)->clip,
-        anim->texture_id,
-        world_w,
-        world_h,
-        x,
-        y
+    const SDL_Rect clip = animation_get_current_frame(anim)->clip;
+    const SDL_Rect scale = {
+        APP_SCALE * x,
+        APP_SCALE * y,
+        APP_SCALE * clip.w,
+        APP_SCALE * clip.h
+    };
+
+    SDL_RenderCopy(
+        app.renderer,
+        asset_man_get(ASSETTYPE_TEXTURE, anim->texture_id),
+        &clip,
+        &scale
     );
 }

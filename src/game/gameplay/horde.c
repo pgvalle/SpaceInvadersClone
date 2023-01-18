@@ -1,8 +1,8 @@
 #include "horde.h"
 #include "game/constants.h"
 #include "core/app.h"
+#include "core/asset_man.h"
 #include "utils/stb_ds.h"
-#include "utils/render.h"
 #include <string.h>
 #include <time.h>
 
@@ -128,17 +128,21 @@ void horde_move_diagonally()
 
 void horde_render()
 {
-    SDL_RenderClear(app.renderer);
-
     for (int i = 0; i < arrlen(horde.invaders); i++)
     {        
-        clip_render(
-            &horde.invaders[i].clip,
-            ATLAS_INDEX,
-            WORLD_WIDTH,
-            WORLD_HEIGHT,
-            horde.invaders[i].x,
-            horde.invaders[i].y
-        );      
-    }
+        const SDL_Rect clip = horde.invaders[i].clip;
+        const SDL_Rect scale = {
+            APP_SCALE * horde.invaders[i].x,
+            APP_SCALE * horde.invaders[i].y,
+            APP_SCALE * clip.w,
+            APP_SCALE * clip.h
+        };
+
+        SDL_RenderCopy(
+            app.renderer,
+            asset_man_get(ASSETTYPE_TEXTURE, ATLAS_INDEX),
+            &clip,
+            &scale
+        ); 
+    }    
 }

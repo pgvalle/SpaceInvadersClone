@@ -6,20 +6,17 @@
 #include <SDL.h>
 #include "utils/random.h"
 
-extern struct app_t {
-    // some basic app settings
-    bool fullscreen;
-    int scale;
-    int volume;
+#define APP_FPS 60
+#define APP_SCALE 2
 
+extern struct app_t
+{
     bool should_close;
 
     SDL_Window* window;
     SDL_Event event;
 
     SDL_Renderer* renderer;
-
-    random_t random;
 
     uint32_t frame_time;
 } app; // single instance

@@ -3,7 +3,6 @@
 #include <SDL_ttf.h>
 #include <SDL_image.h>
 #include <SDL_mixer.h>
-#include <time.h>
 
 struct app_t app;
 
@@ -30,25 +29,19 @@ int main(int argc, char** args)
 
 void app_init()
 {
-    app.fullscreen = false;
-    app.scale = 0;
-    app.volume = 0;
-    app.should_close = false;
     app.window = SDL_CreateWindow(
         "",
         SDL_WINDOWPOS_CENTERED,
         SDL_WINDOWPOS_CENTERED,
         0,
         0,
-        SDL_WINDOW_HIDDEN | SDL_WINDOW_INPUT_FOCUS | SDL_WINDOW_MOUSE_FOCUS
+        SDL_WINDOW_INPUT_FOCUS | SDL_WINDOW_MOUSE_FOCUS
     );
     app.renderer = SDL_CreateRenderer(app.window, -1, SDL_RENDERER_ACCELERATED);
-    random_init(&app.random, 0xab803fc1);
     app.frame_time = 0;
 
     asset_man_init();
-
-    // last thing to initialize so that state can access asset_man
+    // last thing to initialize so that initial state can access asset_man
     fsm_init();
 }
 
@@ -69,7 +62,7 @@ void app_run()
     {
         // calculate frame deltatime
         app.frame_time = SDL_GetTicks() - before;
-        if (app.frame_time < 17) // only finish frame if fps is around 60
+        if (app.frame_time < 1000 / APP_FPS) // only finish frame if fps is around 60
             continue;
 
         // now a new frame started

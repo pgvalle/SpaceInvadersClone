@@ -18,10 +18,6 @@ void load_window_icon();
 
 void start_state_init()
 {
-    app.fullscreen = false;
-    app.scale = DEFAULT_SCALE;
-    app.volume = DEFAULT_VOLUME;
-
     SDL_SetWindowTitle(app.window, "Space Invaders Clone");
     
     // load window icon
@@ -30,8 +26,8 @@ void start_state_init()
     // change window size
     SDL_SetWindowSize(
         app.window,
-        app.scale * WORLD_WIDTH,
-        app.scale * WORLD_HEIGHT
+        APP_SCALE * WORLD_WIDTH,
+        APP_SCALE * WORLD_HEIGHT
     );
 
     SDL_ShowWindow(app.window);
