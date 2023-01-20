@@ -16,6 +16,11 @@ void load_window_icon();
     }
 */
 
+void bruh()
+{
+
+}
+
 void start_state_init()
 {
     SDL_SetWindowTitle(app.window, "Space Invaders Clone");
@@ -39,6 +44,7 @@ void start_state_init()
     fsm_push((fsm_state_t){
         .init    = gameplay_state_init,
         .destroy = gameplay_state_destroy,
+        .process_event = bruh,
         .update  = gameplay_state_update,
         .render  = gameplay_state_render
     });

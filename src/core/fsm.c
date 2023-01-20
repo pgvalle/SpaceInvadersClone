@@ -6,6 +6,7 @@
 // First state
 void start_state_init();
 void start_state_destroy();
+void start_state_process_event() {}
 void start_state_update();
 void start_state_render();
 
@@ -24,10 +25,11 @@ void fsm_init()
 
     // push initial state to stack
     const fsm_state_t first = {
-        .init    = start_state_init,
-        .destroy = start_state_destroy,
-        .update  = start_state_update,
-        .render  = start_state_render
+        .init          = start_state_init,
+        .destroy       = start_state_destroy,
+        .process_event = start_state_process_event,
+        .update        = start_state_update,
+        .render        = start_state_render
     };
     arrput(stack, first);
 
@@ -72,12 +74,17 @@ void fsm_update()
     pushing = poping = false;
 }
 
-void fsm_update_current_state()
+void fsm_process_event_for_current()
+{
+    stack[top].process_event();
+}
+
+void fsm_update_current()
 {
     stack[top].update();
 }
 
-void fsm_render_current_state()
+void fsm_render_current()
 {
     stack[top].render();
     SDL_RenderPresent(app.renderer);

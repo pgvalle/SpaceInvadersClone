@@ -10,7 +10,7 @@ typedef void(*function_t)();
 // 4. destroy
 typedef struct fsm_state_t
 {
-    function_t init, destroy, update, render;
+    function_t init, destroy, process_event, update, render;
 } fsm_state_t;
 
 // These functions are called by the states. Changes aren't applied just yet.

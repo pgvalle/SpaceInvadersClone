@@ -26,8 +26,9 @@ bool fsm_empty();
 // May be called only after fsm_update_current and fsm_render_current were called.
 void fsm_update();
 
-void fsm_update_current_state();
-void fsm_render_current_state();
+void fsm_process_event_for_current();
+void fsm_update_current();
+void fsm_render_current();
 
 
 #endif // CORE_INTERNAL_H
