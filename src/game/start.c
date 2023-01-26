@@ -1,6 +1,5 @@
 #include "internal.h"
 #include "globals.h"
-#include "states.h"
 #include "core.h"
 #include <SDL_ttf.h>
 #include <SDL_image.h>
