@@ -4,7 +4,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <SDL.h>
-#include "utils/random.h"
 
 #define APP_FPS 60
 #define APP_SCALE 2

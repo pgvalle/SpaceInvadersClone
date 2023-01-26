@@ -7,14 +7,7 @@
 #include <stdbool.h>
 
 /**
- * ASSET MANAGER
- */
-
-void asset_man_init();
-void asset_man_destroy();
-
-/**
- * STATE MACHINE
+ * STATE MACHINE STUFF
  */
 
 void fsm_init();

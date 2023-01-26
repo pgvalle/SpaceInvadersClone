@@ -6,7 +6,7 @@
 // First state
 void start_state_init();
 void start_state_destroy();
-void start_state_process_event() {}
+void start_state_process_event();
 void start_state_update();
 void start_state_render();
 

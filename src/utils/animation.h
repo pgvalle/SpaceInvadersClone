@@ -12,7 +12,7 @@ typedef struct animation_frame_t
 
 typedef struct animation_t
 {
-    uint8_t texture_id;
+    SDL_Texture* texture;
     animation_frame_t* frames;
     uint8_t current;
 } animation_t;
@@ -31,7 +31,7 @@ typedef struct animation_t
 //         .timer = ...
 //     }
 // });
-void animation_init(animation_t* anim, uint8_t texture_id, uint8_t size, ...);
+void animation_init(animation_t* anim, SDL_Texture* texture, uint8_t size, ...);
 // Frees anim->frames and reset other fields
 void animation_free(animation_t* anim);
 

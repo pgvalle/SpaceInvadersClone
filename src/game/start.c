@@ -1,32 +1,19 @@
-#include "constants.h"
+#include "internal.h"
+#include "globals.h"
 #include "states.h"
 #include "core.h"
+#include <SDL_ttf.h>
+#include <SDL_image.h>
+
+// assets
+SDL_Texture* atlas, * font_atlas;
 
 void load_atlas();
 void load_font_atlas();
-void load_window_icon();
-
-/*
-// calculate scale in fullscreen
-    {
-        SDL_DisplayMode mode;
-        SDL_GetCurrentDisplayMode(0, &mode);
-        int wscale = mode.w / WORLD_WIDTH;
-        int hscale = mode.h / WORLD_HEIGHT;
-    }
-*/
-
-void bruh()
-{
-
-}
 
 void start_state_init()
 {
     SDL_SetWindowTitle(app.window, "Space Invaders Clone");
-    
-    // load window icon
-    load_window_icon();
 
     // change window size
     SDL_SetWindowSize(
@@ -39,27 +26,27 @@ void start_state_init()
 
     load_atlas();
     load_font_atlas();
-
-    // push first state to stack
-    fsm_push((fsm_state_t){
-        .init    = gameplay_state_init,
-        .destroy = gameplay_state_destroy,
-        .process_event = bruh,
-        .update  = gameplay_state_update,
-        .render  = gameplay_state_render
-    });
 }
 
 void start_state_destroy()
 {
 }
 
-void start_state_update() {} // unused
-void start_state_render() {} // unused
+void start_state_process_event()
+{
+}
+
+void start_state_update()
+{
+}
+
+void start_state_render()
+{
+}
 
 void load_atlas()
 {
-    SDL_Texture* atlas = asset_man_load_texture(ATLAS_INDEX, RESOURCE_DIR "/atlas.png");
+    atlas = IMG_LoadTexture(app.renderer, RESOURCE_DIR "/atlas.png");
     if (!atlas)
     {
         SDL_LogError(0, "res/atlas.png couldn't be opened.\n");
@@ -75,10 +62,8 @@ void load_atlas()
 
         // create fallback texture and free surface
         atlas = SDL_CreateTextureFromSurface(app.renderer, fallback_surf);
-        asset_man_store(ASSETTYPE_TEXTURE, ATLAS_INDEX, (void*)atlas);
         SDL_FreeSurface(fallback_surf);
     }
-    
 }
 
 void load_font_atlas()
@@ -98,8 +83,7 @@ void load_font_atlas()
         SDL_FillRect(fallback_surf, NULL, 0xffffffff);
 
         // create fallback texture and free surface
-        SDL_Texture* char_atlas = SDL_CreateTextureFromSurface(app.renderer, fallback_surf);
-        asset_man_store(ASSETTYPE_TEXTURE, FONT_ATLAS_INDEX, (void*)char_atlas);
+        font_atlas = SDL_CreateTextureFromSurface(app.renderer, fallback_surf);
         SDL_FreeSurface(fallback_surf);
     }
     else
@@ -129,27 +113,9 @@ void load_font_atlas()
         SDL_FreeSurface(red_chars_surf);
 
         // finally create the texture and free the surface
-        SDL_Texture* char_atlas = SDL_CreateTextureFromSurface(app.renderer, chars_surf);
-        asset_man_store(ASSETTYPE_TEXTURE, FONT_ATLAS_INDEX, (void*)char_atlas);
+        font_atlas = SDL_CreateTextureFromSurface(app.renderer, chars_surf);
         SDL_FreeSurface(chars_surf);
 
         TTF_CloseFont(font);
-    }
-}
-
-void load_window_icon()
-{
-    SDL_RWops* ops = SDL_RWFromFile(RESOURCE_DIR "/icon.png", "rb");
-    if (!ops)
-    {
-        SDL_LogError(0, "Could not load res/icon.svg.\n");
-        SDL_Log("The window icon is undefined.\n");
-    }
-    else
-    {
-        SDL_Surface* icon_surf = IMG_LoadPNG_RW(ops);
-        SDL_SetWindowIcon(app.window, icon_surf);
-        SDL_RWclose(ops);
-        SDL_FreeSurface(icon_surf);
     }
 }

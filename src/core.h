@@ -3,7 +3,6 @@
 
 #include "core/app.h"
 #include "core/fsm.h"
-#include "core/asset_man.h"
 
 
 #endif // CORE_H

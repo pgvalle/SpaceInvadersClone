@@ -2,6 +2,7 @@
 #include "game/constants.h"
 #include "core/app.h"
 #include "core/asset_man.h"
+#include "utils/random.h"
 #include <math.h>
 #include <SDL_rect.h>
 

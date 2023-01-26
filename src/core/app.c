@@ -1,8 +1,7 @@
 #include "app.h"
 #include "internal.h"
-#include <SDL_ttf.h>
 #include <SDL_image.h>
-#include <SDL_mixer.h>
+#include <SDL_ttf.h>
 
 struct app_t app;
 
@@ -15,7 +14,6 @@ int main(int argc, char** args)
     SDL_Init(SDL_INIT_EVERYTHING);
     IMG_Init(IMG_INIT_PNG);
     TTF_Init();
-    Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048);
 
     app.window = SDL_CreateWindow(
         "",
@@ -27,8 +25,7 @@ int main(int argc, char** args)
     );
     app.renderer = SDL_CreateRenderer(app.window, -1, SDL_RENDERER_ACCELERATED);
     app.frame_time = 0;
-    
-    asset_man_init();
+
     fsm_init();
 
     app_run(); // execution
@@ -36,12 +33,10 @@ int main(int argc, char** args)
     // termination
 
     fsm_destroy();
-    asset_man_destroy();
 
     SDL_DestroyRenderer(app.renderer);
     SDL_DestroyWindow(app.window);
 
-    Mix_CloseAudio();
     TTF_Quit();
     IMG_Quit();
     SDL_Quit();

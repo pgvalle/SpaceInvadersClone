@@ -3,6 +3,12 @@
 #include "gameplay/tourist.h"
 #include "core.h"
 
+enum {
+    GAMEPLAY_PLAYING,
+    GAMEPLAY_PAUSED,
+    GAMEPLAY_OVER
+} gameplay_state;
+
 void gameplay_state_init()
 {
     horde_init();
@@ -14,11 +20,14 @@ void gameplay_state_destroy()
     
 }
 
-void gameplay_state_update()
+void gameplay_state_process_event()
 {
     if (app.event.type == SDL_QUIT)
         app.should_close = true;
+}
 
+void gameplay_state_update()
+{
     horde_update();
     tourist_update();
 }

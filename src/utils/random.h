@@ -1,8 +1,3 @@
-/**
- * Mersenne Twister
- * Implemented by: https://github.com/ESultanik/mtwister
- * Originaly developed by: http://www.math.sci.hiroshima-u.ac.jp/m-mat/MT/emt.html
-*/
 #ifndef UTILS_RANDOM_H
 #define UTILS_RANDOM_H
 

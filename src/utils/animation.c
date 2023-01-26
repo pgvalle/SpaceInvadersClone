@@ -1,7 +1,6 @@
 #include "animation.h"
 #include "stb_ds.h"
 #include "core/app.h"
-#include "core/asset_man.h"
 #include <stdarg.h>
 
 static inline
@@ -10,9 +9,9 @@ animation_frame_t* animation_get_current_frame(const animation_t* anim)
     return &anim->frames[anim->current];
 }
 
-void animation_init(animation_t* anim, uint8_t texture_id, uint8_t size, ...)
+void animation_init(animation_t* anim, SDL_Texture* texture, uint8_t size, ...)
 {
-    anim->texture_id = texture_id;
+    anim->texture = texture;
     anim->frames = NULL;
     anim->current = 0;
 
@@ -25,7 +24,7 @@ void animation_init(animation_t* anim, uint8_t texture_id, uint8_t size, ...)
 
 void animation_free(animation_t* anim)
 {
-    anim->texture_id = 0;
+    anim->texture = NULL;
     arrfree(anim->frames);
     anim->current = 0;
 }
@@ -56,10 +55,5 @@ void animation_render(const animation_t* anim, int x, int y)
         APP_SCALE * clip.h
     };
 
-    SDL_RenderCopy(
-        app.renderer,
-        asset_man_get(ASSETTYPE_TEXTURE, anim->texture_id),
-        &clip,
-        &scale
-    );
+    SDL_RenderCopy(app.renderer, anim->texture, &clip, &scale);
 }

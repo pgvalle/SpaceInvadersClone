@@ -10,16 +10,13 @@
 #define TOURIST_SPAWN_TIME_MIN_SEC 20
 #define TOURIST_SPAWN_TIME_MAX_SEC 30
 
-enum tourist_state_t
-{
-    TOURIST_UNAVAILABLE,
-    TOURIST_AVAILABLE_LEFT,
-    TOURIST_AVAILABLE_RIGHT
-};
-
 extern struct tourist_t
 {
-    enum tourist_state_t state;
+    enum {
+        TOURIST_UNAVAILABLE,
+        TOURIST_AVAILABLE_LEFT,
+        TOURIST_AVAILABLE_RIGHT
+    } state;
 
     float x;
     t1mer_t spawnTimer;

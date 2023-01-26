@@ -4,12 +4,6 @@
 #include <stdbool.h>
 #include <SDL_rect.h>
 
-struct invader_t
-{
-    SDL_Rect clip;
-    int x, y;
-};
-
 #define HORDE_X_INIT 26
 #define HORDE_Y_INIT 72
 
@@ -20,21 +14,23 @@ struct invader_t
 
 #define HORDE_MOVE_TIMEOUT_INIT 1024
 
-enum horde_state_t
-{
-    HORDE_STARTING, // start animation
-    HORDE_LOCKED,
-    HORDE_MOVING_LEFT,
-    HORDE_MOVING_DOWN_LEFT,
-    HORDE_MOVING_RIGHT,
-    HORDE_MOVING_DOWN_RIGHT
-};
-
 extern struct horde_t
 {
-    enum horde_state_t state;
+    enum {
+        HORDE_STARTING, // start animation
+        HORDE_LOCKED,
+        HORDE_MOVING_LEFT,
+        HORDE_MOVING_DOWN_LEFT,
+        HORDE_MOVING_RIGHT,
+        HORDE_MOVING_DOWN_RIGHT
+    } state;
 
-    struct invader_t* invaders;
+    struct invader_t
+    {
+        SDL_Rect clip;
+        int x, y;
+    }* invaders;
+
     // One invader is updated each frame.
     // horde is up-to-date only when all invaders are up-to-date.
     int invaders_updated;
