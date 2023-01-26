@@ -20,7 +20,7 @@ typedef struct animation_t
 // Usage Ex:
 // animation_init(
 //     anim,
-//     texture_id,
+//     texture,
 //     2
 //     (animation_frame_t){
 //         .clip = {0, 0, 16, 16},

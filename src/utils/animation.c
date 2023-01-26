@@ -36,18 +36,18 @@ bool animation_is_over(const animation_t* anim)
 
 void animation_update(animation_t* anim)
 {
-    timer_update(&animation_get_current_frame(anim)->timer);
-    if (animation_get_current_frame(anim)->timer.has_timed_out)
+    timer_update(&anim->frames[anim->current].timer);
+    if (anim->frames[anim->current].timer.has_timed_out)
     {
         // only update frame pointer if it is valid
-        if (anim->current < arrlen(anim->frames))
+        if (anim->current + 1 < arrlen(anim->frames))
             anim->current++;
     }
 }
 
 void animation_render(const animation_t* anim, int x, int y)
 {
-    const SDL_Rect clip = animation_get_current_frame(anim)->clip;
+    const SDL_Rect clip = anim->frames[anim->current].clip;
     const SDL_Rect scale = {
         APP_SCALE * x,
         APP_SCALE * y,
