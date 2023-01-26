@@ -1,6 +1,7 @@
-#include "constants.h"
+#include "globals.h"
 #include "gameplay/horde.h"
 #include "gameplay/tourist.h"
+#include "gameplay/player.h"
 #include "core.h"
 
 enum {
@@ -13,6 +14,7 @@ void gameplay_state_init()
 {
     horde_init();
     tourist_init();
+	player_init();
 }
 
 void gameplay_state_destroy()
@@ -30,6 +32,7 @@ void gameplay_state_update()
 {
     horde_update();
     tourist_update();
+	player_update();
 }
 
 void gameplay_state_render()
@@ -38,4 +41,5 @@ void gameplay_state_render()
 
     horde_render();
     tourist_render();
+	player_render();
 }

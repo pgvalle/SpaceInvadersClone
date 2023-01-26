@@ -2,7 +2,7 @@
 #define UTILS_ANIMATION_H
 
 #include "timer.h"
-#include <SDL_rect.h>
+#include <SDL.h>
 
 typedef struct animation_frame_t
 {

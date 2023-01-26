@@ -1,10 +1,9 @@
 #include "tourist.h"
-#include "game/constants.h"
-#include "core/app.h"
-#include "core/asset_man.h"
+#include "game/globals.h"
+#include "game/internal.h"
+#include "core.h"
 #include "utils/random.h"
 #include <math.h>
-#include <SDL_rect.h>
 
 struct tourist_t tourist;
 
@@ -76,7 +75,7 @@ void tourist_render()
 
     SDL_RenderCopy(
         app.renderer,
-        asset_man_get(ASSETTYPE_TEXTURE, ATLAS_INDEX),
+        atlas,
         &clip,
         &scale
     );

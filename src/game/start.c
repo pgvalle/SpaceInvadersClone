@@ -10,6 +10,13 @@ SDL_Texture* atlas, * font_atlas;
 void load_atlas();
 void load_font_atlas();
 
+// gameplay declarations
+void gameplay_state_init();
+void gameplay_state_destroy();
+void gameplay_state_process_event();
+void gameplay_state_update();
+void gameplay_state_render();
+
 void start_state_init()
 {
     SDL_SetWindowTitle(app.window, "Space Invaders Clone");
@@ -25,6 +32,14 @@ void start_state_init()
 
     load_atlas();
     load_font_atlas();
+
+	fsm_push((fsm_state_t) {
+		.init = gameplay_state_init,
+		.destroy = gameplay_state_destroy,
+		.process_event = gameplay_state_process_event,
+		.update = gameplay_state_update,
+		.render = gameplay_state_render
+	});
 }
 
 void start_state_destroy()
