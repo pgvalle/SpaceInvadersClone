@@ -21,12 +21,20 @@ void player_update()
 	switch (player.state)
 	{
 	case PLAYER_ALIVE:
+		// movement
 		if (keys[SDL_SCANCODE_LEFT])
 			player.x -= 2;
 		if (keys[SDL_SCANCODE_RIGHT])
 			player.x += 2;
-		// shooting
 		
+		// check bounds	
+		if (player.x < 14)
+			player.x = 14;
+		else if (player.x > WORLD_WIDTH - 31)
+			player.x = WORLD_WIDTH - 31;
+			
+		// shooting
+				
 		break;
 	}
 }
