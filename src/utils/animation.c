@@ -31,18 +31,15 @@ void animation_free(animation_t* anim)
 
 bool animation_is_over(const animation_t* anim)
 {
-    return anim->current == arrlen(anim->frames);
+    return anim->current + 1 == arrlen(anim->frames) &&
+        anim->frames[anim->current].timer.has_timed_out;
 }
 
 void animation_update(animation_t* anim)
 {
     timer_update(&anim->frames[anim->current].timer);
     if (anim->frames[anim->current].timer.has_timed_out)
-    {
-        // only update frame pointer if it is valid
-        if (anim->current + 1 < arrlen(anim->frames))
-            anim->current++;
-    }
+        anim->current = (anim->current + 1) % arrlen(anim->frames);
 }
 
 void animation_render(const animation_t* anim, int x, int y)
