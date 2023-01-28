@@ -2,6 +2,7 @@
 #define HORDE_H
 
 #include <stdbool.h>
+#include "utils/timer.h"
 #include <SDL_rect.h>
 
 #define HORDE_X_INIT 26
@@ -34,6 +35,8 @@ extern struct horde_t
     // One invader is updated each frame.
     // horde is up-to-date only when all invaders are up-to-date.
     int invaders_updated;
+
+    t1mer_t shot_timer;
 } horde;
 
 void horde_init();

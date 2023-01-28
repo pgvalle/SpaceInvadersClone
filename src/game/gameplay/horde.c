@@ -1,10 +1,11 @@
 #include "horde.h"
+#include "shots.h"
 #include "game/globals.h"
 #include "game/internal.h"
 #include "core.h"
 #include "utils/stb_ds.h"
+#include "utils/random.h"
 #include <string.h>
-#include <time.h>
 
 struct horde_t horde;
 
@@ -14,6 +15,12 @@ void horde_init()
 
     horde.invaders = NULL;
     horde.invaders_updated = 0;
+
+    horde.shot_timer = (t1mer_t){
+        .has_timed_out = false,
+        .time = 0,
+        .timeout = 16 * 32 * random_get_range(1, 2)
+    };
 }
 
 void horde_remove_invader(int i)
@@ -45,6 +52,56 @@ void horde_update()
     case HORDE_MOVING_DOWN_RIGHT:
         horde_move_diagonally();
         break;
+    }
+
+    timer_update(&horde.shot_timer);
+    if (horde.shot_timer.has_timed_out && arrlen(horde.invaders) > 0)
+    {
+        // someone shoots
+        const int i = random_get_range(0, arrlen(horde.invaders) - 1);
+        struct horde_shot_t shot = {
+            .x = horde.invaders[i].x + 5,
+            .y = horde.invaders[0].y + 8,
+            .yvel = 1
+        };
+        animation_init(&shot.anim, atlas, 4,
+            (animation_frame_t){
+                .clip = { 24, 16, 3, 7 },
+                .timer = {
+                    .has_timed_out = false,
+                    .time = 0,
+                    .timeout = 80
+                }
+            },
+            (animation_frame_t){
+                .clip = { 27, 16, 3, 7 },
+                .timer = {
+                    .has_timed_out = false,
+                    .time = 0,
+                    .timeout = 80
+                }
+            },
+            (animation_frame_t){
+                .clip = { 30, 16, 3, 7 },
+                .timer = {
+                    .has_timed_out = false,
+                    .time = 0,
+                    .timeout = 80
+                }
+            },
+            (animation_frame_t){
+                .clip = { 33, 16, 3, 7 },
+                .timer = {
+                    .has_timed_out = false,
+                    .time = 0,
+                    .timeout = 80
+                }
+            }
+        );
+        arrput(horde_shots, shot);
+
+        // reset
+        timer_set_timeout(&horde.shot_timer, 16 * 64 * random_get_range(1, 2));
     }
 }
 

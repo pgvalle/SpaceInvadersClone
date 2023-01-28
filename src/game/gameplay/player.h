@@ -15,7 +15,9 @@ extern struct player_t
 	} state;
 
 	int x;
+	int deaths;
 	t1mer_t death_timer;
+	t1mer_t shot_timer;
 } player;
 
 void player_init();
