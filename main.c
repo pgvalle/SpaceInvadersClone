@@ -241,6 +241,38 @@ void horde_move_diagonally()
     }
 }
 
+void horde_shots_update()
+{
+    for (int i = 0; i < arrlen(horde.shots); i++)
+	{
+		horde.shots[i].y++;
+
+        horde.shots[i].anim_timing += app.frame_time;
+        if (horde.shots[i].anim_timing >= 16 * 10)
+        {
+            horde.shots[i].clip.x -= 24;
+            horde.shots[i].clip.x = (horde.shots[i].clip.x + 3) % 12;
+            horde.shots[i].clip.x += 24;
+            horde.shots[i].anim_timing = 0;
+        }
+
+		if (horde.shots[i].y >= 240)
+        {
+            // add explosion
+            const struct explosion_t explosion = {
+                .x = horde.shots[i].x - 1,
+                .y = 240,
+                .clip = { 24, 40,  6,  8 },
+                .timing = 0,
+                .timeout = 16 * 24
+            };
+            arrput(explosions, explosion);
+
+			arrdel(horde.shots, i);
+        }
+	}
+}
+
 void horde_update()
 {
     switch (horde.state)
@@ -290,35 +322,7 @@ void horde_update()
         horde.shot_timeout = 16 * 64 * (rand() % 2 + 1);
     }
 
-    // shots update
-    for (int i = 0; i < arrlen(horde.shots); i++)
-	{
-		horde.shots[i].y++;
-
-        horde.shots[i].anim_timing += app.frame_time;
-        if (horde.shots[i].anim_timing >= 16 * 10)
-        {
-            horde.shots[i].clip.x -= 24;
-            horde.shots[i].clip.x = (horde.shots[i].clip.x + 3) % 12;
-            horde.shots[i].clip.x += 24;
-            horde.shots[i].anim_timing = 0;
-        }
-
-		if (horde.shots[i].y >= 240)
-        {
-            // add explosion
-            const struct explosion_t explosion = {
-                .x = horde.shots[i].x - 1,
-                .y = 240,
-                .clip = { 24, 40,  6,  8 },
-                .timing = 0,
-                .timeout = 16 * 24
-            };
-            arrput(explosions, explosion);
-
-			arrdel(horde.shots, i);
-        }
-	}
+    horde_shots_update();
 }
 
 // tourist
@@ -391,6 +395,30 @@ struct {
     uint32_t shot_timing, death_timing;
 } player;
 
+void player_shots_update()
+{
+    for (int i = 0; i < arrlen(player.shots); i++)
+	{
+		// same
+		player.shots[i].y -= 4;
+
+		if (player.shots[i].y <= 40)
+		{
+            // add explosion
+            const struct explosion_t explosion = {
+                .x = player.shots[i].x - 3,
+                .y = 40,
+                .clip = { 36, 24,  8,  8 },
+                .timing = 0,
+                .timeout = 16 * 24
+            };
+            arrput(explosions, explosion);
+
+            arrdel(player.shots, i);
+        }
+	}
+}
+
 void player_update()
 {
 	const uint8_t* keys = SDL_GetKeyboardState(NULL);
@@ -435,27 +463,7 @@ void player_update()
 		break;
 	}
 
-    // player shots
-    for (int i = 0; i < arrlen(player.shots); i++)
-	{
-		// same
-		player.shots[i].y -= 4;
-
-		if (player.shots[i].y <= 40)
-		{
-            // add explosion
-            const struct explosion_t explosion = {
-                .x = player.shots[i].x - 3,
-                .y = 40,
-                .clip = { 36, 24,  8,  8 },
-                .timing = 0,
-                .timeout = 16 * 24
-            };
-            arrput(explosions, explosion);
-
-            arrdel(player.shots, i);
-        }
-	}
+    player_shots_update();
 }
 
 // interactions
