@@ -14,11 +14,11 @@ SDL_Texture* atlas = NULL, * font_atlas = NULL;
 #define APP_FONT_PTSIZE 8
 
 #define APP_CHARACTERS_MONO " A B C D E F G H  I J K L M N O P Q R S T U V W X"\
-	" Y Z 0  1 2 3 4 5 6 7 8 9 ? <  > ="
-#define APP_CHARACTERS "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789?<>="
+	" Y Z 0  1 2 3 4 5 6 7 8 9 - ? <  > = "
+#define APP_CHARACTERS "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-?<>="
 
 #define WORLD_WIDTH  224
-#define WORLD_HEIGHT 256
+#define WORLD_HEIGHT 264
 
 struct {
     enum {
@@ -50,7 +50,7 @@ void app_render_text(const char* text, int x, int y)
         if (mapping != strlen(characters)) // success
         {
             SDL_Rect clip = {
-                mapping * APP_FONT_PTSIZE - 1,
+                mapping * APP_FONT_PTSIZE,
                 0,
                 APP_FONT_PTSIZE,
                 APP_FONT_PTSIZE
@@ -108,6 +108,22 @@ enum {
     GAME_PLAYING,
     GAME_OVER
 } game_state;
+
+int game_score;
+int game_hi_score;
+
+void scores_render()
+{
+    char format[10];
+    // score
+    app_render_text("score", 8, 8);
+    sprintf(format, "%05d", game_score);
+    app_render_text(format, 8, 24);
+    // high-score
+    app_render_text("hi-score", WORLD_WIDTH - 72, 8);
+    sprintf(format, "%05d", game_hi_score);
+    app_render_text(format, WORLD_WIDTH - 48, 24);
+}
 
 // explosions
 
@@ -248,7 +264,7 @@ void horde_shots_update()
 		horde.shots[i].y++;
 
         horde.shots[i].anim_timing += app.frame_time;
-        if (horde.shots[i].anim_timing >= 16 * 10)
+        if (horde.shots[i].anim_timing >= 16 * 6)
         {
             horde.shots[i].clip.x -= 24;
             horde.shots[i].clip.x = (horde.shots[i].clip.x + 3) % 12;
@@ -273,25 +289,8 @@ void horde_shots_update()
 	}
 }
 
-void horde_update()
+void horde_try_shooting()
 {
-    switch (horde.state)
-    {
-    case HORDE_STARTING:
-        horde_start_update();
-        break;
-    case HORDE_LOCKED: // locked. Just ignore
-        break;
-    case HORDE_MOVING_LEFT:
-    case HORDE_MOVING_RIGHT:
-        horde_move_horizontally();
-        break;
-    case HORDE_MOVING_DOWN_LEFT:
-    case HORDE_MOVING_DOWN_RIGHT:
-        horde_move_diagonally();
-        break;
-    }
-
     horde.shot_timing += app.frame_time;
     if (horde.shot_timing >= horde.shot_timeout && arrlen(horde.invaders) > 0)
     {
@@ -321,8 +320,44 @@ void horde_update()
         horde.shot_timing = 0;
         horde.shot_timeout = 16 * 64 * (rand() % 2 + 1);
     }
+}
 
-    horde_shots_update();
+void horde_update()
+{
+    switch (horde.state)
+    {
+    case HORDE_STARTING:
+        horde_start_update();
+        break;
+    case HORDE_LOCKED: // locked. Just ignore
+        break;
+    case HORDE_MOVING_LEFT:
+    case HORDE_MOVING_RIGHT:
+        horde_try_shooting();
+        horde_move_horizontally();
+        break;
+    case HORDE_MOVING_DOWN_LEFT:
+    case HORDE_MOVING_DOWN_RIGHT:
+        horde_try_shooting();
+        horde_move_diagonally();
+        break;
+    }
+}
+
+void horde_shots_render()
+{
+    for (int i = 0; i < arrlen(horde.shots); i++)
+        app_render_clip(&horde.shots[i].clip, horde.shots[i].x, horde.shots[i].y);
+}
+
+void horde_render()
+{
+    for (int i = 0; i < arrlen(horde.invaders); i++)
+    {
+        app_render_clip(
+            &horde.invaders[i].clip, horde.invaders[i].x, horde.invaders[i].y
+        );
+    }
 }
 
 // tourist
@@ -374,6 +409,15 @@ void tourist_update()
     }
 }
 
+void tourist_render()
+{
+    if (tourist.state != TOURIST_UNAVAILABLE)
+    {
+        static const SDL_Rect clip = {  0,  0, 24,  8 };
+        app_render_clip(&clip, tourist.x, TOURIST_Y);
+    }
+}
+
 // player
 
 #define PLAYER_Y 224
@@ -399,7 +443,6 @@ void player_shots_update()
 {
     for (int i = 0; i < arrlen(player.shots); i++)
 	{
-		// same
 		player.shots[i].y -= 4;
 
 		if (player.shots[i].y <= 40)
@@ -462,19 +505,50 @@ void player_update()
 
 		break;
 	}
+}
 
-    player_shots_update();
+void player_shots_render()
+{
+    for (int i = 0; i < arrlen(player.shots); i++)
+	{
+		SDL_Rect rect = {
+			APP_SCALE * player.shots[i].x,
+			APP_SCALE * player.shots[i].y,
+			APP_SCALE,
+			APP_SCALE * 4,
+		};
+		SDL_SetRenderDrawColor(app.renderer, 255, 255, 255, 255);
+		SDL_RenderDrawRect(app.renderer, &rect);
+	}
+}
+
+void player_render()
+{
+    if (player.state == PLAYER_ALIVE)
+	{
+        static const SDL_Rect clip = { 0, 8, 16, 8 };
+	    app_render_clip(&clip, player.x, PLAYER_Y);
+    }    
 }
 
 // interactions
 
-
+void explosions_render()
+{
+    // explosions
+    for (int i = 0; i < arrlen(explosions); i++)
+        app_render_clip(&explosions[i].clip, explosions[i].x, explosions[i].y);
+}
 
 // base
 
 void game_start()
 {
     game_state = GAME_PLAYING;
+    // score
+    game_score = 0;
+    game_hi_score = 1000; // load hi-score
+
     // explosions
     explosions = NULL;
     // horde
@@ -512,53 +586,36 @@ void game_playing()
     player_update();
     tourist_update();
 
+    horde_shots_update();
+    player_shots_update();
+
     // rendering
     SDL_SetRenderDrawColor(app.renderer, 0, 0, 0, 255);
     SDL_RenderClear(app.renderer);
 
+    // useless bar. Just to resemble the original game
     SDL_SetRenderDrawColor(app.renderer, 32, 255, 32, 255); // #20ff20
     static const SDL_Rect rect = {
         APP_SCALE * 0, APP_SCALE * 247, APP_SCALE * 224, APP_SCALE
     };
-    SDL_RenderFillRect(app.renderer, &rect);
+    SDL_RenderFillRect(app.renderer, &rect);  
 
-    // horde
-    for (int i = 0; i < arrlen(horde.invaders); i++)
-    {
-        app_render_clip(
-            &horde.invaders[i].clip, horde.invaders[i].x, horde.invaders[i].y
-        );
-    }
-    // player
-    if (player.state == PLAYER_ALIVE)
-	{
-        static const SDL_Rect clip = { 0, 8, 16, 8 };
-	    app_render_clip(&clip, player.x, PLAYER_Y);
-    }
-    // explosions
-    for (int i = 0; i < arrlen(explosions); i++)
-        app_render_clip(&explosions[i].clip, explosions[i].x, explosions[i].y);
-    // shots
-    for (int i = 0; i < arrlen(player.shots); i++)
-	{
-		// same
-		SDL_Rect rect = {
-			APP_SCALE * player.shots[i].x,
-			APP_SCALE * player.shots[i].y,
-			APP_SCALE,
-			APP_SCALE * 4,
-		};
-		SDL_SetRenderDrawColor(app.renderer, 255, 255, 255, 255);
-		SDL_RenderDrawRect(app.renderer, &rect);
-	}
-    for (int i = 0; i < arrlen(horde.shots); i++)
-        app_render_clip(&horde.shots[i].clip, horde.shots[i].x, horde.shots[i].y);
-    // tourist
-    if (tourist.state != TOURIST_UNAVAILABLE)
-    {
-        static const SDL_Rect clip = {  0,  0, 24,  8 };
-        app_render_clip(&clip, tourist.x, TOURIST_Y);
-    }
+    player_shots_render();
+    horde_shots_render();
+
+    scores_render();
+    tourist_render();
+    horde_render();
+    player_render();
+
+    explosions_render();
+
+    // lives
+    char player_lives[] = {'0' + (3 - player.deaths)};
+    app_render_text(player_lives, 8, WORLD_HEIGHT - 16);
+
+    // useless arcade coin easteregg
+    app_render_text("CREDIT -1", WORLD_WIDTH - 80, WORLD_HEIGHT - 16);
 }
 
 void game_frame()
