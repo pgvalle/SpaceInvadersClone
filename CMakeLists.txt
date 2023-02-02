@@ -2,10 +2,7 @@ cmake_minimum_required(VERSION 3.12)
 
 project(SpaceInvadersClone)
 
-file(GLOB_RECURSE SOURCE_FILES src/**.c)
-file(GLOB_RECURSE HEADER_FILES src/**.h)
-
-add_executable(SpaceInvadersClone ${SOURCE_FILES} ${HEADER_FILES})
+add_executable(SpaceInvadersClone stb_ds.h stb_ds.c main.c)
 
 set_target_properties(
 	SpaceInvadersClone PROPERTIES
@@ -22,7 +19,6 @@ target_include_directories(
 find_package(SDL2       REQUIRED)
 find_package(SDL2_image REQUIRED)
 find_package(SDL2_ttf   REQUIRED)
-find_package(SDL2_mixer REQUIRED)
 
 target_link_libraries(
 	SpaceInvadersClone
@@ -30,5 +26,4 @@ target_link_libraries(
 	SDL2::SDL2
 	SDL2_image::SDL2_image
 	SDL2_ttf::SDL2_ttf
-	SDL2_mixer::SDL2_mixer
 )
