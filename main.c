@@ -649,7 +649,7 @@ void process_collisions()
             {
                 score_inc = 20;
                 irect.x -= 1;
-                irect.w += 1;
+                irect.w += 3;
             }
             else if (horde.invaders[j].clip.y == 32)
             {
