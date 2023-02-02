@@ -116,6 +116,93 @@ void render_scores()
     app_render_text(format, WORLD_WIDTH - 48, 24);
 }
 
+// bunkers
+
+#define BUNKER_FIRST_X 32
+#define BUNKERS_Y 200
+
+SDL_Point bunkers[4][352];
+
+void init_bunker(int k)
+{
+    // top
+    for (int i = 0; i < 4; i++)
+    {
+        for (int j = 4 - i; j < 18 + i; j++)
+        {
+            bunkers[k][22 * i + j].x = BUNKER_FIRST_X + 46 * k + j;
+            bunkers[k][22 * i + j].y = BUNKERS_Y + i;
+        }
+    }
+
+    // middle
+    for (int i = 4; i < 12; i++)
+    {
+        for (int j = 0; j < 22; j++)
+        {
+            bunkers[k][22 * i + j].x = BUNKER_FIRST_X + 46 * k + j;
+            bunkers[k][22 * i + j].y = BUNKERS_Y + i;
+        }
+    }
+
+    for (int j = 0; j < 8; j++)
+    {
+        bunkers[k][22 * 12 + j].x = BUNKER_FIRST_X + 46 * k + j;
+        bunkers[k][22 * 12 + j].y = BUNKERS_Y + 12;
+
+        bunkers[k][22 * 12 + j + 14].x = BUNKER_FIRST_X + 46 * k + j + 14;
+        bunkers[k][22 * 12 + j + 14].y = BUNKERS_Y + 12;
+    }
+
+    for (int j = 0; j < 7; j++)
+    {
+        bunkers[k][22 * 13 + j].x = BUNKER_FIRST_X + 46 * k + j;
+        bunkers[k][22 * 13 + j].y = BUNKERS_Y + 13;
+
+        bunkers[k][22 * 13 + j + 15].x = BUNKER_FIRST_X + 46 * k + j + 15;
+        bunkers[k][22 * 13 + j + 15].y = BUNKERS_Y + 13;
+    }
+
+    for (int i = 14; i < 16; i++)
+    {
+        for (int j = 0; j < 6; j++)
+        {
+            bunkers[k][22 * i + j].x = BUNKER_FIRST_X + 46 * k + j;
+            bunkers[k][22 * i + j].y = BUNKERS_Y + i;
+
+            bunkers[k][22 * i + j + 16].x = BUNKER_FIRST_X + 46 * k + j + 16;
+            bunkers[k][22 * i + j + 16].y = BUNKERS_Y + i;
+        }
+    }
+}
+
+void init_bunkers()
+{
+    init_bunker(0);
+    init_bunker(1);
+    init_bunker(2);
+    init_bunker(3);
+}
+
+void render_bunkers()
+{
+    SDL_SetRenderDrawColor(app.renderer, 32, 255, 32, 255);
+
+    for (int i = 0; i < 4; i++)
+    {
+        for (int j = 0; j < 352; j++)
+        {
+            const SDL_Rect piece_rect = {
+                bunkers[i][j].x * APP_SCALE,
+                bunkers[i][j].y * APP_SCALE,
+                APP_SCALE,
+                APP_SCALE
+            };
+            SDL_RenderFillRect(app.renderer, &piece_rect);
+        }
+    }
+}
+
 // explosions
 
 struct explosion_t {
@@ -717,6 +804,8 @@ void game_start()
 
     // explosions
     explosions = NULL;
+    // bunker
+    init_bunkers();
     // horde
     horde.state = HORDE_STARTING;
     horde.invaders = NULL;
@@ -775,6 +864,8 @@ void game_playing()
     render_player();
 
     render_explosions();
+
+    render_bunkers();
 
     // ui
     render_scores();
