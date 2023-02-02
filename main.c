@@ -381,6 +381,7 @@ void update_tourist()
         if (tourist.x <= 8.f || tourist.x >= WORLD_WIDTH - 32.f)
         {
             tourist.state = TOURIST_UNAVAILABLE;
+            tourist.x = 1000.f; // make sure it doesn't get shot when unavailable
             // give it a random score value for next appearance
             tourist.score_value = 10 * (rand() % 30 + 1);
             // set spawn timer
@@ -411,8 +412,16 @@ void update_tourist()
         tourist.score_timing += app.frame_time;
         if (tourist.score_timing >= TOURIST_SCORE_TIMEOUT)
         {
-            tourist.score_timing = 0;
             tourist.state = TOURIST_UNAVAILABLE;
+            tourist.x = 1000.f; // make sure it doesn't get shot when unavailable
+            // give it a random score value for next appearance
+            tourist.score_value = 10 * (rand() % 30 + 1);
+            // set spawn timer
+            tourist.spawn_timing = 0;
+            tourist.spawn_timeout = 1024 * (rand() % (TOURIST_SPAWN_TIMEOUT_MAX - \
+                TOURIST_SPAWN_TIMEOUT_MIN + 1) + TOURIST_SPAWN_TIMEOUT_MIN);
+            
+            tourist.score_timing = 0;
         }
         break;
     }
