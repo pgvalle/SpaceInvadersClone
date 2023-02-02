@@ -224,6 +224,12 @@ void update_explosions()
     }
 }
 
+void render_explosions()
+{
+    for (int i = 0; i < arrlen(explosions); i++)
+        app_render_clip(&explosions[i].clip, explosions[i].x, explosions[i].y);
+}
+
 // horde
 
 #define HORDE_X_INIT 26
@@ -462,6 +468,19 @@ struct {
     uint32_t death_timing, score_timing;
 } tourist;
 
+static inline
+int generate_tourist_score()
+{
+    return 10 * (rand() % 30 + 1);
+}
+
+static inline
+int generate_tourist_spawn_timeout()
+{
+    return 1024 * (rand() % (TOURIST_SPAWN_TIMEOUT_MAX - \
+        TOURIST_SPAWN_TIMEOUT_MIN + 1) + TOURIST_SPAWN_TIMEOUT_MIN);
+}
+
 void update_tourist()
 {
     switch (tourist.state)
@@ -476,19 +495,20 @@ void update_tourist()
             tourist.state = TOURIST_UNAVAILABLE;
             tourist.x = 1000.f; // make sure it doesn't get shot when unavailable
             // give it a random score value for next appearance
-            tourist.score_value = 10 * (rand() % 30 + 1);
+            tourist.score_value = generate_tourist_score();
             // set spawn timer
             tourist.spawn_timing = 0;
-            tourist.spawn_timeout = 1024 * (rand() % (TOURIST_SPAWN_TIMEOUT_MAX - \
-                TOURIST_SPAWN_TIMEOUT_MIN + 1) + TOURIST_SPAWN_TIMEOUT_MIN);
+            tourist.spawn_timeout = generate_tourist_spawn_timeout();
         }
         break;
     case TOURIST_UNAVAILABLE:
         tourist.spawn_timing += app.frame_time;
         if (tourist.spawn_timing >= tourist.spawn_timeout) // spawn
         {
+            // spawn either left or right
             tourist.state = rand() % 2 ?
                 TOURIST_AVAILABLE_LEFT : TOURIST_AVAILABLE_RIGHT;
+            // initialize position accordingly            
             tourist.x = tourist.state == TOURIST_AVAILABLE_LEFT ?
                 8.f : (WORLD_WIDTH - 32.f);
         }
@@ -508,11 +528,10 @@ void update_tourist()
             tourist.state = TOURIST_UNAVAILABLE;
             tourist.x = 1000.f; // make sure it doesn't get shot when unavailable
             // give it a random score value for next appearance
-            tourist.score_value = 10 * (rand() % 30 + 1);
+            tourist.score_value = generate_tourist_score();
             // set spawn timer
             tourist.spawn_timing = 0;
-            tourist.spawn_timeout = 1024 * (rand() % (TOURIST_SPAWN_TIMEOUT_MAX - \
-                TOURIST_SPAWN_TIMEOUT_MIN + 1) + TOURIST_SPAWN_TIMEOUT_MIN);
+            tourist.spawn_timeout = generate_tourist_spawn_timeout();
             
             tourist.score_timing = 0;
         }
@@ -522,28 +541,21 @@ void update_tourist()
 
 void render_tourist()
 {
+    static const SDL_Rect tourist_clip = {  24,  0, 24,  8 };
+    static char tourist_score[4];
     switch (tourist.state)
     {
     case TOURIST_UNAVAILABLE:
         break;
     case TOURIST_DYING:
-    {
-        const SDL_Rect tourist_rect = {  24,  0, 24,  8 };
-        app_render_clip(&tourist_rect, tourist.x, TOURIST_Y);
+        app_render_clip(&tourist_clip, tourist.x, TOURIST_Y);
         break;
-    }
     case TOURIST_SHOWING_SCORE:
-    {
-        char score_str[4];
-        sprintf(score_str, "%d", tourist.score_value);
-        app_render_text(score_str, tourist.x, TOURIST_Y);
+        sprintf(tourist_score, "%d", tourist.score_value);
+        app_render_text(tourist_score, tourist.x, TOURIST_Y);
         break;
-    }
     default:
-    {
-        const SDL_Rect clip = {  0,  0, 24,  8 };
-        app_render_clip(&clip, tourist.x, TOURIST_Y);
-    }
+        app_render_clip(&tourist_clip, tourist.x, TOURIST_Y);
     }
 }
 
@@ -556,6 +568,7 @@ void render_tourist()
 struct {
     enum {
         PLAYER_ALIVE = 0,
+        PLAYER_DYING, // play animation
         PLAYER_DEAD
     } state;
 
@@ -603,25 +616,28 @@ void update_player()
 			player.x -= 1;
 		if (keys[SDL_SCANCODE_RIGHT])
 			player.x += 1;
-		
-		// check bounds	
+		// check bounds
 		if (player.x < 14)
 			player.x = 14;
 		else if (player.x > WORLD_WIDTH - 31)
 			player.x = WORLD_WIDTH - 31;
-
 		// shooting
 		if (player.shot_timing < PLAYER_SHOT_TIMEOUT)
             player.shot_timing += app.frame_time;
 		else if (keys[SDL_SCANCODE_SPACE])
 		{
-			// shoot
 			const SDL_Point shot = { player.x + 8, PLAYER_Y };
 			arrput(player.shots, shot);
 			player.shot_timing = 0;
 		}
-
 		break;
+    case PLAYER_DYING:
+        player.death_timing += app.frame_time;
+		if (player.death_timing >= PLAYER_DEATH_TIMEOUT)
+        {
+            player.state = PLAYER_DEAD;
+            player.death_timing = 0;
+        }
 	case PLAYER_DEAD:
 		player.death_timing += app.frame_time;
 		if (player.death_timing >= PLAYER_DEATH_TIMEOUT)
@@ -631,7 +647,6 @@ void update_player()
 			player.lives--;
 			player.death_timing = 0;
 		}
-
 		break;
 	}
 }
@@ -653,9 +668,16 @@ void render_player_shots()
 
 void render_player()
 {
-    static const SDL_Rect clip = { 0, 8, 16, 8 };
-    if (player.state == PLAYER_ALIVE)
-	    app_render_clip(&clip, player.x, PLAYER_Y);
+    static const SDL_Rect player_clip = { 0, 8, 16, 8 };
+    switch (player.state)
+    {
+    case PLAYER_DYING:
+        
+        break;
+    case PLAYER_ALIVE:
+        app_render_clip(&player_clip, player.x, PLAYER_Y);
+        break;
+    }	    
 }
 
 // interactions
@@ -784,13 +806,6 @@ void process_collisions()
             }
         }
     }
-}
-
-void render_explosions()
-{
-    // explosions
-    for (int i = 0; i < arrlen(explosions); i++)
-        app_render_clip(&explosions[i].clip, explosions[i].x, explosions[i].y);
 }
 
 // base
