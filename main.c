@@ -2,6 +2,8 @@
 #include <SDL_image.h>
 #include <SDL_ttf.h>
 #include "stb_ds.h"
+#include <stdio.h>
+#include <ctype.h>
 
 // resources
 SDL_Texture* atlas = NULL, * font_atlas = NULL;
@@ -128,7 +130,10 @@ void update_explosions()
     {
         explosions[i].timing += app.frame_time;
         if (explosions[i].timing >= explosions[i].timeout)
+        {
             arrdel(explosions, i);
+            i--;
+        }
     }
 }
 
@@ -203,7 +208,7 @@ void move_horde_horizontally()
     // now someone got updated
     horde.invaders_updated++;
     
-    // horde updated and now it's time to flip directions
+    // horde updated and now maybe it's time to flip directions
     if (horde.invaders_updated == arrlen(horde.invaders))
     {
         // find out if horde should change direction
@@ -270,6 +275,7 @@ void update_horde_shots()
             };
             arrput(explosions, explosion);
 			arrdel(horde.shots, i);
+            i--;
         }
 	}
 }
@@ -434,17 +440,23 @@ void render_tourist()
     case TOURIST_UNAVAILABLE:
         break;
     case TOURIST_DYING:
+    {
         const SDL_Rect tourist_rect = {  24,  0, 24,  8 };
         app_render_clip(&tourist_rect, tourist.x, TOURIST_Y);
         break;
+    }
     case TOURIST_SHOWING_SCORE:
+    {
         char score_str[4];
         sprintf(score_str, "%d", tourist.score_value);
         app_render_text(score_str, tourist.x, TOURIST_Y);
         break;
+    }
     default:
+    {
         const SDL_Rect clip = {  0,  0, 24,  8 };
         app_render_clip(&clip, tourist.x, TOURIST_Y);
+    }
     }
 }
 
@@ -487,6 +499,7 @@ void update_player_shots()
             };
             arrput(explosions, explosion);
             arrdel(player.shots, i);
+            i--;
         }
 	}
 }
@@ -582,6 +595,7 @@ void process_collisions()
             };
             arrput(explosions, explosion);
             arrdel(horde.shots, i);
+            i--;
 
             // player dead
             player.state = PLAYER_DEAD;
@@ -603,6 +617,7 @@ void process_collisions()
                 };
                 arrput(explosions, explosion1);
                 arrdel(horde.shots, i);
+                i--;
 
                 const struct explosion_t explosion2 = {
                     .x = pshot_x - 3,
@@ -634,6 +649,7 @@ void process_collisions()
                 player.lives++;
             
             arrdel(player.shots, i);
+            i--;
             continue;
         }
 
@@ -670,13 +686,14 @@ void process_collisions()
                 };
                 arrput(explosions, explosion);
                 arrdel(player.shots, i);
+                i--;
 
-                if (j <= horde.invaders_updated)
+                if (j <= horde.invaders_updated && horde.invaders_updated != 0)
                     horde.invaders_updated--;
                 arrdel(horde.invaders, j);
-                break;
-
                 game_score += score_inc;
+
+                break;
             }
         }
     }
