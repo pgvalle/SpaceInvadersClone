@@ -4,6 +4,7 @@
 #include "stb_ds.h"
 #include <stdio.h>
 #include <ctype.h>
+#include <time.h>
 
 // resources
 SDL_Texture* atlas = NULL, * font_atlas = NULL;
@@ -105,7 +106,7 @@ int game_hi_score;
 
 void render_scores()
 {
-    char format[10];
+    static char format[10];
     // score
     render_text("score", 8, 8);
     sprintf(format, "%05d", game_score);
@@ -429,8 +430,8 @@ void render_horde()
 
 #define TOURIST_DEATH_TIMEOUT (16 * 24)
 #define TOURIST_SCORE_TIMEOUT (16 * 80)
-#define TOURIST_SPAWN_TIMEOUT_MIN 20 /* seconds */
-#define TOURIST_SPAWN_TIMEOUT_MAX 30 /* seconds */
+#define TOURIST_MIN_SPAWN_TIMEOUT 20 /* seconds */
+#define TOURIST_MAX_SPAWN_TIMEOUT 30 /* seconds */
 
 // transition to TOURIST_DYING is done via collision detection (external)
 struct {
@@ -455,8 +456,8 @@ int gen_tourist_score()
 static inline
 int gen_tourist_spawn_timeout()
 {
-    return 1024 * (rand() % (TOURIST_SPAWN_TIMEOUT_MAX - \
-        TOURIST_SPAWN_TIMEOUT_MIN + 1) + TOURIST_SPAWN_TIMEOUT_MIN);
+    return 1024 * (rand() % (TOURIST_MAX_SPAWN_TIMEOUT - \
+        TOURIST_MIN_SPAWN_TIMEOUT + 1) + TOURIST_MIN_SPAWN_TIMEOUT);
 }
 
 void update_tourist()
@@ -519,7 +520,9 @@ void render_tourist()
     case TOURIST_SHOWING_SCORE: {
         char tourist_score[4];
         sprintf(tourist_score, "%d", tourist.score_value);
-        render_text(tourist_score, tourist.x, TOURIST_Y); }
+        SDL_SetTextureColorMod(font_atlas, 216, 32, 32);
+        render_text(tourist_score, tourist.x, TOURIST_Y);
+        SDL_SetTextureColorMod(font_atlas, 255, 255, 255); }
         break;
     }
 }
@@ -788,7 +791,7 @@ void game_start()
     game_state = GAME_PLAYING;
     // score
     game_score = 0;
-    game_hi_score = 1000; // load hi-score
+    game_hi_score = 1000; // load hi-score from a file
 
     // explosions
     explosions = NULL;
@@ -987,6 +990,7 @@ int main(int argc, char** args)
 
     SDL_Init(SDL_INIT_EVERYTHING);
     IMG_Init(IMG_INIT_PNG);
+    srand(time(NULL));
 
     SDL_ShowCursor(SDL_DISABLE);
 
@@ -1011,9 +1015,8 @@ int main(int argc, char** args)
         TTF_Font* font = TTF_OpenFont(APP_RESOURCE_DIR "/font.ttf", APP_FONT_PTSIZE);
         SDL_assert(font);
 
-        SDL_Surface* font_surf = TTF_RenderUTF8_Solid(
-            font, APP_CHARACTERS_MONO, (SDL_Color){ 255, 255, 255, 255 }
-        );
+        const SDL_Color white = {255, 255, 255, 255};
+        SDL_Surface* font_surf = TTF_RenderUTF8_Solid(font, APP_CHARACTERS_MONO, white);
 
         // create the texture and free the surface
         font_atlas = SDL_CreateTextureFromSurface(app.renderer, font_surf);
@@ -1034,4 +1037,6 @@ int main(int argc, char** args)
 
     IMG_Quit();
     SDL_Quit();
+
+    return 0;
 }
