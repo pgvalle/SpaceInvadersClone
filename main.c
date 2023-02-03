@@ -240,11 +240,10 @@ void render_explosions()
 struct {
     enum {
         HORDE_STARTING, // start animation
-        HORDE_MOVING_LEFT,
-        HORDE_MOVING_DOWN_LEFT,
-        HORDE_MOVING_RIGHT,
-        HORDE_MOVING_DOWN_RIGHT
+        HORDE_MOVING
     } state;
+
+    int xmove, ymove;
 
     struct invader_t {
         SDL_Rect clip;
@@ -284,25 +283,30 @@ void play_horde_start_anim()
     }
     else // done. Now move right
     {
-        horde.state = HORDE_MOVING_RIGHT;
+        horde.state = HORDE_MOVING;
+        horde.xmove = 2;
+        horde.ymove = 0;
         horde.invaders_updated = 0;
     }
 }
 
-void move_horde_horizontally()
+void move_horde()
 {
     if (arrlen(horde.invaders) == 0)
         return;
     
     const int i = horde.invaders_updated;
     // move this guy
-    horde.invaders[i].x += horde.state == HORDE_MOVING_LEFT ? -2 : 2;
+    horde.invaders[i].x += horde.xmove;
+    horde.invaders[i].y += horde.ymove;
+    // animate
     horde.invaders[i].clip.x = horde.invaders[i].clip.x == 0 ? 12 : 0;
     // now someone got updated
     horde.invaders_updated++;
     
     // horde updated and now maybe it's time to flip directions
-    if (horde.invaders_updated == arrlen(horde.invaders))
+    int all_updated = horde.invaders_updated == arrlen(horde.invaders);
+    if (all_updated && horde.ymove == 0)
     {
         // find out if horde should change direction
         for (int i = 0; i < arrlen(horde.invaders); i++)
@@ -310,32 +314,17 @@ void move_horde_horizontally()
             const int x = horde.invaders[i].x;
             if (x <= 10 || x >= WORLD_WIDTH - 22) // should change directions
             {
-                horde.state = horde.state == HORDE_MOVING_LEFT ?
-                    HORDE_MOVING_DOWN_RIGHT : HORDE_MOVING_DOWN_LEFT;
+                horde.ymove = 8;
+                horde.xmove = -horde.xmove;
                 break;
             }
         }
-        
-        horde.invaders_updated = 0; // no one updated
+
+        horde.invaders_updated = 0; // no one updated now
     }
-}
-
-void move_horde_diagonally()
-{
-    if (arrlen(horde.invaders) == 0)
-        return;
-
-    const int i = horde.invaders_updated;
-    horde.invaders[i].x += horde.state == HORDE_MOVING_DOWN_LEFT ? -2 : 2;
-    horde.invaders[i].y += 8;
-    horde.invaders[i].clip.x = horde.invaders[i].clip.x == 0 ? 12 : 0;
-
-    horde.invaders_updated++;
-    
-    if (horde.invaders_updated == arrlen(horde.invaders))
+    else if (all_updated)
     {
-        horde.state = horde.state == HORDE_MOVING_DOWN_LEFT ?
-            HORDE_MOVING_LEFT : HORDE_MOVING_RIGHT;
+        horde.ymove = 0;
         horde.invaders_updated = 0;
     }
 }
@@ -413,15 +402,9 @@ void update_horde()
     case HORDE_STARTING:
         play_horde_start_anim();
         break;
-    case HORDE_MOVING_LEFT:
-    case HORDE_MOVING_RIGHT:
+    case HORDE_MOVING:
         make_horde_shoot();
-        move_horde_horizontally();
-        break;
-    case HORDE_MOVING_DOWN_LEFT:
-    case HORDE_MOVING_DOWN_RIGHT:
-        make_horde_shoot();
-        move_horde_diagonally();
+        move_horde();
         break;
     }
 }
@@ -525,7 +508,9 @@ void render_tourist()
 {
     switch (tourist.state)
     {
-    case TOURIST_UNAVAILABLE:
+    case TOURIST_AVAILABLE: {
+        const SDL_Rect tourist_clip = { 0,  0, 24,  8 };
+        render_clip(&tourist_clip, tourist.x, TOURIST_Y); }
         break;
     case TOURIST_DYING: {
         const SDL_Rect tourist_dying = { 24,  0, 24,  8 };
@@ -536,9 +521,6 @@ void render_tourist()
         sprintf(tourist_score, "%d", tourist.score_value);
         render_text(tourist_score, tourist.x, TOURIST_Y); }
         break;
-    default: {
-        const SDL_Rect tourist_clip = { 0,  0, 24,  8 };
-        render_clip(&tourist_clip, tourist.x, TOURIST_Y); }
     }
 }
 
@@ -546,7 +528,8 @@ void render_tourist()
 
 #define PLAYER_Y 224
 #define PLAYER_SHOT_TIMEOUT  (16 * 48) /* 1 second */
-#define PLAYER_DEATH_TIMEOUT (16 * 125) /* 2 seconds */
+#define PLAYER_DEATH_TIMEOUT (2000) /* 2 seconds */
+#define PLAYER_DEATH_SPARE_TIMEOUT (2000) /* 2 seconds */
 
 struct {
     enum {
@@ -561,7 +544,7 @@ struct {
     SDL_Point* shots;
 
     // timeouts are constant
-    uint32_t shot_timing, death_timing;
+    uint32_t timer;
 } player;
 
 void update_player_shots()
@@ -600,35 +583,34 @@ void update_player()
 		if (keys[SDL_SCANCODE_RIGHT])
 			player.x += 1;
 		// check bounds
-		if (player.x < 14)
-			player.x = 14;
-		else if (player.x > WORLD_WIDTH - 31)
-			player.x = WORLD_WIDTH - 31;
+		if (player.x < 14) player.x = 14;
+		else if (player.x > WORLD_WIDTH - 31) player.x = WORLD_WIDTH - 31;
 		// shooting
-		if (player.shot_timing < PLAYER_SHOT_TIMEOUT)
-            player.shot_timing += app.frame_time;
+		if (player.timer < PLAYER_SHOT_TIMEOUT)
+            player.timer += app.frame_time;
 		else if (keys[SDL_SCANCODE_SPACE])
 		{
 			const SDL_Point shot = { player.x + 8, PLAYER_Y };
 			arrput(player.shots, shot);
-			player.shot_timing = 0;
+			player.timer = 0;
 		}
 		break;
     case PLAYER_DYING:
-        player.death_timing += app.frame_time;
-		if (player.death_timing >= PLAYER_DEATH_TIMEOUT)
+        player.timer += app.frame_time;
+		if (player.timer >= PLAYER_DEATH_TIMEOUT)
         {
             player.state = PLAYER_DEAD;
-            player.death_timing = 0;
+            player.lives--;
+            player.timer = 0;
         }
+        break;
 	case PLAYER_DEAD:
-		player.death_timing += app.frame_time;
-		if (player.death_timing >= PLAYER_DEATH_TIMEOUT)
+		player.timer += app.frame_time;
+		if (player.timer >= PLAYER_DEATH_SPARE_TIMEOUT)
 		{
 			player.state = PLAYER_ALIVE;
-			player.x = 14;
-			player.lives--;
-			player.death_timing = 0;
+            player.x = 14;
+			player.timer = 0;
 		}
 		break;
 	}
@@ -651,14 +633,22 @@ void render_player_shots()
 
 void render_player()
 {
-    static const SDL_Rect player_clip = { 0, 8, 16, 8 };
     switch (player.state)
     {
-    case PLAYER_DYING:
-        
+    case PLAYER_DYING: {
+        static uint32_t dying_timer = 0;
+        static SDL_Rect explosion_clip = { 16,  8, 16,  8 };
+        dying_timer += app.frame_time;
+        if (dying_timer >= 16 * 8)
+        {
+            dying_timer = 0;
+            explosion_clip.x = explosion_clip.x == 32 ? 16 : 32;
+        }
+        render_clip(&explosion_clip, player.x, PLAYER_Y); }
         break;
-    case PLAYER_ALIVE:
-        render_clip(&player_clip, player.x, PLAYER_Y);
+    case PLAYER_ALIVE: {
+        const SDL_Rect player_clip = { 0, 8, 16, 8 };
+        render_clip(&player_clip, player.x, PLAYER_Y); }
         break;
     }	    
 }
@@ -690,8 +680,8 @@ void process_collisions()
             i--;
 
             // player dead
-            player.state = PLAYER_DEAD;
-            player.x = 10000;
+            player.state = PLAYER_DYING;
+            player.timer = 0;
         }
         else for (int j = 0; j < arrlen(player.shots); j++) // player shots
         {
@@ -819,8 +809,7 @@ void game_start()
     player.x = 14;
 	player.lives = 3;
     player.shots = NULL;
-	player.death_timing = 0;
-	player.shot_timing = 0;
+	player.timer = 0;
 }
 
 void game_playing()
