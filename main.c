@@ -21,7 +21,7 @@ SDL_Texture* atlas = NULL, * font_atlas = NULL;
 #define APP_CHARACTERS "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-?<>="
 
 #define WORLD_WIDTH  224
-#define WORLD_HEIGHT 264
+#define WORLD_HEIGHT 256
 
 struct {
     enum {
@@ -61,8 +61,8 @@ void render_text(const char* text, int x, int y)
             SDL_Rect scale = {
                 APP_SCALE * x,
                 APP_SCALE * y,
-                APP_SCALE * APP_FONT_PTSIZE,
-                APP_SCALE * APP_FONT_PTSIZE
+                APP_SCALE * clip.w,
+                APP_SCALE * clip.h
             };
 
             // Correcting placement of quirky characters
@@ -120,7 +120,7 @@ void render_scores()
 // bunkers
 
 #define BUNKER_FIRST_X 32
-#define BUNKERS_Y 200
+#define BUNKERS_Y 192
 
 SDL_Point bunkers[4][352];
 
@@ -234,7 +234,7 @@ void render_explosions()
 // horde
 
 #define HORDE_X_INIT 26
-#define HORDE_Y_INIT 72
+#define HORDE_Y_INIT 64
 
 #define HORDE_SIZE 55
 
@@ -346,7 +346,7 @@ void update_horde_shots()
 
 		horde.shots[i].y++;
         // reached bottom of screen
-		if (horde.shots[i].y >= 240)
+		if (horde.shots[i].y >= 232)
         {
             // add explosion
             const struct explosion_t explosion = {
@@ -424,7 +424,7 @@ void render_horde()
 
 // tourist
 
-#define TOURIST_Y 48
+#define TOURIST_Y 40
 
 #define TOURIST_VEL 0.65f
 
@@ -529,7 +529,7 @@ void render_tourist()
 
 // player
 
-#define PLAYER_Y 224
+#define PLAYER_Y 216
 #define PLAYER_SHOT_TIMEOUT  (16 * 48) /* 1 second */
 #define PLAYER_DEATH_TIMEOUT (2000) /* 2 seconds */
 #define PLAYER_DEATH_SPARE_TIMEOUT (2000) /* 2 seconds */
@@ -556,12 +556,12 @@ void update_player_shots()
 	{
 		player.shots[i].y -= 4;
         // reached top of screen
-		if (player.shots[i].y <= 40)
+		if (player.shots[i].y <= 32)
 		{
             // add explosion
             const struct explosion_t explosion = {
                 .x = player.shots[i].x - 3,
-                .y = 40,
+                .y = 34,
                 .clip = { 36, 24,  8,  8 },
                 .timing = 0,
                 .timeout = 16 * 24
@@ -837,7 +837,7 @@ void game_playing()
     // useless bar. Just to resemble the original game
     SDL_SetRenderDrawColor(app.renderer, 32, 255, 32, 255); // #20ff20
     static const SDL_Rect rect = {
-        APP_SCALE * 0, APP_SCALE * 247, APP_SCALE * 224, APP_SCALE
+        APP_SCALE * 0, APP_SCALE * 239, APP_SCALE * 224, APP_SCALE
     };
     SDL_RenderFillRect(app.renderer, &rect);  
 
@@ -864,6 +864,8 @@ void game_playing()
 
     // useless arcade coin easteregg
     render_text("CREDIT -1", WORLD_WIDTH - 80, WORLD_HEIGHT - 16);
+
+    render_text("CREDIT -1", WORLD_WIDTH - 80, WORLD_HEIGHT - 8);
 }
 
 void game_process_event()
