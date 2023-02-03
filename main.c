@@ -39,7 +39,7 @@ struct {
 
 // utilities
 
-void app_render_text(const char* text, int x, int y)
+void render_text(const char* text, int x, int y)
 {
     static const char* characters = APP_CHARACTERS;
     for (int i = 0; i < strlen(text); i++)
@@ -79,7 +79,7 @@ void app_render_text(const char* text, int x, int y)
     }
 }
 
-void app_render_clip(const SDL_Rect* clip, int x, int y)
+void render_clip(const SDL_Rect* clip, int x, int y)
 {
     SDL_Rect scale = {
         APP_SCALE * x,
@@ -107,13 +107,13 @@ void render_scores()
 {
     char format[10];
     // score
-    app_render_text("score", 8, 8);
+    render_text("score", 8, 8);
     sprintf(format, "%05d", game_score);
-    app_render_text(format, 8, 24);
+    render_text(format, 8, 24);
     // high-score
-    app_render_text("hi-score", WORLD_WIDTH - 72, 8);
+    render_text("hi-score", WORLD_WIDTH - 72, 8);
     sprintf(format, "%05d", game_hi_score);
-    app_render_text(format, WORLD_WIDTH - 48, 24);
+    render_text(format, WORLD_WIDTH - 48, 24);
 }
 
 // bunkers
@@ -227,7 +227,7 @@ void update_explosions()
 void render_explosions()
 {
     for (int i = 0; i < arrlen(explosions); i++)
-        app_render_clip(&explosions[i].clip, explosions[i].x, explosions[i].y);
+        render_clip(&explosions[i].clip, explosions[i].x, explosions[i].y);
 }
 
 // horde
@@ -271,7 +271,7 @@ void play_horde_start_anim()
         const int row = 4 - horde.invaders_updated / 11; // 4, 3, 2, 1, 0
         const int col = horde.invaders_updated % 11; // 0, 1, 2, ..., 10
         // clip rect for invader
-        SDL_Rect clip = {12, 16, 12, 8};
+        SDL_Rect clip = { 12, 16, 12,  8 };
         if (row > 2) clip.y = 32; // in 4th or 5th row
         else if (row > 0) clip.y = 24; // in 2nd or 3rd row
         const struct invader_t invader = {
@@ -429,17 +429,13 @@ void update_horde()
 void render_horde_shots()
 {
     for (int i = 0; i < arrlen(horde.shots); i++)
-        app_render_clip(&horde.shots[i].clip, horde.shots[i].x, horde.shots[i].y);
+        render_clip(&horde.shots[i].clip, horde.shots[i].x, horde.shots[i].y);
 }
 
 void render_horde()
 {
     for (int i = 0; i < arrlen(horde.invaders); i++)
-    {
-        app_render_clip(
-            &horde.invaders[i].clip, horde.invaders[i].x, horde.invaders[i].y
-        );
-    }
+        render_clip(&horde.invaders[i].clip, horde.invaders[i].x, horde.invaders[i].y);
 }
 
 // tourist
@@ -448,34 +444,33 @@ void render_horde()
 
 #define TOURIST_VEL 0.65f
 
-#define TOURIST_DEATH_TIMEOUT (16 * 64)
-#define TOURIST_SCORE_TIMEOUT (16 * 64)
+#define TOURIST_DEATH_TIMEOUT (16 * 24)
+#define TOURIST_SCORE_TIMEOUT (16 * 80)
 #define TOURIST_SPAWN_TIMEOUT_MIN 20 /* seconds */
 #define TOURIST_SPAWN_TIMEOUT_MAX 30 /* seconds */
 
+// transition to TOURIST_DYING is done via collision detection (external)
 struct {
     enum {
         TOURIST_UNAVAILABLE,
         TOURIST_DYING,
         TOURIST_SHOWING_SCORE,
-        TOURIST_AVAILABLE_LEFT,
-        TOURIST_AVAILABLE_RIGHT
+        TOURIST_AVAILABLE,
     } state;
 
-    float x;
+    float x, xvel;
     int score_value;
-    uint32_t spawn_timing, spawn_timeout;
-    uint32_t death_timing, score_timing;
+    uint32_t timer, spawn_timeout;
 } tourist;
 
 static inline
-int generate_tourist_score()
+int gen_tourist_score()
 {
     return 10 * (rand() % 30 + 1);
 }
 
 static inline
-int generate_tourist_spawn_timeout()
+int gen_tourist_spawn_timeout()
 {
     return 1024 * (rand() % (TOURIST_SPAWN_TIMEOUT_MAX - \
         TOURIST_SPAWN_TIMEOUT_MIN + 1) + TOURIST_SPAWN_TIMEOUT_MIN);
@@ -485,55 +480,42 @@ void update_tourist()
 {
     switch (tourist.state)
     {
-    case TOURIST_AVAILABLE_LEFT:
-    case TOURIST_AVAILABLE_RIGHT:
-        tourist.x += tourist.state == TOURIST_AVAILABLE_LEFT ?
-            TOURIST_VEL : -TOURIST_VEL;
+    case TOURIST_AVAILABLE:
+        tourist.x += tourist.xvel;
         // reached end of screen. unavailable
         if (tourist.x <= 8.f || tourist.x >= WORLD_WIDTH - 32.f)
-        {
             tourist.state = TOURIST_UNAVAILABLE;
-            tourist.x = 1000.f; // make sure it doesn't get shot when unavailable
-            // give it a random score value for next appearance
-            tourist.score_value = generate_tourist_score();
-            // set spawn timer
-            tourist.spawn_timing = 0;
-            tourist.spawn_timeout = generate_tourist_spawn_timeout();
-        }
         break;
     case TOURIST_UNAVAILABLE:
-        tourist.spawn_timing += app.frame_time;
-        if (tourist.spawn_timing >= tourist.spawn_timeout) // spawn
+        tourist.timer += app.frame_time;
+        if (tourist.timer >= tourist.spawn_timeout) // spawn
         {
             // spawn either left or right
-            tourist.state = rand() % 2 ?
-                TOURIST_AVAILABLE_LEFT : TOURIST_AVAILABLE_RIGHT;
-            // initialize position accordingly            
-            tourist.x = tourist.state == TOURIST_AVAILABLE_LEFT ?
-                8.f : (WORLD_WIDTH - 32.f);
+            tourist.state = TOURIST_AVAILABLE;
+            // give the direction and position
+            tourist.xvel = rand() % 2 ? TOURIST_VEL : -TOURIST_VEL;
+            tourist.x = tourist.xvel > 0.0f ? 8.f : (WORLD_WIDTH - 32.f);
+            // give it a random score value for this appearance
+            tourist.score_value = gen_tourist_score();
+            // set spawn timer for next appearance
+            tourist.timer = 0; // reset timer
+            tourist.spawn_timeout = gen_tourist_spawn_timeout();
         }
         break;
     case TOURIST_DYING:
-        tourist.death_timing += app.frame_time;
-        if (tourist.death_timing >= TOURIST_DEATH_TIMEOUT)
+        tourist.timer += app.frame_time;
+        if (tourist.timer >= TOURIST_DEATH_TIMEOUT)
         {
-            tourist.death_timing = 0;
             tourist.state = TOURIST_SHOWING_SCORE;
+            tourist.timer = 0; // reset timer
         }
         break;
     case TOURIST_SHOWING_SCORE:
-        tourist.score_timing += app.frame_time;
-        if (tourist.score_timing >= TOURIST_SCORE_TIMEOUT)
+        tourist.timer += app.frame_time;
+        if (tourist.timer >= TOURIST_SCORE_TIMEOUT)
         {
             tourist.state = TOURIST_UNAVAILABLE;
-            tourist.x = 1000.f; // make sure it doesn't get shot when unavailable
-            // give it a random score value for next appearance
-            tourist.score_value = generate_tourist_score();
-            // set spawn timer
-            tourist.spawn_timing = 0;
-            tourist.spawn_timeout = generate_tourist_spawn_timeout();
-            
-            tourist.score_timing = 0;
+            tourist.timer = 0; // reset timer
         }
         break;
     }
@@ -541,21 +523,22 @@ void update_tourist()
 
 void render_tourist()
 {
-    static const SDL_Rect tourist_clip = {  24,  0, 24,  8 };
-    static char tourist_score[4];
     switch (tourist.state)
     {
     case TOURIST_UNAVAILABLE:
         break;
-    case TOURIST_DYING:
-        app_render_clip(&tourist_clip, tourist.x, TOURIST_Y);
+    case TOURIST_DYING: {
+        const SDL_Rect tourist_dying = { 24,  0, 24,  8 };
+        render_clip(&tourist_dying, tourist.x, TOURIST_Y); }
         break;
-    case TOURIST_SHOWING_SCORE:
+    case TOURIST_SHOWING_SCORE: {
+        char tourist_score[4];
         sprintf(tourist_score, "%d", tourist.score_value);
-        app_render_text(tourist_score, tourist.x, TOURIST_Y);
+        render_text(tourist_score, tourist.x, TOURIST_Y); }
         break;
-    default:
-        app_render_clip(&tourist_clip, tourist.x, TOURIST_Y);
+    default: {
+        const SDL_Rect tourist_clip = { 0,  0, 24,  8 };
+        render_clip(&tourist_clip, tourist.x, TOURIST_Y); }
     }
 }
 
@@ -675,7 +658,7 @@ void render_player()
         
         break;
     case PLAYER_ALIVE:
-        app_render_clip(&player_clip, player.x, PLAYER_Y);
+        render_clip(&player_clip, player.x, PLAYER_Y);
         break;
     }	    
 }
@@ -750,7 +733,7 @@ void process_collisions()
 
         // tourist
         const SDL_Rect tourist_rect = {tourist.x, TOURIST_Y, 24, 8};
-        if (SDL_HasIntersection(&tourist_rect, &prect))
+        if (SDL_HasIntersection(&tourist_rect, &prect) && tourist.state == TOURIST_AVAILABLE)
         {
             tourist.state = TOURIST_DYING;
             game_score += tourist.score_value;
@@ -830,13 +813,8 @@ void game_start()
     horde.shot_timeout = 16 * 32 * (rand() % 2 + 1);
     // tourist
     tourist.state = TOURIST_UNAVAILABLE;
-    tourist.x = -1000.f;
-    tourist.score_value = 100;
-    tourist.spawn_timing = 0;
-    tourist.spawn_timeout = 1024 * (rand() % (TOURIST_SPAWN_TIMEOUT_MAX - \
-        TOURIST_SPAWN_TIMEOUT_MIN + 1) + TOURIST_SPAWN_TIMEOUT_MIN);
-    tourist.death_timing = 0;
-    tourist.score_timing = 0;
+    tourist.timer = 0;
+    tourist.spawn_timeout = gen_tourist_spawn_timeout();
     // player
     player.x = 14;
 	player.lives = 3;
@@ -886,14 +864,14 @@ void game_playing()
     render_scores();
     // live counter
     char player_lives[] = {'0' + player.lives};
-    app_render_text(player_lives, 8, WORLD_HEIGHT - 16);
+    render_text(player_lives, 8, WORLD_HEIGHT - 16);
     // live cannons
     static const SDL_Rect cannon_clip = { 0, 8, 16, 8 };
     for (int i = 0; i < player.lives - 1; i++)
-        app_render_clip(&cannon_clip, 24 + i * 16, WORLD_HEIGHT - 16);
+        render_clip(&cannon_clip, 24 + i * 16, WORLD_HEIGHT - 16);
 
     // useless arcade coin easteregg
-    app_render_text("CREDIT -1", WORLD_WIDTH - 80, WORLD_HEIGHT - 16);
+    render_text("CREDIT -1", WORLD_WIDTH - 80, WORLD_HEIGHT - 16);
 }
 
 void game_process_event()
@@ -954,8 +932,8 @@ void menu_frame()
     SDL_SetRenderDrawColor(app.renderer, 0, 0, 0, 255);
     SDL_RenderClear(app.renderer);
 
-    app_render_text(menu[0], 0, 0);
-    app_render_text(menu[1], 0, 16);
+    render_text(menu[0], 0, 0);
+    render_text(menu[1], 0, 16);
 }
 
 /* MAIN LOOP AND ENTRY POINT */
