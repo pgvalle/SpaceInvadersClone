@@ -42,15 +42,16 @@ struct {
 
 void render_text(const char* text, int x, int y)
 {
-    static const char* characters = APP_CHARACTERS;
+    const char* characters = APP_CHARACTERS;
+    const int len_characters = strlen(APP_CHARACTERS);
     for (int i = 0; i < strlen(text); i++)
     {
         // find mapping
         int mapping = 0;
-        for (; mapping < strlen(characters); mapping++)
+        for (; mapping < len_characters; mapping++)
             if (toupper(text[i]) == characters[mapping]) break;
 
-        if (mapping != strlen(characters)) // success
+        if (mapping != len_characters) // success
         {
             SDL_Rect clip = {
                 mapping * APP_FONT_PTSIZE,
@@ -83,10 +84,7 @@ void render_text(const char* text, int x, int y)
 void render_clip(const SDL_Rect* clip, int x, int y)
 {
     SDL_Rect scale = {
-        APP_SCALE * x,
-        APP_SCALE * y,
-        APP_SCALE * clip->w,
-        APP_SCALE * clip->h
+        APP_SCALE * x, APP_SCALE * y, APP_SCALE * clip->w, APP_SCALE * clip->h
     };
     SDL_RenderCopy(app.renderer, atlas, clip, &scale);
 }
@@ -115,93 +113,6 @@ void render_scores()
     render_text("hi-score", WORLD_WIDTH - 72, 8);
     sprintf(format, "%05d", game_hi_score);
     render_text(format, WORLD_WIDTH - 48, 24);
-}
-
-// bunkers
-
-#define BUNKER_FIRST_X 32
-#define BUNKERS_Y 192
-
-SDL_Point bunkers[4][352];
-
-void init_bunker(int k)
-{
-    // top
-    for (int i = 0; i < 4; i++)
-    {
-        for (int j = 4 - i; j < 18 + i; j++)
-        {
-            bunkers[k][22 * i + j].x = BUNKER_FIRST_X + 46 * k + j;
-            bunkers[k][22 * i + j].y = BUNKERS_Y + i;
-        }
-    }
-
-    // middle
-    for (int i = 4; i < 12; i++)
-    {
-        for (int j = 0; j < 22; j++)
-        {
-            bunkers[k][22 * i + j].x = BUNKER_FIRST_X + 46 * k + j;
-            bunkers[k][22 * i + j].y = BUNKERS_Y + i;
-        }
-    }
-
-    for (int j = 0; j < 8; j++)
-    {
-        bunkers[k][22 * 12 + j].x = BUNKER_FIRST_X + 46 * k + j;
-        bunkers[k][22 * 12 + j].y = BUNKERS_Y + 12;
-
-        bunkers[k][22 * 12 + j + 14].x = BUNKER_FIRST_X + 46 * k + j + 14;
-        bunkers[k][22 * 12 + j + 14].y = BUNKERS_Y + 12;
-    }
-
-    for (int j = 0; j < 7; j++)
-    {
-        bunkers[k][22 * 13 + j].x = BUNKER_FIRST_X + 46 * k + j;
-        bunkers[k][22 * 13 + j].y = BUNKERS_Y + 13;
-
-        bunkers[k][22 * 13 + j + 15].x = BUNKER_FIRST_X + 46 * k + j + 15;
-        bunkers[k][22 * 13 + j + 15].y = BUNKERS_Y + 13;
-    }
-
-    for (int i = 14; i < 16; i++)
-    {
-        for (int j = 0; j < 6; j++)
-        {
-            bunkers[k][22 * i + j].x = BUNKER_FIRST_X + 46 * k + j;
-            bunkers[k][22 * i + j].y = BUNKERS_Y + i;
-
-            bunkers[k][22 * i + j + 16].x = BUNKER_FIRST_X + 46 * k + j + 16;
-            bunkers[k][22 * i + j + 16].y = BUNKERS_Y + i;
-        }
-    }
-}
-
-void init_bunkers()
-{
-    init_bunker(0);
-    init_bunker(1);
-    init_bunker(2);
-    init_bunker(3);
-}
-
-void render_bunkers()
-{
-    SDL_SetRenderDrawColor(app.renderer, 32, 255, 32, 255);
-
-    for (int i = 0; i < 4; i++)
-    {
-        for (int j = 0; j < 352; j++)
-        {
-            const SDL_Rect piece_rect = {
-                bunkers[i][j].x * APP_SCALE,
-                bunkers[i][j].y * APP_SCALE,
-                APP_SCALE,
-                APP_SCALE
-            };
-            SDL_RenderFillRect(app.renderer, &piece_rect);
-        }
-    }
 }
 
 // explosions
@@ -241,27 +152,28 @@ void render_explosions()
 struct {
     enum {
         HORDE_STARTING, // start animation
-        HORDE_MOVING
+        HORDE_MOVING,
+        HORDE_WAITING
     } state;
 
     int xmove, ymove;
 
     struct invader_t {
-        SDL_Rect clip;
         int x, y;
+        SDL_Rect clip;
     }* invaders;
 
     struct horde_shot_t {
         int x, y;
         SDL_Rect clip;
-        uint32_t anim_timing;
+        uint32_t timer;
     }* shots;
 
     // One invader is updated each frame.
     // horde is up-to-date only when all invaders are up-to-date.
     int invaders_updated;
 
-    uint32_t shot_timing, shot_timeout;
+    uint32_t timer, shot_timeout;
 } horde;
 
 void play_horde_start_anim()
@@ -330,43 +242,10 @@ void move_horde()
     }
 }
 
-void update_horde_shots()
-{
-    for (int i = 0; i < arrlen(horde.shots); i++)
-	{
-        // update shot animation
-        horde.shots[i].anim_timing += app.frame_time;
-        if (horde.shots[i].anim_timing >= 16 * 6)
-        {
-            horde.shots[i].clip.x -= 24;
-            horde.shots[i].clip.x = (horde.shots[i].clip.x + 3) % 12;
-            horde.shots[i].clip.x += 24;
-            horde.shots[i].anim_timing = 0;
-        }
-
-		horde.shots[i].y++;
-        // reached bottom of screen
-		if (horde.shots[i].y >= 232)
-        {
-            // add explosion
-            const struct explosion_t explosion = {
-                .x = horde.shots[i].x - 1,
-                .y = 240,
-                .clip = { 24, 40,  6,  8 },
-                .timing = 0,
-                .timeout = 16 * 24
-            };
-            arrput(explosions, explosion);
-			arrdel(horde.shots, i);
-            i--;
-        }
-	}
-}
-
 void make_horde_shoot()
 {
-    horde.shot_timing += app.frame_time;
-    if (horde.shot_timing >= horde.shot_timeout && arrlen(horde.invaders) > 0)
+    horde.timer += app.frame_time;
+    if (horde.timer >= horde.shot_timeout && arrlen(horde.invaders) > 0)
     {
         // someone shoots
         const int i = rand() % arrlen(horde.invaders);
@@ -386,12 +265,12 @@ void make_horde_shoot()
             .x = x + 5,
             .y = y + 8,
             .clip = { 24, 16 +  8 * (rand() % 3),  3,  7 },
-            .anim_timing = 0
+            .timer = 0
         };
         arrput(horde.shots, shot);
 
         // reset
-        horde.shot_timing = 0;
+        horde.timer = 0;
         horde.shot_timeout = 1024 * (rand() % 2 + 1);
     }
 }
@@ -407,13 +286,15 @@ void update_horde()
         make_horde_shoot();
         move_horde();
         break;
+    case HORDE_WAITING:
+        horde.timer += app.frame_time;
+        if (horde.timer >= 16 * 24)
+        {
+            horde.state = HORDE_MOVING;
+            horde.timer = 0;
+        }
+        break;
     }
-}
-
-void render_horde_shots()
-{
-    for (int i = 0; i < arrlen(horde.shots); i++)
-        render_clip(&horde.shots[i].clip, horde.shots[i].x, horde.shots[i].y);
 }
 
 void render_horde()
@@ -433,7 +314,6 @@ void render_horde()
 #define TOURIST_MIN_SPAWN_TIMEOUT 20 /* seconds */
 #define TOURIST_MAX_SPAWN_TIMEOUT 30 /* seconds */
 
-// transition to TOURIST_DYING is done via collision detection (external)
 struct {
     enum {
         TOURIST_UNAVAILABLE,
@@ -443,7 +323,7 @@ struct {
     } state;
 
     float x, xvel;
-    int score_value;
+    int score_inc;
     uint32_t timer, spawn_timeout;
 } tourist;
 
@@ -480,7 +360,7 @@ void update_tourist()
             tourist.xvel = rand() % 2 ? TOURIST_VEL : -TOURIST_VEL;
             tourist.x = tourist.xvel > 0.0f ? 8.f : (WORLD_WIDTH - 32.f);
             // give it a random score value for this appearance
-            tourist.score_value = gen_tourist_score();
+            tourist.score_inc = gen_tourist_score();
             // set spawn timer for next appearance
             tourist.timer = 0; // reset timer
             tourist.spawn_timeout = gen_tourist_spawn_timeout();
@@ -491,6 +371,7 @@ void update_tourist()
         if (tourist.timer >= TOURIST_DEATH_TIMEOUT)
         {
             tourist.state = TOURIST_SHOWING_SCORE;
+            game_score += tourist.score_inc;
             tourist.timer = 0; // reset timer
         }
         break;
@@ -519,7 +400,7 @@ void render_tourist()
         break;
     case TOURIST_SHOWING_SCORE: {
         char tourist_score[4];
-        sprintf(tourist_score, "%d", tourist.score_value);
+        sprintf(tourist_score, "%d", tourist.score_inc);
         SDL_SetTextureColorMod(font_atlas, 216, 32, 32);
         render_text(tourist_score, tourist.x, TOURIST_Y);
         SDL_SetTextureColorMod(font_atlas, 255, 255, 255); }
@@ -530,14 +411,18 @@ void render_tourist()
 // player
 
 #define PLAYER_Y 216
+
 #define PLAYER_SHOT_TIMEOUT  (16 * 48) /* 1 second */
-#define PLAYER_DEATH_TIMEOUT (2000) /* 2 seconds */
-#define PLAYER_DEATH_SPARE_TIMEOUT (2000) /* 2 seconds */
+#define PLAYER_STARTING_TIMEOUT (2048) /* 2 seconds or so */
+#define PLAYER_DYING_TIMEOUT (2000) /* 2 seconds */
+#define PLAYER_DYING_FRAME_TIMEOUT (16 * 6)
+#define PLAYER_DEAD_TIMEOUT (2000) /* 2 seconds */
 
 struct {
     enum {
-        PLAYER_ALIVE = 0,
-        PLAYER_DYING, // play animation
+        PLAYER_STARTING,
+        PLAYER_ALIVE,
+        PLAYER_DYING,
         PLAYER_DEAD
     } state;
 
@@ -547,60 +432,64 @@ struct {
     SDL_Point* shots;
 
     // timeouts are constant
-    uint32_t timer;
+    uint32_t timer, dying_timer;
+    SDL_Rect dying_clip;
 } player;
 
-void update_player_shots()
+void move_player()
 {
-    for (int i = 0; i < arrlen(player.shots); i++)
-	{
-		player.shots[i].y -= 4;
-        // reached top of screen
-		if (player.shots[i].y <= 32)
-		{
-            // add explosion
-            const struct explosion_t explosion = {
-                .x = player.shots[i].x - 3,
-                .y = 34,
-                .clip = { 36, 24,  8,  8 },
-                .timing = 0,
-                .timeout = 16 * 24
-            };
-            arrput(explosions, explosion);
-            arrdel(player.shots, i);
-            i--;
-        }
-	}
+    const uint8_t* keys = SDL_GetKeyboardState(NULL);
+    // movement
+    if (keys[SDL_SCANCODE_LEFT])
+        player.x -= 1;
+    if (keys[SDL_SCANCODE_RIGHT])
+        player.x += 1;
+
+    // check bounds
+    if (player.x < 14) player.x = 14;
+    else if (player.x > WORLD_WIDTH - 31) player.x = WORLD_WIDTH - 31;
+}
+
+void make_player_shoot()
+{
+    const uint8_t* keys = SDL_GetKeyboardState(NULL);
+    if (player.timer < PLAYER_SHOT_TIMEOUT)
+        player.timer += app.frame_time;
+    else if (keys[SDL_SCANCODE_SPACE])
+    {
+        const SDL_Point shot = { player.x + 8, PLAYER_Y };
+        arrput(player.shots, shot);
+        player.timer = 0;
+    }
 }
 
 void update_player()
 {
-	const uint8_t* keys = SDL_GetKeyboardState(NULL);
-
 	switch (player.state)
 	{
+    case PLAYER_STARTING:
+        player.timer += app.frame_time;
+        if (player.timer >= PLAYER_STARTING_TIMEOUT)
+        {
+            player.state = PLAYER_ALIVE;
+            player.timer = 0;
+        }
+        break;
 	case PLAYER_ALIVE:
-		// movement
-		if (keys[SDL_SCANCODE_LEFT])
-			player.x -= 1;
-		if (keys[SDL_SCANCODE_RIGHT])
-			player.x += 1;
-		// check bounds
-		if (player.x < 14) player.x = 14;
-		else if (player.x > WORLD_WIDTH - 31) player.x = WORLD_WIDTH - 31;
-		// shooting
-		if (player.timer < PLAYER_SHOT_TIMEOUT)
-            player.timer += app.frame_time;
-		else if (keys[SDL_SCANCODE_SPACE])
-		{
-			const SDL_Point shot = { player.x + 8, PLAYER_Y };
-			arrput(player.shots, shot);
-			player.timer = 0;
-		}
+	    move_player();
+        make_player_shoot();
 		break;
     case PLAYER_DYING:
+        // update death animation
+        player.dying_timer += app.frame_time;
+		if (player.dying_timer >= PLAYER_DYING_FRAME_TIMEOUT)
+        {
+            player.dying_clip.x = player.dying_clip.x == 32 ? 16 : 32;
+            player.dying_timer = 0;
+        }
+        // update death state
         player.timer += app.frame_time;
-		if (player.timer >= PLAYER_DEATH_TIMEOUT)
+        if (player.timer >= PLAYER_DYING_TIMEOUT)
         {
             player.state = PLAYER_DEAD;
             player.lives--;
@@ -609,7 +498,7 @@ void update_player()
         break;
 	case PLAYER_DEAD:
 		player.timer += app.frame_time;
-		if (player.timer >= PLAYER_DEATH_SPARE_TIMEOUT)
+		if (player.timer >= PLAYER_DEAD_TIMEOUT)
 		{
 			player.state = PLAYER_ALIVE;
             player.x = 14;
@@ -619,8 +508,81 @@ void update_player()
 	}
 }
 
-void render_player_shots()
+void render_player()
 {
+    switch (player.state)
+    {
+    case PLAYER_DYING:
+        render_clip(&player.dying_clip, player.x, PLAYER_Y);
+        break;
+    case PLAYER_ALIVE: {
+        const SDL_Rect player_clip = { 0, 8, 16, 8 };
+        render_clip(&player_clip, player.x, PLAYER_Y); }
+        break;
+    }	    
+}
+
+// shots
+
+void update_shots()
+{
+    // horde shots
+    for (int i = 0; i < arrlen(horde.shots); i++)
+	{
+        // update shot animation
+        horde.shots[i].timer += app.frame_time;
+        if (horde.shots[i].timer >= 16 * 6)
+        {
+            horde.shots[i].clip.x -= 24;
+            horde.shots[i].clip.x = (horde.shots[i].clip.x + 3) % 12;
+            horde.shots[i].clip.x += 24;
+            horde.shots[i].timer = 0;
+        }
+
+        // reached bottom of screen
+		horde.shots[i].y++;
+		if (horde.shots[i].y >= 232)
+        {
+            // add explosion
+            const struct explosion_t explosion = {
+                .x = horde.shots[i].x - 1,
+                .y = 232,
+                .clip = { 24, 40,  6,  8 },
+                .timing = 0,
+                .timeout = 16 * 8
+            };
+            arrput(explosions, explosion);
+			arrdel(horde.shots, i);
+            i--;
+        }
+	}
+
+    for (int i = 0; i < arrlen(player.shots); i++)
+	{
+        // reached top of screen
+		player.shots[i].y -= 4;
+		if (player.shots[i].y <= 32)
+		{
+            // add explosion
+            const struct explosion_t explosion = {
+                .x = player.shots[i].x - 3,
+                .y = 34,
+                .clip = { 36, 24,  8,  8 },
+                .timing = 0,
+                .timeout = 16 * 16
+            };
+            arrput(explosions, explosion);
+            arrdel(player.shots, i);
+            i--;
+        }
+	}
+}
+
+void render_shots()
+{
+    for (int i = 0; i < arrlen(horde.shots); i++)
+        render_clip(&horde.shots[i].clip, horde.shots[i].x, horde.shots[i].y);
+
     for (int i = 0; i < arrlen(player.shots); i++)
 	{
 		SDL_Rect rect = {
@@ -634,39 +596,16 @@ void render_player_shots()
 	}
 }
 
-void render_player()
-{
-    switch (player.state)
-    {
-    case PLAYER_DYING: {
-        static uint32_t dying_timer = 0;
-        static SDL_Rect explosion_clip = { 16,  8, 16,  8 };
-        dying_timer += app.frame_time;
-        if (dying_timer >= 16 * 8)
-        {
-            dying_timer = 0;
-            explosion_clip.x = explosion_clip.x == 32 ? 16 : 32;
-        }
-        render_clip(&explosion_clip, player.x, PLAYER_Y); }
-        break;
-    case PLAYER_ALIVE: {
-        const SDL_Rect player_clip = { 0, 8, 16, 8 };
-        render_clip(&player_clip, player.x, PLAYER_Y); }
-        break;
-    }	    
-}
-
 // interactions
 
 void process_collisions()
 {
-    // horde shots colliding with
+    // horde shots colliding with something
     for (int i = 0; i < arrlen(horde.shots); i++)
     {
         const int hshot_x = horde.shots[i].x;
         const int hshot_y = horde.shots[i].y;
-
-        // player
+        // with player
         if (hshot_y >= PLAYER_Y && hshot_y <= PLAYER_Y + 6 &&
             hshot_x >= player.x + 2 && hshot_x <= player.x + 15)
         {
@@ -682,42 +621,45 @@ void process_collisions()
             arrdel(horde.shots, i);
             i--;
 
-            // player dead
+            // player dead now
             player.state = PLAYER_DYING;
             player.timer = 0;
         }
-        else for (int j = 0; j < arrlen(player.shots); j++) // player shots
+        else for (int j = 0; j < arrlen(player.shots); j++) // with player shots
         {
             const int pshot_x = player.shots[j].x;
             const int pshot_y = player.shots[j].y;
-
             if (pshot_y <= hshot_y && abs(pshot_x - hshot_x) <= 1)
             {
-                const struct explosion_t explosion1 = {
-                    .x = hshot_x - 1,
-                    .y = hshot_y,
-                    .clip = { 24, 40,  6,  8 },
-                    .timing = 0,
-                    .timeout = 16 * 24
-                };
-                arrput(explosions, explosion1);
-                arrdel(horde.shots, i);
-                i--;
-
-                const struct explosion_t explosion2 = {
+                // horde shot may be stronger than player shot and cut right through it
+                if (rand() % 4 != 0)
+                {
+                    const struct explosion_t hshot_exp = {
+                        .x = hshot_x - 1,
+                        .y = hshot_y,
+                        .clip = { 24, 40,  6,  8 },
+                        .timing = 0,
+                        .timeout = 16 * 24
+                    };
+                    arrput(explosions, hshot_exp);
+                    arrdel(horde.shots, i);
+                    i--;
+                }
+                const struct explosion_t pshot_exp = {
                     .x = pshot_x - 3,
                     .y = pshot_y,
                     .clip = { 36, 24,  8,  8 },
                     .timing = 0,
                     .timeout = 16 * 24
                 };
-                arrput(explosions, explosion2);
+                arrput(explosions, pshot_exp);
                 arrdel(player.shots, j);
-
                 break;
             }
         }
     }
+
+    
 
     // player shots colliding with
     for (int i = 0; i < arrlen(player.shots); i++)
@@ -725,11 +667,10 @@ void process_collisions()
         const SDL_Rect prect = { player.shots[i].x, player.shots[i].y - 4, 1, 1 };
 
         // tourist
-        const SDL_Rect tourist_rect = {tourist.x, TOURIST_Y, 24, 8};
+        const SDL_Rect tourist_rect = {tourist.x + 4, TOURIST_Y, 16, 8};
         if (SDL_HasIntersection(&tourist_rect, &prect) && tourist.state == TOURIST_AVAILABLE)
         {
             tourist.state = TOURIST_DYING;
-            game_score += tourist.score_value;
             if (rand() % 2 == 0)
                 player.lives++;
             
@@ -777,7 +718,8 @@ void process_collisions()
                     horde.invaders_updated--;
                 arrdel(horde.invaders, j);
                 game_score += score_inc;
-
+                horde.state = HORDE_WAITING;
+                horde.timer = 0;
                 break;
             }
         }
@@ -796,13 +738,13 @@ void game_start()
     // explosions
     explosions = NULL;
     // bunker
-    init_bunkers();
+    // init_bunkers();
     // horde
     horde.state = HORDE_STARTING;
     horde.invaders = NULL;
     horde.invaders_updated = 0;
     horde.shots = NULL;
-    horde.shot_timing = 0;
+    horde.timer = 0;
     horde.shot_timeout = 16 * 32 * (rand() % 2 + 1);
     // tourist
     tourist.state = TOURIST_UNAVAILABLE;
@@ -821,12 +763,11 @@ void game_playing()
 
     update_explosions();
     update_player();
-    if (player.state == PLAYER_ALIVE)
+    if (player.state == PLAYER_ALIVE || player.state == PLAYER_STARTING)
         update_horde();
     update_tourist();
 
-    update_horde_shots();
-    update_player_shots();
+    update_shots();
 
     process_collisions();
 
@@ -841,8 +782,7 @@ void game_playing()
     };
     SDL_RenderFillRect(app.renderer, &rect);  
 
-    render_player_shots();
-    render_horde_shots();
+    render_shots();
 
     render_tourist();
     render_horde();
@@ -850,7 +790,6 @@ void game_playing()
 
     render_explosions();
 
-    render_bunkers();
 
     // ui
     render_scores();
@@ -864,8 +803,6 @@ void game_playing()
 
     // useless arcade coin easteregg
     render_text("CREDIT -1", WORLD_WIDTH - 80, WORLD_HEIGHT - 16);
-
-    render_text("CREDIT -1", WORLD_WIDTH - 80, WORLD_HEIGHT - 8);
 }
 
 void game_process_event()
@@ -1042,3 +979,90 @@ int main(int argc, char** args)
 
     return 0;
 }
+
+/*// bunkers
+
+#define BUNKER_FIRST_X 32
+#define BUNKERS_Y 192
+
+SDL_Point bunkers[4][352];
+
+void init_bunker(int k)
+{
+    // top
+    for (int i = 0; i < 4; i++)
+    {
+        for (int j = 4 - i; j < 18 + i; j++)
+        {
+            bunkers[k][22 * i + j].x = BUNKER_FIRST_X + 46 * k + j;
+            bunkers[k][22 * i + j].y = BUNKERS_Y + i;
+        }
+    }
+
+    // middle
+    for (int i = 4; i < 12; i++)
+    {
+        for (int j = 0; j < 22; j++)
+        {
+            bunkers[k][22 * i + j].x = BUNKER_FIRST_X + 46 * k + j;
+            bunkers[k][22 * i + j].y = BUNKERS_Y + i;
+        }
+    }
+
+    for (int j = 0; j < 8; j++)
+    {
+        bunkers[k][22 * 12 + j].x = BUNKER_FIRST_X + 46 * k + j;
+        bunkers[k][22 * 12 + j].y = BUNKERS_Y + 12;
+
+        bunkers[k][22 * 12 + j + 14].x = BUNKER_FIRST_X + 46 * k + j + 14;
+        bunkers[k][22 * 12 + j + 14].y = BUNKERS_Y + 12;
+    }
+
+    for (int j = 0; j < 7; j++)
+    {
+        bunkers[k][22 * 13 + j].x = BUNKER_FIRST_X + 46 * k + j;
+        bunkers[k][22 * 13 + j].y = BUNKERS_Y + 13;
+
+        bunkers[k][22 * 13 + j + 15].x = BUNKER_FIRST_X + 46 * k + j + 15;
+        bunkers[k][22 * 13 + j + 15].y = BUNKERS_Y + 13;
+    }
+
+    for (int i = 14; i < 16; i++)
+    {
+        for (int j = 0; j < 6; j++)
+        {
+            bunkers[k][22 * i + j].x = BUNKER_FIRST_X + 46 * k + j;
+            bunkers[k][22 * i + j].y = BUNKERS_Y + i;
+
+            bunkers[k][22 * i + j + 16].x = BUNKER_FIRST_X + 46 * k + j + 16;
+            bunkers[k][22 * i + j + 16].y = BUNKERS_Y + i;
+        }
+    }
+}
+
+void init_bunkers()
+{
+    init_bunker(0);
+    init_bunker(1);
+    init_bunker(2);
+    init_bunker(3);
+}
+
+void render_bunkers()
+{
+    SDL_SetRenderDrawColor(app.renderer, 32, 255, 32, 255);
+
+    for (int i = 0; i < 4; i++)
+    {
+        for (int j = 0; j < 352; j++)
+        {
+            const SDL_Rect piece_rect = {
+                bunkers[i][j].x * APP_SCALE,
+                bunkers[i][j].y * APP_SCALE,
+                APP_SCALE,
+                APP_SCALE
+            };
+            SDL_RenderFillRect(app.renderer, &piece_rect);
+        }
+    }
+}*/
