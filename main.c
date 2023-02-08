@@ -12,22 +12,23 @@ SDL_Texture* atlas = NULL, * font_atlas = NULL;
 
 /* APP */
 
-#define APP_FPS 60
-#define APP_SCALE 2
-#define APP_RESOURCE_DIR "./res"
-#define APP_FONT_PTSIZE 8
+#define FPS 60
+#define SCALE 2
+#define RESOURCE_DIR "./res"
+#define FONT_PTSIZE 8
 
-#define APP_CHARACTERS_MONO " A B C D E F G H  I J K L M N O P Q R S T U V W X"\
+#define CHARACTERS_MONO " A B C D E F G H  I J K L M N O P Q R S T U V W X"\
 	" Y Z 0  1 2 3 4 5 6 7 8 9 - ? <  > = "
-#define APP_CHARACTERS "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-?<>="
+#define CHARACTERS "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-?<>="
 
 #define WORLD_WIDTH  224
 #define WORLD_HEIGHT 256
 
 struct {
 	enum {
-		APP_PAUSE,
 		APP_PLAY,
+		APP_PAUSE,
+        APP_GAMEOVER,
 		APP_QUIT
 	} screen;
 
@@ -36,13 +37,16 @@ struct {
 
     SDL_Renderer* renderer;
 
+    int credits; // useless. Just an easteregg
+    int score, hi_score;
+
     uint32_t frame_time;
 } app;
 
 void render_text(const char* text, int x, int y)
 {
-    const char* characters = APP_CHARACTERS;
-    const int len_characters = strlen(APP_CHARACTERS);
+    const char* characters = CHARACTERS;
+    const int len_characters = strlen(CHARACTERS);
     for (int i = 0; i < strlen(text); i++)
     {
         // find mapping
@@ -53,39 +57,82 @@ void render_text(const char* text, int x, int y)
         if (mapping != len_characters) // success
         {
             SDL_Rect clip = {
-                mapping * APP_FONT_PTSIZE,
+                mapping * FONT_PTSIZE,
                 0,
-                APP_FONT_PTSIZE,
-                APP_FONT_PTSIZE
+                FONT_PTSIZE,
+                FONT_PTSIZE
             };
             SDL_Rect scale = {
-                APP_SCALE * x,
-                APP_SCALE * y,
-                APP_SCALE * clip.w,
-                APP_SCALE * clip.h
+                SCALE * x,
+                SCALE * y,
+                SCALE * clip.w,
+                SCALE * clip.h
             };
 
             // Correcting placement of quirky characters
             // I, 1 and = are thinner.
             if (toupper(text[i]) == 'I' || text[i] == '1' || text[i] == '=')
-                scale.x -= APP_SCALE;
+                scale.x -= SCALE;
             // A is just a litle bit off to the right.
             else if (toupper(text[i]) == 'A')
-                scale.x += APP_SCALE;
+                scale.x += SCALE;
 
             SDL_RenderCopy(app.renderer, font_atlas, &clip, &scale);
         }
 
-        x += APP_FONT_PTSIZE;
+        x += FONT_PTSIZE;
     }
 }
+
 
 void render_clip(const SDL_Rect* clip, int x, int y)
 {
     SDL_Rect scale = {
-        APP_SCALE * x, APP_SCALE * y, APP_SCALE * clip->w, APP_SCALE * clip->h
+        SCALE * x, SCALE * y, SCALE * clip->w, SCALE * clip->h
     };
     SDL_RenderCopy(app.renderer, atlas, clip, &scale);
+}
+
+
+void process_credit_events()
+{
+    if (app.event.type != SDL_KEYDOWN)
+        return;
+    
+    switch (app.event.key.keysym.sym)
+    {
+    case SDLK_PLUS:
+    case SDLK_KP_PLUS:
+        if (app.credits < 99)
+            app.credits++;
+        break;
+    case SDLK_MINUS:
+    case SDLK_KP_MINUS:
+        if (app.credits > 0)
+            app.credits--;
+        break;
+    }
+}
+
+void render_credits()
+{
+    char credits_str[11];
+    sprintf(credits_str, "CREDIT %02d", app.credits);
+    render_text(credits_str, WORLD_WIDTH - 80, WORLD_HEIGHT - 16);
+}
+
+
+void render_scores()
+{
+    static char format[10];
+    // score
+    render_text("score", 8, 8);
+    sprintf(format, "%05d", app.score);
+    render_text(format, 8, 24);
+    // high-score
+    render_text("hi-score", WORLD_WIDTH - 72, 8);
+    sprintf(format, "%05d", app.hi_score);
+    render_text(format, WORLD_WIDTH - 48, 24);
 }
 
 
@@ -102,7 +149,10 @@ struct {
 } pause;
 
 struct {
-    int score, hi_score;
+    enum {
+        PLAY_PLAYING,
+        PLAY_RESTARTING
+    } state;
 
     struct explosion_t {
         int x, y;
@@ -128,10 +178,10 @@ struct {
 
     struct {
         enum {
+            TOURIST_AVAILABLE,
             TOURIST_UNAVAILABLE,
             TOURIST_DYING,
-            TOURIST_SHOWING_SCORE,
-            TOURIST_AVAILABLE,
+            TOURIST_SHOWING_SCORE
         } state;
 
         float x, xvel;
@@ -140,6 +190,8 @@ struct {
 
         uint32_t timer, spawn_timeout;
     } tourist;
+
+    uint32_t timer;
 } play;
 
 /* PAUSE STATE */
@@ -187,7 +239,7 @@ void render_pause()
     SDL_SetRenderDrawBlendMode(app.renderer, SDL_BLENDMODE_BLEND);
     SDL_SetRenderDrawColor(app.renderer, 0, 0, 0, 150);
     const SDL_Rect overlay_rect = {
-        0, 0, APP_SCALE * WORLD_WIDTH, APP_SCALE * WORLD_HEIGHT
+        0, 0, SCALE * WORLD_WIDTH, SCALE * WORLD_HEIGHT
     };
     SDL_RenderFillRect(app.renderer, &overlay_rect);
     SDL_SetRenderDrawBlendMode(app.renderer, SDL_BLENDMODE_NONE);
@@ -195,33 +247,19 @@ void render_pause()
     switch (pause.state)
     {
     case PAUSE_WAITING_BLINK_ON:
-        render_text("- press escape to resume -", 8, 16);
+        render_text("PRESS ESCAPE TO RESUME", 24, WORLD_HEIGHT / 2 - 8);
         break;
     case PAUSE_RESUMING: {
         int countdown = 3 - (int)pause.timer / 1000;
         char countdown_str[3];
         sprintf(countdown_str, "%02d", countdown == 0 ? 1 : countdown);
-        render_text(countdown_str, WORLD_WIDTH / 2 - 8, 16);
+        render_text(countdown_str, WORLD_WIDTH / 2 - 8, WORLD_HEIGHT / 2 - 8);
         break; }
     }
 }
 
 
 /* PLAY STATE */
-
-void render_scores()
-{
-    static char format[10];
-    // score
-    render_text("score", 8, 8);
-    sprintf(format, "%05d", play.score);
-    render_text(format, 8, 24);
-    // high-score
-    render_text("hi-score", WORLD_WIDTH - 72, 8);
-    sprintf(format, "%05d", play.hi_score);
-    render_text(format, WORLD_WIDTH - 48, 24);
-}
-
 
 void update_explosions()
 {
@@ -353,25 +391,16 @@ void render_player_shots()
     for (int i = 0; i < arrlen(play.player_shots); i++)
 	{
 		SDL_Rect rect = {
-			APP_SCALE * play.player_shots[i].x,
-			APP_SCALE * play.player_shots[i].y,
-			APP_SCALE,
-			APP_SCALE * 4,
+			SCALE * play.player_shots[i].x,
+			SCALE * play.player_shots[i].y,
+			SCALE,
+			SCALE * 4,
 		};
 		SDL_SetRenderDrawColor(app.renderer, 255, 255, 255, 255);
 		SDL_RenderDrawRect(app.renderer, &rect);
 	}
 }
 
-
-#define TOURIST_Y 40
-
-#define TOURIST_VEL 0.65f
-
-#define TOURIST_DEATH_TIMEOUT (16 * 24)
-#define TOURIST_SCORE_TIMEOUT (16 * 80)
-#define TOURIST_MIN_SPAWN_TIMEOUT 20
-#define TOURIST_MAX_SPAWN_TIMEOUT 30
 
 static inline
 int gen_tourist_score()
@@ -382,8 +411,7 @@ int gen_tourist_score()
 static inline
 int gen_tourist_spawn_timeout()
 {
-    return 1024 * (rand() % (TOURIST_MAX_SPAWN_TIMEOUT - \
-        TOURIST_MIN_SPAWN_TIMEOUT + 1) + TOURIST_MIN_SPAWN_TIMEOUT);
+    return 1024 * (rand() % (30 - 20 + 1) + 20);
 }
 
 void update_tourist()
@@ -405,7 +433,7 @@ void update_tourist()
         {
             play.tourist.state = TOURIST_AVAILABLE;
             // spawn either left or right
-            play.tourist.xvel = rand() % 2 ? TOURIST_VEL : -TOURIST_VEL;
+            play.tourist.xvel = rand() % 2 ? 0.65f : -0.65f;
             play.tourist.x = play.tourist.xvel > 0.0f ? 8.f : (WORLD_WIDTH - 32.f);
 
             play.tourist.score_inc = gen_tourist_score();
@@ -418,16 +446,16 @@ void update_tourist()
         break;
     case TOURIST_DYING:
         play.tourist.timer += app.frame_time;
-        if (play.tourist.timer >= TOURIST_DEATH_TIMEOUT)
+        if (play.tourist.timer >= 384)
         {
             play.tourist.state = TOURIST_SHOWING_SCORE;
-            play.score += play.tourist.score_inc;
+            app.score += play.tourist.score_inc;
             play.tourist.timer = 0; // reset timer
         }
         break;
     case TOURIST_SHOWING_SCORE:
         play.tourist.timer += app.frame_time;
-        if (play.tourist.timer >= TOURIST_SCORE_TIMEOUT)
+        if (play.tourist.timer >= 1280)
         {
             play.tourist.state = TOURIST_UNAVAILABLE;
             play.tourist.timer = 0; // reset timer
@@ -442,17 +470,17 @@ void render_tourist()
     {
     case TOURIST_AVAILABLE: {
         const SDL_Rect tourist_clip = { 0,  0, 24,  8 };
-        render_clip(&tourist_clip, play.tourist.x, TOURIST_Y);
+        render_clip(&tourist_clip, play.tourist.x, 40);
         break; }
     case TOURIST_DYING: {
         const SDL_Rect tourist_dying = { 24,  0, 24,  8 };
-        render_clip(&tourist_dying, play.tourist.x, TOURIST_Y);
+        render_clip(&tourist_dying, play.tourist.x, 40);
         break; }
     case TOURIST_SHOWING_SCORE: {
         char tourist_score[4];
         sprintf(tourist_score, "%d", play.tourist.score_inc);
         SDL_SetTextureColorMod(font_atlas, 216, 32, 32);
-        render_text(tourist_score, play.tourist.x, TOURIST_Y);
+        render_text(tourist_score, play.tourist.x, 40);
         SDL_SetTextureColorMod(font_atlas, 255, 255, 255);
         break; }
     }
@@ -466,7 +494,7 @@ void process_shot_collisions_with_tourist()
         const SDL_Rect player_rect = {
             play.player_shots[i].x, play.player_shots[i].y - 4, 1, 1
         };
-        const SDL_Rect tourist_rect = {play.tourist.x + 4, TOURIST_Y, 16, 8};
+        const SDL_Rect tourist_rect = {play.tourist.x + 4, 40, 16, 8};
         if (SDL_HasIntersection(&tourist_rect, &player_rect) &&
             play.tourist.state == TOURIST_AVAILABLE)
         {
@@ -482,8 +510,7 @@ void process_shot_collisions_with_tourist()
 
 void reset_play()
 {
-    play.score = 0;
-    play.hi_score = 1000; // load hi-score from a file
+    play.state = PLAY_PLAYING;
 
     play.explosions = NULL;
 
@@ -501,6 +528,8 @@ void reset_play()
 
 void process_play_events()
 {
+    process_credit_events();
+
     if (app.event.type == SDL_KEYDOWN && !app.event.key.repeat &&
         app.event.key.keysym.sym == SDLK_ESCAPE)
     {
@@ -511,20 +540,39 @@ void process_play_events()
 
 void update_play()
 {
-    update_explosions();
-    update_player();
-    update_tourist();
+    switch (play.state)
+    {
+    case PLAY_PLAYING:
+        update_explosions();
+        update_player();
+        update_tourist();
 
-    update_player_shots();
+        update_player_shots();
 
-    // process_shot_collisions_with_player();
-    // process_shot_collisions_with_horde();
-    process_shot_collisions_with_tourist();
-    // process_shot_collisions_between_shots();
+        // process_shot_collisions_with_player();
+        // process_shot_collisions_with_horde();
+        process_shot_collisions_with_tourist();
+        // process_shot_collisions_between_shots();
 
-    // update score
-    if (play.hi_score < play.score)
-        play.hi_score = play.score;
+        // update score
+        if (app.hi_score < app.score)
+            app.hi_score = app.score;
+
+        if (0) // no more enemies, restart game
+        {
+            play.state = PLAY_RESTARTING;
+            play.timer = 0;
+        }
+        break;
+    case PLAY_RESTARTING:
+        if (play.timer >= 2000)
+        {
+            // reset horde
+            // reset player position
+            play.state = PLAY_PLAYING;
+        }
+        break;
+    }
 }
 
 void render_play()
@@ -536,11 +584,11 @@ void render_play()
     // bar. Just to resemble the original game
     SDL_SetRenderDrawColor(app.renderer, 32, 255, 32, 255); // #20ff20
     const SDL_Rect rect = {
-        APP_SCALE * 0, APP_SCALE * 239, APP_SCALE * 224, APP_SCALE
+        SCALE * 0, SCALE * 239, SCALE * 224, SCALE
     };
     SDL_RenderFillRect(app.renderer, &rect);
-    // arcade credit counter easteregg
-    render_text("CREDIT 00", WORLD_WIDTH - 80, WORLD_HEIGHT - 16);
+    // credit easteregg thingy
+    render_credits();
 
     render_player_shots();
     render_tourist();
@@ -558,54 +606,11 @@ void render_play()
         render_clip(&cannon_clip, 24 + i * 16, WORLD_HEIGHT - 16);
 }
 
-// rendering
-
-// tourist
-
-// shots
-
-void update_shots()
-{
-    // horde shots
-    // for (int i = 0; i < arrlen(horde.shots); i++)
-	// {
-    //     // update shot animation
-    //     horde.shots[i].timer += app.frame_time;
-    //     if (horde.shots[i].timer >= 16 * 6)
-    //     {
-    //         horde.shots[i].clip.x -= 24;
-    //         horde.shots[i].clip.x = (horde.shots[i].clip.x + 3) % 12;
-    //         horde.shots[i].clip.x += 24;
-    //         horde.shots[i].timer = 0;
-    //     }
-
-    //     // reached bottom of screen
-	// 	horde.shots[i].y++;
-	// 	if (horde.shots[i].y >= 232)
-    //     {
-    //         // add explosion
-    //         const struct explosion_t explosion = {
-    //             .x = horde.shots[i].x - 1,
-    //             .y = 232,
-    //             .clip = { 24, 40,  6,  8 },
-    //             .timer = 0,
-    //             .timeout = 16 * 8
-    //         };
-    //         arrput(explosions, explosion);
-	// 		arrdel(horde.shots, i);
-    //         i--;
-    //     }
-	// }
-
-    // player shots
-    
-}
-
 /* MAIN LOOP AND ENTRY POINT */
 
 void app_main_loop()
 {
-    uint32_t start = 0, event_wait_timeout = 1000 / APP_FPS;
+    uint32_t start = 0, event_wait_timeout = 1000 / FPS;
 
     while (app.screen != APP_QUIT)
     {
@@ -650,7 +655,7 @@ void app_main_loop()
             SDL_RenderPresent(app.renderer);
 
             app.frame_time = 0; // reset frame time
-            event_wait_timeout = 1000 / APP_FPS; // reset event wait timeout
+            event_wait_timeout = 1000 / FPS; // reset event wait timeout
         }
 
         // accumulate frame time
@@ -668,30 +673,42 @@ int main(int argc, char** args)
 
     SDL_ShowCursor(SDL_DISABLE);
 
-    app.screen = APP_PAUSE;
+    app.screen = APP_PLAY;
     reset_pause();
     reset_play();
     app.window = SDL_CreateWindow(
         "",
         SDL_WINDOWPOS_CENTERED,
         SDL_WINDOWPOS_CENTERED,
-        APP_SCALE * WORLD_WIDTH,
-        APP_SCALE * WORLD_HEIGHT,
+        SCALE * WORLD_WIDTH,
+        SCALE * WORLD_HEIGHT,
         SDL_WINDOW_INPUT_FOCUS | SDL_WINDOW_MOUSE_FOCUS
     );
     app.renderer = SDL_CreateRenderer(app.window, -1, SDL_RENDERER_ACCELERATED);
     app.frame_time = 0;
 
-    atlas = IMG_LoadTexture(app.renderer, APP_RESOURCE_DIR "/atlas.png");
+    app.score = 0;
+    app.hi_score = 0;
+    // load hi-score
+    FILE* hi_score_file = fopen("hi_score.txt", "r");
+    if (hi_score_file)
+    {
+        fscanf(hi_score_file, "%5d", &app.hi_score);
+        fclose(hi_score_file);
+    }
+    else
+        fclose(fopen("hi_score.txt", "w"));
+
+    atlas = IMG_LoadTexture(app.renderer, RESOURCE_DIR "/atlas.png");
     SDL_assert(atlas);
 
     TTF_Init();
     {
-        TTF_Font* font = TTF_OpenFont(APP_RESOURCE_DIR "/font.ttf", APP_FONT_PTSIZE);
+        TTF_Font* font = TTF_OpenFont(RESOURCE_DIR "/font.ttf", FONT_PTSIZE);
         SDL_assert(font);
 
         const SDL_Color white = {255, 255, 255, 255};
-        SDL_Surface* font_surf = TTF_RenderUTF8_Solid(font, APP_CHARACTERS_MONO, white);
+        SDL_Surface* font_surf = TTF_RenderUTF8_Solid(font, CHARACTERS_MONO, white);
 
         // create the texture and free the surface
         font_atlas = SDL_CreateTextureFromSurface(app.renderer, font_surf);
@@ -704,6 +721,11 @@ int main(int argc, char** args)
     app_main_loop(); // execution
 
     // termination
+
+    // save score
+    hi_score_file = fopen("hi_score.txt", "w");
+    fprintf(hi_score_file, "%5d", app.hi_score);
+    fclose(hi_score_file);
 
     SDL_DestroyTexture(font_atlas);
     SDL_DestroyTexture(atlas);
@@ -793,10 +815,10 @@ void render_bunkers()
         for (int j = 0; j < 352; j++)
         {
             const SDL_Rect piece_rect = {
-                bunkers[i][j].x * APP_SCALE,
-                bunkers[i][j].y * APP_SCALE,
-                APP_SCALE,
-                APP_SCALE
+                bunkers[i][j].x * SCALE,
+                bunkers[i][j].y * SCALE,
+                SCALE,
+                SCALE
             };
             SDL_RenderFillRect(app.renderer, &piece_rect);
         }
@@ -1085,4 +1107,42 @@ void render_horde()
 //     }
 // }
 // for (int i = 0; i < arrlen(horde.shots); i++)
-    //     render_clip(&horde.shots[i].clip, horde.shots[i].x, horde.shots[i].y);
+//     render_clip(&horde.shots[i].clip, horde.shots[i].x, horde.shots[i].y);
+
+/*void update_shots()
+{
+    // horde shots
+    // for (int i = 0; i < arrlen(horde.shots); i++)
+	// {
+    //     // update shot animation
+    //     horde.shots[i].timer += app.frame_time;
+    //     if (horde.shots[i].timer >= 16 * 6)
+    //     {
+    //         horde.shots[i].clip.x -= 24;
+    //         horde.shots[i].clip.x = (horde.shots[i].clip.x + 3) % 12;
+    //         horde.shots[i].clip.x += 24;
+    //         horde.shots[i].timer = 0;
+    //     }
+
+    //     // reached bottom of screen
+	// 	horde.shots[i].y++;
+	// 	if (horde.shots[i].y >= 232)
+    //     {
+    //         // add explosion
+    //         const struct explosion_t explosion = {
+    //             .x = horde.shots[i].x - 1,
+    //             .y = 232,
+    //             .clip = { 24, 40,  6,  8 },
+    //             .timer = 0,
+    //             .timeout = 16 * 8
+    //         };
+    //         arrput(explosions, explosion);
+	// 		arrdel(horde.shots, i);
+    //         i--;
+    //     }
+	// }
+
+    // player shots
+    
+}
+*/
