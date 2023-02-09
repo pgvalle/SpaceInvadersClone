@@ -57,25 +57,15 @@ void render_text_until(const char* text, int x, int y, int n)
         if (mapping != len_characters) // success
         {
             SDL_Rect clip = {
-                mapping * FONT_PTSIZE,
-                0,
-                FONT_PTSIZE,
-                FONT_PTSIZE
+                mapping * FONT_PTSIZE, 0, FONT_PTSIZE, FONT_PTSIZE
             };
             SDL_Rect scale = {
-                SCALE * x,
-                SCALE * y,
-                SCALE * clip.w,
-                SCALE * clip.h
+                SCALE * x, SCALE * y, SCALE * clip.w, SCALE * clip.h
             };
 
-            // Correcting placement of quirky characters
-            // I, 1 and = are thinner.
+            // Correcting placement of 'I', '1' and '='. They are thinner.
             if (toupper(text[i]) == 'I' || text[i] == '1' || text[i] == '=')
                 scale.x -= SCALE;
-            // A is just a litle bit off to the right.
-            else if (toupper(text[i]) == 'A')
-                scale.x += SCALE;
 
             SDL_RenderCopy(app.renderer, font_atlas, &clip, &scale);
         }
@@ -251,7 +241,8 @@ void reset_over()
 void reset_play();
 void process_over_events()
 {
-    if (app.event.type != SDL_KEYDOWN || app.event.key.repeat)
+    if (app.event.type != SDL_KEYDOWN || app.event.key.repeat ||
+        over.state == GAMEOVER_WAITING)
         return;
     
     switch (app.event.key.keysym.sym)
@@ -325,7 +316,7 @@ void render_over()
         SDL_SetTextureColorMod(font_atlas, 255, 255, 255);
         break;
     case GAMEOVER_BLINKING_ON:
-        render_text("RETURN - RESTART", 48, 80);
+        render_text("ENTER - GO AGAIN", 48, 80);
         render_text("Q - QUIT", 80, 96);
     case GAMEOVER_BLINKING_OFF:
         SDL_SetTextureColorMod(font_atlas, 216, 32, 32);
@@ -346,7 +337,8 @@ void reset_pause()
 
 void process_pause_events()
 {
-    if (app.event.type != SDL_KEYDOWN || app.event.key.repeat)
+    if (app.event.type != SDL_KEYDOWN || app.event.key.repeat ||
+        pause.state == PAUSE_RESUMING)
         return;
     
     switch (app.event.key.keysym.sym)
@@ -355,7 +347,7 @@ void process_pause_events()
         pause.state = PAUSE_RESUMING;
         break;
     case SDLK_q:
-        app.screen = APP_GAMEOVER;
+        app.screen = APP_QUIT;
         reset_over();
         break;
     }
@@ -398,7 +390,7 @@ void render_pause()
     {
     case PAUSE_BLINKING_ON:
         render_text("ESC - RESUME", 64, WORLD_HEIGHT / 2 - 16);
-        render_text("Q - MENU", 80, WORLD_HEIGHT / 2);
+        render_text("Q - QUIT", 80, WORLD_HEIGHT / 2);
         break;
     case PAUSE_RESUMING: {
         int countdown = 3 - (int)pause.timer / 1000;
@@ -465,11 +457,13 @@ void update_player()
             play.player.timer = 0;
         }
 
-        if (keys[SDL_SCANCODE_Q])
+        // check if horde has reached player
+        if (arrlen(play.horde.invaders) > 0 && play.horde.invaders[0].y == 216)
         {
             play.player.state = PLAYER_DYING;
             play.player.timer = 0;
         }
+
         break; }
     case PLAYER_DYING:
         play.player.timer += app.frame_time;
@@ -489,9 +483,18 @@ void update_player()
 		play.player.timer += app.frame_time;
 		if (play.player.timer >= 2000)
 		{
-			play.player.state = PLAYER_ALIVE;
-            play.player.x = 14;
-			play.player.timer = 0;
+            // horde reached player. game over
+            if (play.horde.invaders[0].y == 216)
+            {
+                app.screen = APP_GAMEOVER;
+                reset_over();
+            }
+            else
+            {
+                play.player.state = PLAYER_ALIVE;
+                play.player.x = 14;
+                play.player.timer = 0;
+            }
 		}
 		break;
 	}
@@ -849,15 +852,6 @@ void process_shot_collisions_with_player()
         if (hshot_y >= 216 && hshot_y <= 216 + 6 &&
             hshot_x >= play.player.x + 2 && hshot_x <= play.player.x + 15)
         {
-            // create explosion effect
-            const struct explosion_t explosion = {
-                .x = hshot_x - 1,
-                .y = hshot_y,
-                .clip = { 24, 40,  6,  8 },
-                .timer = 0,
-                .timeout = 16 * 24
-            };
-            arrput(play.explosions, explosion);
             arrdel(play.horde_shots, i);
             i--;
 
@@ -882,13 +876,13 @@ void process_shot_collisions_with_horde()
             };
             int score_inc = 30;
             // 16, 24, 32
-            if (j / 11 > 2)
+            if (play.horde.invaders[j].clip.y == 24)
             {
                 score_inc = 20;
                 irect.x -= 1;
                 irect.w += 3;
             }
-            else if (j / 11 > 0)
+            else if (play.horde.invaders[j].clip.y == 32)
             {
                 score_inc = 10;
                 irect.x -= 2;
@@ -1023,6 +1017,14 @@ void update_play()
         process_shot_collisions_with_tourist();
         process_collisions_between_shots();
 
+        if (play.player.state == PLAYER_ALIVE &&
+            arrlen(play.horde.invaders) == 0)
+        {
+            play.state = PLAY_RESTARTING;
+            arrfree(play.horde_shots);
+            arrfree(play.player_shots);
+        }
+
         // update score
         if (app.hi_score < app.score)
             app.hi_score = app.score;
@@ -1034,20 +1036,14 @@ void update_play()
         }
         break;
     case PLAY_RESTARTING:
-        if (play.timer >= 2000)
+        update_explosions();
+        
+        play.timer += app.frame_time;
+        if (play.timer >= 1504)
         {
-            // reset horde partially
-            play.horde.state = HORDE_STARTING;
-            play.horde.invaders_updated = 0;
-            play.horde.timer = 0;
-            play.horde.wait_timer = 0;
-            play.horde.xmove = 2;
-            play.horde.ymove = 0;
-            // reseting player partially
-            play.player.state = PLAYER_STARTING;
-            play.player.x = 14;
-            play.player.timer = 0;
-            play.state = PLAY_PLAYING;
+            const int tmp_score = app.score;
+            reset_play();
+            app.score = tmp_score;
         }
         break;
     }
@@ -1161,7 +1157,7 @@ int main(int argc, char** args)
 
     SDL_ShowCursor(SDL_DISABLE);
 
-    app.screen = APP_PLAY;
+    app.screen = APP_PAUSE;
     reset_pause();
     reset_play();
     app.window = SDL_CreateWindow(
