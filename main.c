@@ -43,11 +43,11 @@ struct {
     uint32_t frame_time;
 } app;
 
-void render_text(const char* text, int x, int y)
+void render_text_until(const char* text, int x, int y, int n)
 {
     const char* characters = CHARACTERS;
     const int len_characters = strlen(CHARACTERS);
-    for (int i = 0; i < strlen(text); i++)
+    for (int i = 0; i < n; i++)
     {
         // find mapping
         int mapping = 0;
@@ -84,6 +84,11 @@ void render_text(const char* text, int x, int y)
     }
 }
 
+static inline
+void render_text(const char* text, int x, int y)
+{
+    render_text_until(text, x, y, strlen(text));
+}
 
 void render_clip(const SDL_Rect* clip, int x, int y)
 {
@@ -140,8 +145,21 @@ void render_scores()
 
 struct {
     enum {
-        PAUSE_WAITING_BLINK_ON,
-        PAUSE_WAITING_BLINK_OFF,
+        GAMEOVER_WAITING,
+        GAMEOVER_DISPLAYING,
+        GAMEOVER_BLINKING_ON,
+        GAMEOVER_BLINKING_OFF
+    } state;
+
+    int text_i;
+
+    uint32_t timer;
+} over;
+
+struct {
+    enum {
+        PAUSE_BLINKING_ON,
+        PAUSE_BLINKING_OFF,
         PAUSE_RESUMING
     } state;
 
@@ -194,20 +212,123 @@ struct {
     uint32_t timer;
 } play;
 
+
+/* GAME OVER STATE */
+
+void reset_over()
+{
+    over.state = GAMEOVER_WAITING;
+    over.text_i = 0;
+    over.timer = 0;
+}
+
+void reset_play();
+void process_over_events()
+{
+    if (app.event.type != SDL_KEYDOWN || app.event.key.repeat)
+        return;
+    
+    switch (app.event.key.keysym.sym)
+    {
+    case SDLK_RETURN:
+    case SDLK_RETURN2:
+        app.screen = APP_PLAY;
+        reset_play();
+        break;
+    case SDLK_q:
+        app.screen = APP_QUIT;
+        break;
+    }
+}
+
+void update_over()
+{
+    switch (over.state)
+    {
+    case GAMEOVER_WAITING:
+        over.timer += app.frame_time;
+        if (over.timer >= 2000)
+        {
+            over.state = GAMEOVER_DISPLAYING;
+            over.timer = 0;
+        }
+        break;
+    case GAMEOVER_DISPLAYING:
+        over.timer += app.frame_time;
+        if (over.text_i == 9 && over.timer >= 1008)
+            over.state = GAMEOVER_BLINKING_OFF;
+        else if (over.text_i < 9 && over.timer >= 160)
+        {
+            over.text_i++;
+            over.timer = 0;
+        }
+        break;
+    case GAMEOVER_BLINKING_ON:
+    case GAMEOVER_BLINKING_OFF:
+        over.timer += app.frame_time;
+        if (over.timer >= 512)
+        {
+            over.state = (over.state == GAMEOVER_BLINKING_ON ?
+                GAMEOVER_BLINKING_OFF : GAMEOVER_BLINKING_ON);
+            over.timer = 0;
+        }
+        break;
+    }
+}
+
+void render_over()
+{
+    if (over.state != GAMEOVER_WAITING)
+    {
+        SDL_SetRenderDrawBlendMode(app.renderer, SDL_BLENDMODE_BLEND);
+        SDL_SetRenderDrawColor(app.renderer, 0, 0, 0, 150);
+        const SDL_Rect overlay_rect = {
+            0, 0, SCALE * WORLD_WIDTH, SCALE * WORLD_HEIGHT
+        };
+        SDL_RenderFillRect(app.renderer, &overlay_rect);
+        SDL_SetRenderDrawBlendMode(app.renderer, SDL_BLENDMODE_NONE);
+    }
+
+    switch (over.state)
+    {
+    case GAMEOVER_DISPLAYING:
+        SDL_SetTextureColorMod(font_atlas, 216, 32, 32);
+        render_text_until("YOU LOST", 80, 56, over.text_i);
+        SDL_SetTextureColorMod(font_atlas, 255, 255, 255);
+        break;
+    case GAMEOVER_BLINKING_ON:
+        render_text("RETURN - RESTART", 48, 80);
+        render_text("Q - QUIT", 80, 96);
+    case GAMEOVER_BLINKING_OFF:
+        SDL_SetTextureColorMod(font_atlas, 216, 32, 32);
+        render_text("YOU LOST", 80, 56);
+        SDL_SetTextureColorMod(font_atlas, 255, 255, 255);
+        break;
+    }
+}
+
+
 /* PAUSE STATE */
 
 void reset_pause()
 {
-    pause.state = PAUSE_WAITING_BLINK_OFF;
+    pause.state = PAUSE_BLINKING_OFF;
     pause.timer = 0;
 }
 
 void process_pause_events()
 {
-    if (app.event.type == SDL_KEYDOWN && !app.event.key.repeat &&
-        app.event.key.keysym.sym == SDLK_ESCAPE)
+    if (app.event.type != SDL_KEYDOWN || app.event.key.repeat)
+        return;
+    
+    switch (app.event.key.keysym.sym)
     {
+    case SDLK_ESCAPE:
         pause.state = PAUSE_RESUMING;
+        break;
+    case SDLK_q:
+        app.screen = APP_GAMEOVER;
+        break;
     }
 }
 
@@ -215,13 +336,13 @@ void update_pause()
 {
     switch (pause.state)
     {
-    case PAUSE_WAITING_BLINK_ON:
-    case PAUSE_WAITING_BLINK_OFF:
+    case PAUSE_BLINKING_ON:
+    case PAUSE_BLINKING_OFF:
         pause.timer += app.frame_time;
         if (pause.timer >= 512) // 16 * 32 (half second)
         {
-            pause.state = (pause.state == PAUSE_WAITING_BLINK_ON ?
-                PAUSE_WAITING_BLINK_OFF : PAUSE_WAITING_BLINK_ON);
+            pause.state = (pause.state == PAUSE_BLINKING_ON ?
+                PAUSE_BLINKING_OFF : PAUSE_BLINKING_ON);
             pause.timer = 0;
         }
         break;
@@ -246,8 +367,9 @@ void render_pause()
 
     switch (pause.state)
     {
-    case PAUSE_WAITING_BLINK_ON:
-        render_text("PRESS ESCAPE TO RESUME", 24, WORLD_HEIGHT / 2 - 8);
+    case PAUSE_BLINKING_ON:
+        render_text("ESC - RESUME", 64, WORLD_HEIGHT / 2 - 16);
+        render_text("Q - MENU", 80, WORLD_HEIGHT / 2);
         break;
     case PAUSE_RESUMING: {
         int countdown = 3 - (int)pause.timer / 1000;
@@ -510,6 +632,8 @@ void process_shot_collisions_with_tourist()
 
 void reset_play()
 {
+    app.score = 0;
+
     play.state = PLAY_PLAYING;
 
     play.explosions = NULL;
@@ -545,7 +669,12 @@ void update_play()
     case PLAY_PLAYING:
         update_explosions();
         update_player();
-        update_tourist();
+        if (play.player.state != PLAYER_DYING &&
+            play.player.state != PLAYER_DEAD)
+        {
+            update_tourist();
+            // update horde
+        }
 
         update_player_shots();
 
@@ -558,17 +687,19 @@ void update_play()
         if (app.hi_score < app.score)
             app.hi_score = app.score;
 
-        if (0) // no more enemies, restart game
+        if (play.player.lives == 0 && play.player.state == PLAYER_DEAD)
         {
-            play.state = PLAY_RESTARTING;
-            play.timer = 0;
+            app.screen = APP_GAMEOVER;
+            reset_over();
         }
         break;
     case PLAY_RESTARTING:
         if (play.timer >= 2000)
         {
             // reset horde
-            // reset player position
+            play.player.state = PLAYER_STARTING;
+            play.player.x = 14;
+            play.player.timer = 0;
             play.state = PLAY_PLAYING;
         }
         break;
@@ -587,8 +718,6 @@ void render_play()
         SCALE * 0, SCALE * 239, SCALE * 224, SCALE
     };
     SDL_RenderFillRect(app.renderer, &rect);
-    // credit easteregg thingy
-    render_credits();
 
     render_player_shots();
     render_tourist();
@@ -630,6 +759,9 @@ void app_main_loop()
             case APP_PAUSE:
                 process_pause_events();
                 break;
+            case APP_GAMEOVER:
+                process_over_events();
+                break;
             }
 
             // calculate remaining time to wait next loop.
@@ -651,7 +783,15 @@ void app_main_loop()
                 update_play();
                 render_play();
                 break;
+            case APP_GAMEOVER:
+                update_over();
+                render_play();
+                render_over();
+                break;
             }
+
+            render_scores();
+            render_credits();
             SDL_RenderPresent(app.renderer);
 
             app.frame_time = 0; // reset frame time
