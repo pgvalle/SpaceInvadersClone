@@ -18,14 +18,15 @@ SDL_Texture* atlas = NULL, * font_atlas = NULL;
 #define FONT_PTSIZE 8
 
 #define CHARACTERS_MONO " A B C D E F G H  I J K L M N O P Q R S T U V W X"\
-	" Y Z 0  1 2 3 4 5 6 7 8 9 - ? <  > = "
-#define CHARACTERS "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-?<>="
+	" Y Z 0  1 2 3 4 5 6 7 8 9 * ? -  < > = "
+#define CHARACTERS "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789*?-<>="
 
 #define WORLD_WIDTH  224
 #define WORLD_HEIGHT 256
 
 struct {
 	enum {
+        APP_MENU,
 		APP_PLAY,
 		APP_PAUSE,
         APP_GAMEOVER,
@@ -119,19 +120,52 @@ void render_credits()
 
 void render_scores()
 {
-    static char format[10];
+    char score_str[10];
     // score
     render_text("score", 8, 8);
-    sprintf(format, "%05d", app.score);
-    render_text(format, 8, 24);
+    sprintf(score_str, "%05d", app.score);
+    render_text(score_str, 8, 24);
     // high-score
     render_text("hi-score", WORLD_WIDTH - 72, 8);
-    sprintf(format, "%05d", app.hi_score);
-    render_text(format, WORLD_WIDTH - 48, 24);
+    sprintf(score_str, "%05d", app.hi_score);
+    render_text(score_str, WORLD_WIDTH - 48, 24);
+}
+
+void render_score_advances_table()
+{
+    render_text("*SCORE ADVANCES TABLE*", 24, 128);
+
+    const SDL_Rect tourist_clip = { 0,  0, 24,  8 };
+    render_clip(&tourist_clip, 58, 152);
+    render_text("=?? MYSTERY", 80, 152);
+
+    const SDL_Rect invader1_clip = { 0, 16, 12,  8 };
+    render_clip(&invader1_clip, 64, 168);
+    render_text("=30 POINTS", 80, 168);
+
+    const SDL_Rect invader2_clip = { 0, 24, 12,  8 };
+    render_clip(&invader2_clip, 64, 184);
+    render_text("=20 POINTS", 80, 184);
+
+    const SDL_Rect invader3_clip = { 0, 32, 12,  8 };
+    render_clip(&invader3_clip, 64, 200);
+    render_text("=10 POINTS", 80, 200);
 }
 
 
-/* STATES STRUCTS AND DEFS (for each app state) */
+/* SCREENS STRUCTS AND DEFS (for each app screen) */
+
+struct {
+    enum {
+        MENU_DISPLAYING,
+        MENU_BLINKING_ON,
+        MENU_BLINKING_OFF
+    } state;
+
+    int display_i;
+
+    uint32_t timer;
+} menu;
 
 struct {
     enum {
@@ -141,7 +175,7 @@ struct {
         GAMEOVER_BLINKING_OFF
     } state;
 
-    int text_i;
+    int display_i;
 
     uint32_t timer;
 } over;
@@ -156,99 +190,104 @@ struct {
     uint32_t timer;
 } pause;
 
+/* ALL PLAY SCREEN STRUCTS */
+
 struct {
     enum {
         PLAY_PLAYING,
         PLAY_RESTARTING
     } state;
 
-    struct explosion_t {
+    uint32_t timer;
+} play;
+
+struct explosion_t {
+    int x, y;
+    SDL_Rect clip;
+    uint32_t timer, timeout;
+}* explosions;
+
+struct {
+    enum {
+        PLAYER_STARTING,
+        PLAYER_ALIVE,
+        PLAYER_DYING,
+        PLAYER_DEAD
+    } state;
+
+    int x;
+    int lives;
+    int dying_clip_swaps;
+
+    SDL_Point* shots;
+
+    uint32_t timer;
+} player;
+
+struct {
+    enum {
+        HORDE_STARTING,
+        HORDE_MOVING,
+        HORDE_WAITING
+    } state;
+
+    int xmove, ymove;
+
+    struct invader_t {
         int x, y;
         SDL_Rect clip;
-        uint32_t timer, timeout;
-    }* explosions;
+    }* invaders;
 
-    struct {
-        enum {
-            PLAYER_STARTING,
-            PLAYER_ALIVE,
-            PLAYER_DYING,
-            PLAYER_DEAD
-        } state;
-
-        int x;
-        int lives;
-        int dying_clip_swaps;
-
-        uint32_t timer;
-    } player;
-    SDL_Point* player_shots;
-
-    struct {
-        enum {
-            HORDE_STARTING,
-            HORDE_MOVING,
-            HORDE_WAITING
-        } state;
-
-        int xmove, ymove;
-
-        struct invader_t {
-            int x, y;
-            SDL_Rect clip;
-        }* invaders;
-
-        // One invader is updated each frame.
-        // horde is up-to-date only when all invaders are up-to-date.
-        int invaders_updated;
-
-        uint32_t timer, wait_timer, shot_timeout;
-    } horde;
     struct horde_shot_t {
         int x, y;
         SDL_Rect clip;
         uint32_t timer;
-    }* horde_shots;
+    }* shots;
 
-    struct {
-        enum {
-            TOURIST_AVAILABLE,
-            TOURIST_UNAVAILABLE,
-            TOURIST_DYING,
-            TOURIST_SHOWING_SCORE
-        } state;
+    // One invader is updated each frame.
+    // horde is up-to-date only when all invaders are up-to-date.
+    int invaders_updated;
 
-        float x, xvel;
-        int score_inc;
-        int available_appearances;
+    uint32_t timer, wait_timer, shot_timeout;
+} horde;
 
-        uint32_t timer, spawn_timeout;
-    } tourist;
+struct {
+    enum {
+        TOURIST_AVAILABLE,
+        TOURIST_UNAVAILABLE,
+        TOURIST_DYING,
+        TOURIST_SHOWING_SCORE
+    } state;
 
-    uint32_t timer;
-} play;
+    float x, xvel;
+    int score_inc;
+    int available_appearances;
+
+    uint32_t timer, spawn_timeout;
+} tourist;
 
 
-/* GAME OVER STATE */
+/* MENU SCREEN */
 
-void reset_over()
+void reset_menu()
 {
-    over.state = GAMEOVER_WAITING;
-    over.text_i = 0;
-    over.timer = 0;
+    menu.state = MENU_DISPLAYING;
+    menu.display_i = 0;
+    menu.timer = 0;
 }
 
-void reset_play();
-void process_over_events()
+void process_menu_events()
 {
-    if (app.event.type != SDL_KEYDOWN || app.event.key.repeat ||
-        over.state == GAMEOVER_WAITING)
+    if (app.event.type != SDL_KEYDOWN || app.event.key.repeat)
         return;
     
     switch (app.event.key.keysym.sym)
     {
     case SDLK_RETURN:
-    case SDLK_RETURN2:
+        if (menu.state == MENU_DISPLAYING)
+            menu.display_i = 14;
+        break;
+    case SDLK_p:
         app.screen = APP_PLAY;
         if (app.credits > 0)
             app.credits--;
@@ -256,6 +295,108 @@ void process_over_events()
         break;
     case SDLK_q:
         app.screen = APP_QUIT;
+        break;
+    }
+}
+
+void update_menu()
+{
+    switch (menu.state)
+    {
+    case MENU_DISPLAYING:
+        menu.timer += app.frame_time;
+        if (menu.display_i == 14 && menu.timer >= 1008)
+        {
+            menu.state = MENU_BLINKING_ON;
+            menu.timer = 0;
+        }
+        else if (menu.display_i < 14 && menu.timer >= 160)
+        {
+            menu.display_i++;
+            menu.timer = 0;
+        }
+        break;
+    case MENU_BLINKING_ON:
+    case MENU_BLINKING_OFF:
+        menu.timer += app.frame_time;
+        if (menu.timer >= 256)
+        {
+            menu.state = (menu.state == MENU_BLINKING_ON ?
+                MENU_BLINKING_OFF : MENU_BLINKING_ON);
+            menu.timer = 0;
+        }
+        break;
+    }
+}
+
+void render_menu()
+{
+    render_scores();
+    render_credits();
+
+    switch (menu.state)
+    {
+    case MENU_BLINKING_ON:
+        render_text("<P> PLAY", 80, 80);
+        render_text("<Q> QUIT", 80, 96);
+    case MENU_BLINKING_OFF:
+        render_text("SPACE INVADERS", 56, 56);
+        render_score_advances_table();
+        break;
+    case MENU_DISPLAYING:
+        render_text_until("SPACE INVADERS", 56, 56, menu.display_i);
+        break;
+    }
+}
+
+
+/* GAME OVER SCREEN */
+
+void reset_over()
+{
+    over.state = GAMEOVER_WAITING;
+    over.display_i = 0;
+    over.timer = 0;
+}
+
+void reset_play();
+void process_over_events()
+{
+    if (app.event.type != SDL_KEYDOWN || app.event.key.repeat)
+        return;
+    
+    switch (app.event.key.keysym.sym)
+    {
+    case SDLK_RETURN:
+    case SDLK_RETURN2:
+        switch (over.state)
+        {
+        case GAMEOVER_WAITING:
+            over.state = GAMEOVER_DISPLAYING;
+            over.timer = 0;
+            break;
+        case GAMEOVER_DISPLAYING:
+            over.state = GAMEOVER_BLINKING_OFF;
+            over.timer = 0;
+            break;
+        default:
+            app.screen = APP_PLAY;
+            if (app.credits > 0)
+                app.credits--;
+            reset_play();
+        }        
+        break;
+    case SDLK_q:
+        if (over.state == GAMEOVER_BLINKING_ON ||
+            over.state == GAMEOVER_BLINKING_OFF)
+            app.screen = APP_QUIT;
+    case SDLK_m:
+        if (over.state == GAMEOVER_BLINKING_ON ||
+            over.state == GAMEOVER_BLINKING_OFF)
+        {
+            app.screen = APP_MENU;
+            reset_menu();
+        }
         break;
     }
 }
@@ -274,18 +415,21 @@ void update_over()
         break;
     case GAMEOVER_DISPLAYING:
         over.timer += app.frame_time;
-        if (over.text_i == 9 && over.timer >= 1008)
-            over.state = GAMEOVER_BLINKING_OFF;
-        else if (over.text_i < 9 && over.timer >= 160)
+        if (over.display_i == 9 && over.timer >= 1008)
         {
-            over.text_i++;
+            over.state = GAMEOVER_BLINKING_OFF;
+            over.timer = 0;
+        }
+        else if (over.display_i < 9 && over.timer >= 160)
+        {
+            over.display_i++;
             over.timer = 0;
         }
         break;
     case GAMEOVER_BLINKING_ON:
     case GAMEOVER_BLINKING_OFF:
         over.timer += app.frame_time;
-        if (over.timer >= 512)
+        if (over.timer >= 256)
         {
             over.state = (over.state == GAMEOVER_BLINKING_ON ?
                 GAMEOVER_BLINKING_OFF : GAMEOVER_BLINKING_ON);
@@ -312,12 +456,13 @@ void render_over()
     {
     case GAMEOVER_DISPLAYING:
         SDL_SetTextureColorMod(font_atlas, 216, 32, 32);
-        render_text_until("YOU LOST", 80, 56, over.text_i);
+        render_text_until("YOU LOST", 80, 56, over.display_i);
         SDL_SetTextureColorMod(font_atlas, 255, 255, 255);
         break;
     case GAMEOVER_BLINKING_ON:
-        render_text("ENTER - GO AGAIN", 48, 80);
-        render_text("Q - QUIT", 80, 96);
+        render_text("<ENTER> GO AGAIN", 48, 80);
+        render_text("<M> MENU", 80, 96);
+        render_text("<Q> QUIT", 80, 112);
     case GAMEOVER_BLINKING_OFF:
         SDL_SetTextureColorMod(font_atlas, 216, 32, 32);
         render_text("YOU LOST", 80, 56);
@@ -327,11 +472,11 @@ void render_over()
 }
 
 
-/* PAUSE STATE */
+/* PAUSE SCREEN */
 
 void reset_pause()
 {
-    pause.state = PAUSE_BLINKING_OFF;
+    pause.state = PAUSE_BLINKING_ON;
     pause.timer = 0;
 }
 
@@ -343,6 +488,10 @@ void process_pause_events()
     
     switch (app.event.key.keysym.sym)
     {
+    case SDLK_m:
+        app.screen = APP_MENU;
+        reset_menu();
+        break;
     case SDLK_ESCAPE:
         pause.state = PAUSE_RESUMING;
         break;
@@ -360,7 +509,7 @@ void update_pause()
     case PAUSE_BLINKING_ON:
     case PAUSE_BLINKING_OFF:
         pause.timer += app.frame_time;
-        if (pause.timer >= 512) // 16 * 32 (half second)
+        if (pause.timer >= 256) // 16 * 32 (half second)
         {
             pause.state = (pause.state == PAUSE_BLINKING_ON ?
                 PAUSE_BLINKING_OFF : PAUSE_BLINKING_ON);
@@ -389,29 +538,32 @@ void render_pause()
     switch (pause.state)
     {
     case PAUSE_BLINKING_ON:
-        render_text("ESC - RESUME", 64, WORLD_HEIGHT / 2 - 16);
-        render_text("Q - QUIT", 80, WORLD_HEIGHT / 2);
+        render_text("<ESC> RESUME", 64, 64);
+        render_text("<M> MENU", 80, 80);
+        render_text("<Q> QUIT", 80, 96);
+    case PAUSE_BLINKING_OFF:
+        render_score_advances_table();
         break;
     case PAUSE_RESUMING: {
         int countdown = 3 - (int)pause.timer / 1000;
         char countdown_str[3];
         sprintf(countdown_str, "%02d", countdown == 0 ? 1 : countdown);
-        render_text(countdown_str, WORLD_WIDTH / 2 - 8, WORLD_HEIGHT / 2 - 8);
+        render_text(countdown_str, WORLD_WIDTH / 2 - 8, 112);
         break; }
     }
 }
 
 
-/* PLAY STATE */
+/* PLAY SCREEN */
 
 void update_explosions()
 {
-    for (int i = 0; i < arrlen(play.explosions); i++)
+    for (int i = 0; i < arrlen(explosions); i++)
     {
-        play.explosions[i].timer += app.frame_time;
-        if (play.explosions[i].timer >= play.explosions[i].timeout)
+        explosions[i].timer += app.frame_time;
+        if (explosions[i].timer >= explosions[i].timeout)
         {
-            arrdel(play.explosions, i);
+            arrdel(explosions, i);
             i--;
         }
     }
@@ -419,81 +571,81 @@ void update_explosions()
 
 void render_explosions()
 {
-    for (int i = 0; i < arrlen(play.explosions); i++)
+    for (int i = 0; i < arrlen(explosions); i++)
         render_clip(
-            &play.explosions[i].clip, play.explosions[i].x, play.explosions[i].y
+            &explosions[i].clip, explosions[i].x, explosions[i].y
         );
 }
 
 
 void update_player()
 {
-	switch (play.player.state)
+	switch (player.state)
 	{
     case PLAYER_STARTING:
-        play.player.timer += app.frame_time;
-        if (play.player.timer >= 2000)
+        player.timer += app.frame_time;
+        if (player.timer >= 2000)
         {
-            play.player.state = PLAYER_ALIVE;
-            play.player.x = 14;
-            play.player.timer = 0;
+            player.state = PLAYER_ALIVE;
+            player.x = 14;
+            player.timer = 0;
         }
         break;
 	case PLAYER_ALIVE: {
         const uint8_t* keys = SDL_GetKeyboardState(NULL);
         // moving player //
-        if (keys[SDL_SCANCODE_LEFT] && play.player.x > 14)
-            play.player.x -= 1;
-        if (keys[SDL_SCANCODE_RIGHT] && play.player.x < WORLD_WIDTH - 31)
-            play.player.x += 1;
+        if (keys[SDL_SCANCODE_LEFT] && player.x > 14)
+            player.x -= 1;
+        if (keys[SDL_SCANCODE_RIGHT] && player.x < WORLD_WIDTH - 31)
+            player.x += 1;
 
         // shooting mechanic //
-        if (play.player.timer < 768)
-            play.player.timer += app.frame_time;
+        if (player.timer < 768)
+            player.timer += app.frame_time;
         else if (keys[SDL_SCANCODE_SPACE])
         {
-            const SDL_Point shot = { play.player.x + 8, 216 };
-            arrput(play.player_shots, shot);
-            play.player.timer = 0;
+            const SDL_Point shot = { player.x + 8, 216 };
+            arrput(player.shots, shot);
+            player.timer = 0;
         }
 
         // check if horde has reached player
-        if (arrlen(play.horde.invaders) > 0 && play.horde.invaders[0].y == 216)
+        if (arrlen(horde.invaders) > 0 && horde.invaders[0].y == 216)
         {
-            play.player.state = PLAYER_DYING;
-            play.player.timer = 0;
+            player.state = PLAYER_DYING;
+            player.timer = 0;
         }
 
         break; }
     case PLAYER_DYING:
-        play.player.timer += app.frame_time;
-        if (play.player.timer >= 112)
+        player.timer += app.frame_time;
+        if (player.timer >= 112)
         {
-            play.player.dying_clip_swaps++;
-            if (play.player.dying_clip_swaps == 9)
+            player.dying_clip_swaps++;
+            if (player.dying_clip_swaps == 9)
             {
-                play.player.state = PLAYER_DEAD;
-                play.player.lives--;
-                play.player.dying_clip_swaps = 0;
+                player.state = PLAYER_DEAD;
+                player.lives--;
+                player.dying_clip_swaps = 0;
             }
-            play.player.timer = 0;
+            player.timer = 0;
         }
         break;
 	case PLAYER_DEAD:
-		play.player.timer += app.frame_time;
-		if (play.player.timer >= 2000)
+		player.timer += app.frame_time;
+		if (player.timer >= 2000)
 		{
             // horde reached player. game over
-            if (play.horde.invaders[0].y == 216)
+            if (horde.invaders[0].y == 216)
             {
                 app.screen = APP_GAMEOVER;
                 reset_over();
             }
             else
             {
-                play.player.state = PLAYER_ALIVE;
-                play.player.x = 14;
-                play.player.timer = 0;
+                player.state = PLAYER_ALIVE;
+                player.x = 14;
+                player.timer = 0;
             }
 		}
 		break;
@@ -502,39 +654,39 @@ void update_player()
 
 void render_player()
 {
-    switch (play.player.state)
+    switch (player.state)
     {
     case PLAYER_DYING: {
         const SDL_Rect clip = {
-            (play.player.dying_clip_swaps % 2 + 1) * 16, 8, 16, 8
+            (player.dying_clip_swaps % 2 + 1) * 16, 8, 16, 8
         };
-        render_clip(&clip, play.player.x, 216);
+        render_clip(&clip, player.x, 216);
         break; }
     case PLAYER_ALIVE: {
         const SDL_Rect clip = { 0, 8, 16, 8 };
-        render_clip(&clip, play.player.x, 216);
+        render_clip(&clip, player.x, 216);
         break; }
     }	    
 }
 
 void update_player_shots()
 {
-    for (int i = 0; i < arrlen(play.player_shots); i++)
+    for (int i = 0; i < arrlen(player.shots); i++)
 	{
         // reached top of screen
-		play.player_shots[i].y -= 4;
-		if (play.player_shots[i].y <= 32)
+		player.shots[i].y -= 4;
+		if (player.shots[i].y <= 32)
 		{
             // add explosion
             const struct explosion_t explosion = {
-                .x = play.player_shots[i].x - 3,
+                .x = player.shots[i].x - 3,
                 .y = 34,
                 .clip = { 36, 24,  8,  8 },
                 .timer = 0,
                 .timeout = 16 * 16
             };
-            arrput(play.explosions, explosion);
-            arrdel(play.player_shots, i);
+            arrput(explosions, explosion);
+            arrdel(player.shots, i);
             i--;
         }
 	}
@@ -542,11 +694,11 @@ void update_player_shots()
 
 void render_player_shots()
 {
-    for (int i = 0; i < arrlen(play.player_shots); i++)
+    for (int i = 0; i < arrlen(player.shots); i++)
 	{
 		SDL_Rect rect = {
-			SCALE * play.player_shots[i].x,
-			SCALE * play.player_shots[i].y,
+			SCALE * player.shots[i].x,
+			SCALE * player.shots[i].y,
 			SCALE,
 			SCALE * 4,
 		};
@@ -558,10 +710,10 @@ void render_player_shots()
 
 void update_horde_start_anim()
 {
-    if (play.horde.invaders_updated < 55)
+    if (horde.invaders_updated < 55)
     {
-        const int i = 4 - play.horde.invaders_updated / 11; // 4, 3, 2, 1, 0
-        const int j = play.horde.invaders_updated % 11; // 0, 1, 2, ..., 10
+        const int i = 4 - horde.invaders_updated / 11; // 4, 3, 2, 1, 0
+        const int j = horde.invaders_updated % 11; // 0, 1, 2, ..., 10
         // clip rect for invader
         SDL_Rect clip = { 12, 16, 12,  8 };
         if (i > 2) clip.y = 32; // in 4th or 5th row
@@ -571,35 +723,34 @@ void update_horde_start_anim()
             .x = 26 + 16 * j,
             .y = 64 + 16 * i
         };
-        arrput(play.horde.invaders, invader);
-        play.horde.invaders_updated++;
+        arrput(horde.invaders, invader);
+        horde.invaders_updated++;
     }
     else // done. Now move right
     {
-        play.horde.state = HORDE_MOVING;
-        play.horde.xmove = 2;
-        play.horde.ymove = 0;
-        play.horde.invaders_updated = 0;
+        horde.state = HORDE_MOVING;
+        horde.xmove = 2;
+        horde.ymove = 0;
+        horde.invaders_updated = 0;
     }
 }
 
 void make_horde_shoot()
 {
-    play.horde.timer += app.frame_time;
-    if (play.horde.timer >= play.horde.shot_timeout &&
-        arrlen(play.horde.invaders) > 0)
+    horde.timer += app.frame_time;
+    if (horde.timer >= horde.shot_timeout && arrlen(horde.invaders) > 0)
     {
         // someone shoots
-        const int i = rand() % arrlen(play.horde.invaders);
-        const int x = play.horde.invaders[i].x;
-        int y = play.horde.invaders[i].y;
+        const int i = rand() % arrlen(horde.invaders);
+        const int x = horde.invaders[i].x;
+        int y = horde.invaders[i].y;
         for (int j = 0; j < i; j++)
         {
-            int a = play.horde.invaders[j].x - x;
+            int a = horde.invaders[j].x - x;
             a = a < 0 ? -a : a;
-            if (a <= 2 && play.horde.invaders[j].y >= play.horde.invaders[i].y)
+            if (a <= 2 && horde.invaders[j].y >= horde.invaders[i].y)
             {
-                y = play.horde.invaders[j].y;
+                y = horde.invaders[j].y;
                 break;
             }
         }
@@ -609,75 +760,75 @@ void make_horde_shoot()
             .clip = { 24, 16 +  8 * (rand() % 3),  3,  7 },
             .timer = 0
         };
-        arrput(play.horde_shots, shot);
+        arrput(horde.shots, shot);
 
         // reset
-        play.horde.timer = 0;
-        play.horde.shot_timeout = 1024 * (rand() % 2 + 1);
+        horde.timer = 0;
+        horde.shot_timeout = 1024 * (rand() % 2 + 1);
     }
 }
 
 void move_horde()
 {
-    if (arrlen(play.horde.invaders) == 0)
+    if (arrlen(horde.invaders) == 0)
         return;
     
-    const int i = play.horde.invaders_updated;
+    const int i = horde.invaders_updated;
     // move this guy
-    play.horde.invaders[i].x += play.horde.xmove;
-    play.horde.invaders[i].y += play.horde.ymove;
+    horde.invaders[i].x += horde.xmove;
+    horde.invaders[i].y += horde.ymove;
     // animate
-    play.horde.invaders[i].clip.x = play.horde.invaders[i].clip.x == 0 ? 12 : 0;
+    horde.invaders[i].clip.x = horde.invaders[i].clip.x == 0 ? 12 : 0;
     // now someone got updated
-    play.horde.invaders_updated++;
+    horde.invaders_updated++;
     
     // horde updated and now maybe it's time to flip directions
-    int all_updated = play.horde.invaders_updated == arrlen(play.horde.invaders);
-    if (all_updated && play.horde.ymove == 0)
+    int all_updated = horde.invaders_updated == arrlen(horde.invaders);
+    if (all_updated && horde.ymove == 0)
     {
         // find out if horde should change direction
-        for (int i = 0; i < arrlen(play.horde.invaders); i++)
+        for (int i = 0; i < arrlen(horde.invaders); i++)
         {
-            const int x = play.horde.invaders[i].x;
+            const int x = horde.invaders[i].x;
             if (x <= 10 || x >= WORLD_WIDTH - 22) // should change directions
             {
-                play.horde.ymove = 8;
-                play.horde.xmove = -play.horde.xmove;
+                horde.ymove = 8;
+                horde.xmove = -horde.xmove;
                 break;
             }
         }
 
-        play.horde.invaders_updated = 0; // no one updated now
+        horde.invaders_updated = 0; // no one updated now
     }
     else if (all_updated)
     {
-        play.horde.ymove = 0;
-        play.horde.invaders_updated = 0;
+        horde.ymove = 0;
+        horde.invaders_updated = 0;
     }
 }
 
 void update_horde()
 {
-    switch (play.horde.state)
+    switch (horde.state)
     {
     case HORDE_STARTING:
         update_horde_start_anim();
         break;
     case HORDE_MOVING:
-        if (play.player.state == PLAYER_ALIVE)
+        if (player.state == PLAYER_ALIVE)
         {
             make_horde_shoot();
             move_horde();
         }
-        else if (play.player.state == PLAYER_STARTING)
+        else if (player.state == PLAYER_STARTING)
             move_horde();
         break;
     case HORDE_WAITING:
-        play.horde.wait_timer += app.frame_time;
-        if (play.horde.wait_timer >= 16 * 24)
+        horde.wait_timer += app.frame_time;
+        if (horde.wait_timer >= 16 * 24)
         {
-            play.horde.state = HORDE_MOVING;
-            play.horde.wait_timer = 0;
+            horde.state = HORDE_MOVING;
+            horde.wait_timer = 0;
         }
         break;
     }
@@ -685,32 +836,32 @@ void update_horde()
 
 void update_horde_shots()
 {
-    for (int i = 0; i < arrlen(play.horde_shots); i++)
+    for (int i = 0; i < arrlen(horde.shots); i++)
 	{
         // update shot animation
-        play.horde_shots[i].timer += app.frame_time;
-        if (play.horde_shots[i].timer >= 16 * 6)
+        horde.shots[i].timer += app.frame_time;
+        if (horde.shots[i].timer >= 16 * 6)
         {
-            play.horde_shots[i].clip.x -= 24;
-            play.horde_shots[i].clip.x = (play.horde_shots[i].clip.x + 3) % 12;
-            play.horde_shots[i].clip.x += 24;
-            play.horde_shots[i].timer = 0;
+            horde.shots[i].clip.x -= 24;
+            horde.shots[i].clip.x = (horde.shots[i].clip.x + 3) % 12;
+            horde.shots[i].clip.x += 24;
+            horde.shots[i].timer = 0;
         }
 
         // reached bottom of screen
-		play.horde_shots[i].y++;
-		if (play.horde_shots[i].y >= 232)
+		horde.shots[i].y++;
+		if (horde.shots[i].y >= 232)
         {
             // add explosion
             const struct explosion_t explosion = {
-                .x = play.horde_shots[i].x - 1,
+                .x = horde.shots[i].x - 1,
                 .y = 232,
                 .clip = { 24, 40,  6,  8 },
                 .timer = 0,
                 .timeout = 16 * 8
             };
-            arrput(play.explosions, explosion);
-			arrdel(play.horde_shots, i);
+            arrput(explosions, explosion);
+			arrdel(horde.shots, i);
             i--;
         }
 	}
@@ -718,21 +869,21 @@ void update_horde_shots()
 
 void render_horde()
 {
-    for (int i = 0; i < arrlen(play.horde.invaders); i++)
+    for (int i = 0; i < arrlen(horde.invaders); i++)
         render_clip(
-            &play.horde.invaders[i].clip,
-            play.horde.invaders[i].x,
-            play.horde.invaders[i].y
+            &horde.invaders[i].clip,
+            horde.invaders[i].x,
+            horde.invaders[i].y
         );
 }
 
 void render_horde_shots()
 {
-    for (int i = 0; i < arrlen(play.horde_shots); i++)
+    for (int i = 0; i < arrlen(horde.shots); i++)
         render_clip(
-            &play.horde_shots[i].clip,
-            play.horde_shots[i].x,
-            play.horde_shots[i].y
+            &horde.shots[i].clip,
+            horde.shots[i].x,
+            horde.shots[i].y
         );
 }
 
@@ -751,49 +902,49 @@ int gen_tourist_spawn_timeout()
 
 void update_tourist()
 {
-    switch (play.tourist.state)
+    switch (tourist.state)
     {
     case TOURIST_AVAILABLE:
-        play.tourist.x += play.tourist.xvel;
+        tourist.x += tourist.xvel;
         // reached end of screen. unavailable
-        if (play.tourist.x <= 8.f || play.tourist.x >= WORLD_WIDTH - 32.f)
-            play.tourist.state = TOURIST_UNAVAILABLE;
+        if (tourist.x <= 8.f || tourist.x >= WORLD_WIDTH - 32.f)
+            tourist.state = TOURIST_UNAVAILABLE;
         break;
     case TOURIST_UNAVAILABLE:
-        if (play.tourist.available_appearances == 0)
+        if (tourist.available_appearances == 0)
             break;
 
-        play.tourist.timer += app.frame_time;
-        if (play.tourist.timer >= play.tourist.spawn_timeout) // spawn
+        tourist.timer += app.frame_time;
+        if (tourist.timer >= tourist.spawn_timeout) // spawn
         {
-            play.tourist.state = TOURIST_AVAILABLE;
+            tourist.state = TOURIST_AVAILABLE;
             // spawn either left or right
-            play.tourist.xvel = rand() % 2 ? 0.65f : -0.65f;
-            play.tourist.x = play.tourist.xvel > 0.0f ? 8.f : (WORLD_WIDTH - 32.f);
+            tourist.xvel = rand() % 2 ? 0.65f : -0.65f;
+            tourist.x = tourist.xvel > 0.0f ? 8.f : (WORLD_WIDTH - 32.f);
 
-            play.tourist.score_inc = gen_tourist_score();
+            tourist.score_inc = gen_tourist_score();
  
-            play.tourist.available_appearances--;
+            tourist.available_appearances--;
 
-            play.tourist.timer = 0; // reset timer
-            play.tourist.spawn_timeout = gen_tourist_spawn_timeout();
+            tourist.timer = 0; // reset timer
+            tourist.spawn_timeout = gen_tourist_spawn_timeout();
         }
         break;
     case TOURIST_DYING:
-        play.tourist.timer += app.frame_time;
-        if (play.tourist.timer >= 384)
+        tourist.timer += app.frame_time;
+        if (tourist.timer >= 384)
         {
-            play.tourist.state = TOURIST_SHOWING_SCORE;
-            app.score += play.tourist.score_inc;
-            play.tourist.timer = 0; // reset timer
+            tourist.state = TOURIST_SHOWING_SCORE;
+            app.score += tourist.score_inc;
+            tourist.timer = 0; // reset timer
         }
         break;
     case TOURIST_SHOWING_SCORE:
-        play.tourist.timer += app.frame_time;
-        if (play.tourist.timer >= 1280)
+        tourist.timer += app.frame_time;
+        if (tourist.timer >= 1280)
         {
-            play.tourist.state = TOURIST_UNAVAILABLE;
-            play.tourist.timer = 0; // reset timer
+            tourist.state = TOURIST_UNAVAILABLE;
+            tourist.timer = 0; // reset timer
         }
         break;
     }
@@ -801,21 +952,21 @@ void update_tourist()
 
 void render_tourist()
 {
-    switch (play.tourist.state)
+    switch (tourist.state)
     {
     case TOURIST_AVAILABLE: {
         const SDL_Rect tourist_clip = { 0,  0, 24,  8 };
-        render_clip(&tourist_clip, play.tourist.x, 40);
+        render_clip(&tourist_clip, tourist.x, 40);
         break; }
     case TOURIST_DYING: {
         const SDL_Rect tourist_dying = { 24,  0, 24,  8 };
-        render_clip(&tourist_dying, play.tourist.x, 40);
+        render_clip(&tourist_dying, tourist.x, 40);
         break; }
     case TOURIST_SHOWING_SCORE: {
         char tourist_score[4];
-        sprintf(tourist_score, "%d", play.tourist.score_inc);
+        sprintf(tourist_score, "%d", tourist.score_inc);
         SDL_SetTextureColorMod(font_atlas, 216, 32, 32);
-        render_text(tourist_score, play.tourist.x, 40);
+        render_text(tourist_score, tourist.x, 40);
         SDL_SetTextureColorMod(font_atlas, 255, 255, 255);
         break; }
     }
@@ -824,19 +975,19 @@ void render_tourist()
 
 void process_shot_collisions_with_tourist()
 {
-    for (int i = 0; i < arrlen(play.player_shots); i++)
+    for (int i = 0; i < arrlen(player.shots); i++)
     {
         const SDL_Rect player_rect = {
-            play.player_shots[i].x, play.player_shots[i].y - 4, 1, 1
+            player.shots[i].x, player.shots[i].y - 4, 1, 1
         };
-        const SDL_Rect tourist_rect = {play.tourist.x + 4, 40, 16, 8};
+        const SDL_Rect tourist_rect = {tourist.x + 4, 40, 16, 8};
         if (SDL_HasIntersection(&tourist_rect, &player_rect) &&
-            play.tourist.state == TOURIST_AVAILABLE)
+            tourist.state == TOURIST_AVAILABLE)
         {
-            play.tourist.state = TOURIST_DYING;
-            play.player.lives += rand() % 2;
+            tourist.state = TOURIST_DYING;
+            player.lives += rand() % 2;
             
-            arrdel(play.player_shots, i);
+            arrdel(player.shots, i);
             i--;
         }
     }
@@ -844,45 +995,45 @@ void process_shot_collisions_with_tourist()
 
 void process_shot_collisions_with_player()
 {
-    for (int i = 0; i < arrlen(play.horde_shots); i++)
+    for (int i = 0; i < arrlen(horde.shots); i++)
     {
-        const int hshot_x = play.horde_shots[i].x;
-        const int hshot_y = play.horde_shots[i].y;
+        const int hshot_x = horde.shots[i].x;
+        const int hshot_y = horde.shots[i].y;
         // with player
         if (hshot_y >= 216 && hshot_y <= 216 + 6 &&
-            hshot_x >= play.player.x + 2 && hshot_x <= play.player.x + 15)
+            hshot_x >= player.x + 2 && hshot_x <= player.x + 15)
         {
-            arrdel(play.horde_shots, i);
+            arrdel(horde.shots, i);
             i--;
 
             // player dead now
-            play.player.state = PLAYER_DYING;
-            play.player.timer = 0;
+            player.state = PLAYER_DYING;
+            player.timer = 0;
         }
     }
 }
 
 void process_shot_collisions_with_horde()
 {
-    for (int i = 0; i < arrlen(play.player_shots); i++)
+    for (int i = 0; i < arrlen(player.shots); i++)
     {
         const SDL_Rect prect = {
-            play.player_shots[i].x, play.player_shots[i].y - 4, 1, 1
+            player.shots[i].x, player.shots[i].y - 4, 1, 1
         };
-        for (int j = 0; j < arrlen(play.horde.invaders); j++)
+        for (int j = 0; j < arrlen(horde.invaders); j++)
         {
             SDL_Rect irect = {
-                play.horde.invaders[j].x + 2, play.horde.invaders[j].y, 8, 8
+                horde.invaders[j].x + 2, horde.invaders[j].y, 8, 8
             };
             int score_inc = 30;
             // 16, 24, 32
-            if (play.horde.invaders[j].clip.y == 24)
+            if (horde.invaders[j].clip.y == 24)
             {
                 score_inc = 20;
                 irect.x -= 1;
                 irect.w += 3;
             }
-            else if (play.horde.invaders[j].clip.y == 32)
+            else if (horde.invaders[j].clip.y == 32)
             {
                 score_inc = 10;
                 irect.x -= 2;
@@ -893,22 +1044,22 @@ void process_shot_collisions_with_horde()
             {
                 // add explosion
                 const struct explosion_t explosion = {
-                    .x = play.horde.invaders[j].x,
-                    .y = play.horde.invaders[j].y,
+                    .x = horde.invaders[j].x,
+                    .y = horde.invaders[j].y,
                     .clip = { 0, 40, 13,  8 },
                     .timer = 0,
                     .timeout = 16 * 16
                 };
-                arrput(play.explosions, explosion);
-                arrdel(play.player_shots, i);
+                arrput(explosions, explosion);
+                arrdel(player.shots, i);
                 i--;
 
-                if (j <= play.horde.invaders_updated)
-                    play.horde.invaders_updated--;
-                arrdel(play.horde.invaders, j);
+                if (j <= horde.invaders_updated)
+                    horde.invaders_updated--;
+                arrdel(horde.invaders, j);
                 app.score += score_inc;
-                play.horde.state = HORDE_WAITING;
-                play.horde.timer = 0;
+                horde.state = HORDE_WAITING;
+                horde.timer = 0;
                 break;
             }
         }
@@ -917,14 +1068,14 @@ void process_shot_collisions_with_horde()
 
 void process_collisions_between_shots()
 {
-    for (int i = 0; i < arrlen(play.horde_shots); i++)
+    for (int i = 0; i < arrlen(horde.shots); i++)
     {
-        const int hshot_x = play.horde_shots[i].x;
-        const int hshot_y = play.horde_shots[i].y;
-        for (int j = 0; j < arrlen(play.player_shots); j++) 
+        const int hshot_x = horde.shots[i].x;
+        const int hshot_y = horde.shots[i].y;
+        for (int j = 0; j < arrlen(player.shots); j++) 
         {
-            const int pshot_x = play.player_shots[j].x;
-            const int pshot_y = play.player_shots[j].y;
+            const int pshot_x = player.shots[j].x;
+            const int pshot_y = player.shots[j].y;
             if (pshot_y <= hshot_y && abs(pshot_x - hshot_x) <= 1)
             {
                 // horde shot may be stronger than player shot and cut right through it
@@ -937,8 +1088,8 @@ void process_collisions_between_shots()
                         .timer = 0,
                         .timeout = 16 * 24
                     };
-                    arrput(play.explosions, hshot_exp);
-                    arrdel(play.horde_shots, i);
+                    arrput(explosions, hshot_exp);
+                    arrdel(horde.shots, i);
                     i--;
                 }
                 const struct explosion_t pshot_exp = {
@@ -948,8 +1099,8 @@ void process_collisions_between_shots()
                     .timer = 0,
                     .timeout = 16 * 24
                 };
-                arrput(play.explosions, pshot_exp);
-                arrdel(play.player_shots, j);
+                arrput(explosions, pshot_exp);
+                arrdel(player.shots, j);
                 break;
             }
         }
@@ -963,26 +1114,26 @@ void reset_play()
 
     play.state = PLAY_PLAYING;
 
-    play.explosions = NULL;
+    explosions = NULL;
 
-    play.player.state = PLAYER_STARTING;
-    play.player.lives = 3;
-    play.player.dying_clip_swaps = 0;
-    play.player_shots = NULL;
-    play.player.timer = 0;
+    player.state = PLAYER_STARTING;
+    player.lives = 3;
+    player.dying_clip_swaps = 0;
+    player.shots = NULL;
+    player.timer = 0;
 
-    play.horde.state = HORDE_STARTING;
-    play.horde.invaders = NULL;
-    play.horde.invaders_updated = 0;
-    play.horde_shots = NULL;
-    play.horde.timer = 0;
-    play.horde.wait_timer = 0;
-    play.horde.shot_timeout = 16 * 32 * (rand() % 2 + 1);
+    horde.state = HORDE_STARTING;
+    horde.invaders = NULL;
+    horde.invaders_updated = 0;
+    horde.shots = NULL;
+    horde.timer = 0;
+    horde.wait_timer = 0;
+    horde.shot_timeout = 16 * 32 * (rand() % 2 + 1);
 
-    play.tourist.state = TOURIST_UNAVAILABLE;
-    play.tourist.available_appearances = rand() % 2 + 2; // 2 or 3 times
-    play.tourist.timer = 0;
-    play.tourist.spawn_timeout = gen_tourist_spawn_timeout();
+    tourist.state = TOURIST_UNAVAILABLE;
+    tourist.available_appearances = rand() % 2 + 2; // 2 or 3 times
+    tourist.timer = 0;
+    tourist.spawn_timeout = gen_tourist_spawn_timeout();
 }
 
 void process_play_events()
@@ -1002,8 +1153,8 @@ void update_play()
     case PLAY_PLAYING:
         update_explosions();
         update_player();
-        if (play.player.state != PLAYER_DYING &&
-            play.player.state != PLAYER_DEAD)
+        if (player.state != PLAYER_DYING &&
+            player.state != PLAYER_DEAD)
         {
             update_tourist();
             update_horde();
@@ -1017,19 +1168,19 @@ void update_play()
         process_shot_collisions_with_tourist();
         process_collisions_between_shots();
 
-        if (play.player.state == PLAYER_ALIVE &&
-            arrlen(play.horde.invaders) == 0)
+        if (player.state == PLAYER_ALIVE &&
+            arrlen(horde.invaders) == 0)
         {
             play.state = PLAY_RESTARTING;
-            arrfree(play.horde_shots);
-            arrfree(play.player_shots);
+            arrfree(horde.shots);
+            arrfree(player.shots);
         }
 
         // update score
         if (app.hi_score < app.score)
             app.hi_score = app.score;
 
-        if (play.player.lives == 0 && play.player.state == PLAYER_DEAD)
+        if (player.lives == 0 && player.state == PLAYER_DEAD)
         {
             app.screen = APP_GAMEOVER;
             reset_over();
@@ -1051,9 +1202,6 @@ void update_play()
 
 void render_play()
 {
-    SDL_SetRenderDrawColor(app.renderer, 0, 0, 0, 255);
-    SDL_RenderClear(app.renderer);
-
     // useless stuff
     // bar. Just to resemble the original game
     SDL_SetRenderDrawColor(app.renderer, 32, 255, 32, 255); // #20ff20
@@ -1070,11 +1218,11 @@ void render_play()
     render_explosions();
 
     // live counter
-    char player_lives[] = { '0' + play.player.lives };
-    render_text(player_lives, 8, WORLD_HEIGHT - 16);
+    char player_lives_str[2] = { '0' + player.lives, '\0' };
+    render_text(player_lives_str, 8, WORLD_HEIGHT - 16);
     // live cannons
-    static const SDL_Rect cannon_clip = { 0, 8, 16, 8 };
-    for (int i = 0; i < play.player.lives - 1; i++)
+    const SDL_Rect cannon_clip = { 0, 8, 16, 8 };
+    for (int i = 0; i < player.lives - 1; i++)
         render_clip(&cannon_clip, 24 + i * 16, WORLD_HEIGHT - 16);
 }
 
@@ -1097,6 +1245,9 @@ void app_main_loop()
                 app.screen = APP_QUIT;
             else switch (app.screen)
             {
+            case APP_MENU:
+                process_menu_events();
+                break;
             case APP_PLAY:
                 process_play_events();
                 break;
@@ -1116,12 +1267,18 @@ void app_main_loop()
         }
         else
         {
+            SDL_SetRenderDrawColor(app.renderer, 0, 0, 0, 255);
+            SDL_RenderClear(app.renderer);
             switch (app.screen)
             {
             case APP_PAUSE:
                 update_pause();
                 render_play();
                 render_pause();
+                break;
+            case APP_MENU:
+                update_menu();
+                render_menu();
                 break;
             case APP_PLAY:
                 update_play();
@@ -1157,9 +1314,8 @@ int main(int argc, char** args)
 
     SDL_ShowCursor(SDL_DISABLE);
 
-    app.screen = APP_PAUSE;
-    reset_pause();
-    reset_play();
+    app.screen = APP_MENU;
+    reset_menu();
     app.window = SDL_CreateWindow(
         "",
         SDL_WINDOWPOS_CENTERED,
@@ -1367,7 +1523,7 @@ void init_horde()
             .y = 64 + 16 * y
         };
     }
-    horde_shots = NULL;
+    horde.shots = NULL;
 
     horde.timer = 0;
     horde.start_anim_frames = 0;
@@ -1421,7 +1577,7 @@ void make_horde_shoot()
             .clip = { 24, 16 +  8 * (rand() % 3),  3,  7 },
             .timer = 0
         };
-        arrput(horde_shots, shot);
+        arrput(horde.shots, shot);
 
         // reset
         horde.timer = 0;
@@ -1470,8 +1626,8 @@ void render_horde()
 */
 
 
-// for (int i = 0; i < arrlen(horde_shots); i++)
-//     render_clip(&horde_shots[i].clip, horde_shots[i].x, horde_shots[i].y);
+// for (int i = 0; i < arrlen(horde.shots); i++)
+//     render_clip(&horde.shots[i].clip, horde.shots[i].x, horde.shots[i].y);
 
 /*void update_shots()
 {
