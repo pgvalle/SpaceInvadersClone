@@ -1357,7 +1357,7 @@ int main(int argc, char** args)
     FILE* hi_score_file = fopen("hi_score.txt", "r");
     if (hi_score_file)
     {
-        fscanf(hi_score_file, "%5d", &app.hi_score);
+        fscanf(hi_score_file, "%6d", &app.hi_score);
         fclose(hi_score_file);
     }
     else
@@ -1388,7 +1388,7 @@ int main(int argc, char** args)
 
     // save score
     hi_score_file = fopen("hi_score.txt", "w");
-    fprintf(hi_score_file, "%5d", app.hi_score);
+    fprintf(hi_score_file, "%6d", app.hi_score);
     fclose(hi_score_file);
 
     SDL_DestroyTexture(font_atlas);
