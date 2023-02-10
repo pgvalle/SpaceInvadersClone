@@ -803,6 +803,8 @@ void move_horde()
 {
     if (arrlen(horde.invaders) == 0)
         return;
+
+    horde.invaders_updated %= arrlen(horde.invaders);
     
     const int i = horde.invaders_updated;
     // move this guy
@@ -810,32 +812,27 @@ void move_horde()
     horde.invaders[i].y += horde.ymove;
     // animate
     horde.invaders[i].clip.x = horde.invaders[i].clip.x == 0 ? 12 : 0;
-    // now someone got updated
+    // now someone got updated this frame
     horde.invaders_updated++;
     
-    // horde updated and now maybe it's time to flip directions
-    int all_updated = horde.invaders_updated == arrlen(horde.invaders);
+    // horde entirely updated so maybe it's time to flip directions next frame
+    bool all_updated = horde.invaders_updated == arrlen(horde.invaders);
     if (all_updated && horde.ymove == 0)
     {
         // find out if horde should change direction
-        for (int i = 0; i < arrlen(horde.invaders); i++)
+        for (int j = 0; j < arrlen(horde.invaders); j++)
         {
-            const int x = horde.invaders[i].x;
+            const int x = horde.invaders[j].x;
             if (x <= 10 || x >= WORLD_WIDTH - 22) // should change directions
             {
-                horde.ymove = 8;
                 horde.xmove = -horde.xmove;
+                horde.ymove = 8;
                 break;
             }
         }
-
-        horde.invaders_updated = 0; // no one updated now
     }
     else if (all_updated)
-    {
         horde.ymove = 0;
-        horde.invaders_updated = 0;
-    }
 }
 
 void update_horde()
@@ -1081,11 +1078,9 @@ void process_shot_collision_with_horde()
                 i--;
 
                 // prevent updating twice the same invader (corner case)
-                if (j < horde.invaders_updated &&
-                    horde.invaders_updated != arrlen(horde.invaders))
-                {
+                if (j < horde.invaders_updated)
                     horde.invaders_updated--;
-                }
+                
                 arrdel(horde.invaders, j);
                 app.score += score_inc;
                 horde.state = HORDE_WAITING;
@@ -1200,6 +1195,7 @@ void update_play()
         if (player.state == PLAYER_ALIVE && arrlen(horde.invaders) == 0)
         {
             play.state = PLAY_RESTARTING;
+            play.timer = 0;
             arrfree(horde.shots);
             arrfree(player.shots);
         }
