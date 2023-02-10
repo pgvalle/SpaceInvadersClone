@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.12)
 
 project(SpaceInvadersClone)
 
-add_executable(SpaceInvadersClone stb_ds.h stb_ds.c main.c)
+add_executable(SpaceInvadersClone stb_ds.h main.c)
 
 set_target_properties(
 	SpaceInvadersClone PROPERTIES

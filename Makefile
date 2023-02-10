@@ -1,31 +1,5 @@
-TARGET_EXEC ?= SpaceInvadersClone.out
+FLAGS := $(shell pkg-config --cflags --libs sdl2 SDL2_image SDL2_ttf)\
+	-O2 -std=c99 -lm
 
-BUILD_DIR ?= ./build
-SRC_DIR ?= ./
-
-FLAGS := $(shell pkg-config --cflags --libs sdl2 SDL2_image SDL2_ttf SDL2_mixer) \
-	-O3 -std=c99 -lm -I$(SRC_DIR)
-
-SRCS := $(shell find $(SRC_DIR) -name "*.c")
-OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)
-DEPS := $(OBJS:.o=.d)
-
-INC_DIRS := $(shell find $(SRC_DIR) -type d)
-INC_FLAGS := $(addprefix -I,$(INC_DIRS))
-
-$(BUILD_DIR)/$(TARGET_EXEC): $(OBJS)
-	$(CC) $(OBJS) -o $@ $(FLAGS)
-
-# c source
-$(BUILD_DIR)/%.c.o: %.c
-	$(MKDIR_P) $(dir $@)
-	$(CC) $(FLAGS) -c $< -o $@
-
-.PHONY: clean
-clean:
-	$(RM) -r $(BUILD_DIR)
-
--include $(DEPS)
-
-MKDIR_P ?= mkdir -p
-
+space_invaders.out: main.c stb_ds.h
+	$(CC) main.c stb_ds.h $(FLAGS) -o $@
