@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 3.12)
 
 project(SpaceInvadersClone)
-
 add_executable(SpaceInvadersClone stb_ds.h main.c)
 
 set_target_properties(
@@ -9,11 +8,6 @@ set_target_properties(
 	C_STANDARD          99
 	C_STANDARD_REQUIRED TRUE
 	C_EXTENSIONS        FALSE
-)
-
-target_include_directories(
-	SpaceInvadersClone PRIVATE
-	${CMAKE_SOURCE_DIR}/src
 )
 
 find_package(SDL2       REQUIRED)
