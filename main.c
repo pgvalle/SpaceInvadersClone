@@ -17,7 +17,7 @@ SDL_Texture* atlas = NULL, * font_atlas = NULL;
 /* APP */
 
 #define FPS 60
-#define SCALE 3
+#define SCALE 2
 #define RESOURCE_DIR "./res"
 #define FONT_PTSIZE 8
 
@@ -157,7 +157,7 @@ void render_score_advances_table()
 }
 
 
-/* SCREENS STRUCTS AND DEFS (for each app screen) */
+/* SCREENS STRUCTS (for each app screen) */
 
 struct {
     enum {
@@ -174,8 +174,9 @@ struct {
 
 struct {
     enum {
-        GAMEOVER_WAITING,
+        GAMEOVER_WAITING1,
         GAMEOVER_DISPLAYING,
+        GAMEOVER_WAITING2,
         GAMEOVER_BLINKING_ON,
         GAMEOVER_BLINKING_OFF
     } state;
@@ -274,7 +275,6 @@ struct {
 
 /* MENU SCREEN */
 
-static inline
 void reset_menu()
 {
     menu.state = MENU_DISPLAYING;
@@ -282,6 +282,7 @@ void reset_menu()
     menu.timer = 0;
 }
 
+void reset_play();
 void process_menu_events()
 {
     if (app.event.type != SDL_KEYDOWN || app.event.key.repeat)
@@ -366,10 +367,9 @@ void render_menu()
 
 /* GAME OVER SCREEN */
 
-static inline
 void reset_over()
 {
-    over.state = GAMEOVER_WAITING;
+    over.state = GAMEOVER_WAITING1;
     over.display_i = 0;
     over.timer = 0;
 }
@@ -379,40 +379,43 @@ void process_over_events()
 {
     if (app.event.type != SDL_KEYDOWN || app.event.key.repeat)
         return;
-    
-    switch (app.event.key.keysym.sym)
+
+    SDL_Keycode key = app.event.key.keysym.sym;
+    switch (over.state)
     {
-    case SDLK_RETURN:
-    case SDLK_RETURN2:
-        switch (over.state)
+    case GAMEOVER_WAITING1:
+        if (key == SDLK_RETURN || key == SDLK_RETURN2)
         {
-        case GAMEOVER_WAITING:
             over.state = GAMEOVER_DISPLAYING;
             over.timer = 0;
-            break;
-        case GAMEOVER_DISPLAYING:
-            over.state = GAMEOVER_BLINKING_OFF;
+        }
+        break;
+    case GAMEOVER_WAITING2:
+    case GAMEOVER_DISPLAYING:
+        if (key == SDLK_RETURN || key == SDLK_RETURN2)
+        {
+            over.state = GAMEOVER_BLINKING_ON;
             over.timer = 0;
-            break;
-        default:
+        }
+        break;
+    case GAMEOVER_BLINKING_ON:
+    case GAMEOVER_BLINKING_OFF:
+        switch (key)
+        {
+        case SDLK_RETURN:
+        case SDLK_RETURN2:
             app.screen = APP_PLAY;
             if (app.credits > 0)
                 app.credits--;
             reset_play();
-        }        
-        break;
-    case SDLK_q:
-        if (over.state == GAMEOVER_BLINKING_ON ||
-            over.state == GAMEOVER_BLINKING_OFF)
-        {
+            break;
+        case SDLK_q:
             app.screen = APP_QUIT;
-        }
-    case SDLK_m:
-        if (over.state == GAMEOVER_BLINKING_ON ||
-            over.state == GAMEOVER_BLINKING_OFF)
-        {
+            break;
+        case SDLK_m:
             app.screen = APP_MENU;
             reset_menu();
+            break;
         }
         break;
     }
@@ -422,7 +425,7 @@ void update_over()
 {
     switch (over.state)
     {
-    case GAMEOVER_WAITING:
+    case GAMEOVER_WAITING1:
         over.timer += app.frame_time;
         if (over.timer >= 2000)
         {
@@ -432,14 +435,18 @@ void update_over()
         break;
     case GAMEOVER_DISPLAYING:
         over.timer += app.frame_time;
-        if (over.display_i == 9 && over.timer >= 1008)
+        if (over.timer >= 160)
         {
-            over.state = GAMEOVER_BLINKING_OFF;
+            if (++over.display_i == 8)
+                over.state = GAMEOVER_WAITING2;
             over.timer = 0;
         }
-        else if (over.display_i < 9 && over.timer >= 160)
+        break;
+    case GAMEOVER_WAITING2:
+        over.timer += app.frame_time;
+        if (over.timer >= 1008)
         {
-            over.display_i++;
+            over.state = GAMEOVER_BLINKING_ON;
             over.timer = 0;
         }
         break;
@@ -458,10 +465,10 @@ void update_over()
 
 void render_over()
 {
-    if (over.state != GAMEOVER_WAITING)
+    if (over.state != GAMEOVER_WAITING1)
     {
         SDL_SetRenderDrawBlendMode(app.renderer, SDL_BLENDMODE_BLEND);
-        SDL_SetRenderDrawColor(app.renderer, 0, 0, 0, 200);
+        SDL_SetRenderDrawColor(app.renderer, 0, 0, 0, 225);
         const SDL_Rect overlay_rect = {
             0, 0, SCALE * WORLD_WIDTH, SCALE * WORLD_HEIGHT
         };
@@ -471,6 +478,7 @@ void render_over()
 
     switch (over.state)
     {
+    case GAMEOVER_WAITING2:
     case GAMEOVER_DISPLAYING:
         SDL_SetTextureColorMod(font_atlas, 216, 32, 32);
         render_text_until("YOU LOST", 80, 56, over.display_i);
@@ -546,7 +554,7 @@ void render_pause()
 {
     // make background darker. It feels like game is really paused
     SDL_SetRenderDrawBlendMode(app.renderer, SDL_BLENDMODE_BLEND);
-    SDL_SetRenderDrawColor(app.renderer, 0, 0, 0, 200);
+    SDL_SetRenderDrawColor(app.renderer, 0, 0, 0, 225);
     const SDL_Rect overlay_rect = {
         0, 0, SCALE * WORLD_WIDTH, SCALE * WORLD_HEIGHT
     };
@@ -720,7 +728,7 @@ void render_player_shots()
 			SCALE * 4,
 		};
 		SDL_SetRenderDrawColor(app.renderer, 255, 255, 255, 255);
-		SDL_RenderDrawRect(app.renderer, &rect);
+		SDL_RenderFillRect(app.renderer, &rect);
 	}
 }
 
@@ -1398,6 +1406,11 @@ int main(int argc, char** args)
 #define BUNKER_FIRST_X 32
 #define BUNKERS_Y 192
 
+struct {
+    SDL_Rect outer_bounds;
+    SDL_Point points[352];
+} bunkers[4];
+
 SDL_Point bunkers[4][352];
 
 void init_bunker(int k)
@@ -1479,177 +1492,3 @@ void render_bunkers()
         }
     }
 }*/
-
-/*
-
-// horde
-
-#define HORDE_SIZE 55
-
-struct {
-    enum {
-        HORDE_STARTING, // start animation
-        HORDE_WAITING
-    } state;
-
-    int xvel;
-    int xclip;
-
-    struct invader_t {
-		enum {
-			INVADER_ALIVE,
-			INVADER_DEAD
-		} state;
-
-		int x, y;
-    } invaders[HORDE_SIZE];
-
-    struct horde_shot_t {
-        int x, y;
-        SDL_Rect clip;
-        uint32_t timer;
-    }* shots;
-
-    uint32_t timer;
-
-    // starting state variables //
-
-    uint8_t start_anim_frames;
-
-    // waiting state variables //
-
-    uint32_t waiting_timeout, shot_timeout;
-} horde;
-
-void init_horde()
-{
-    horde.state = HORDE_STARTING;
-    
-    horde.xvel = 2;
-    horde.xclip = 12;
-
-    for (int i = 0; i < HORDE_SIZE; i++)
-    {
-        const int y = 4 - i / 11;
-        const int x = i % 11;
-        horde.invaders[i] = (struct invader_t){
-            .state = INVADER_DEAD,
-			.x = 26 + 16 * x,
-            .y = 64 + 16 * y
-        };
-    }
-    horde.shots = NULL;
-
-    horde.timer = 0;
-    horde.start_anim_frames = 0;
-    horde.waiting_timeout = 0;
-    horde.shot_timeout = 0;
-}
-
-void move_horde()
-{
-    int yvel = 0;
-    for (int i = 0; i < arrlen(horde.invaders); i++)
-    {
-        const int x = horde.invaders[i].x;
-        if (x <= 10 || x >= WORLD_WIDTH - 22)
-        {
-            horde.xvel = -horde.xvel;
-            yvel = 8;
-            break;
-        }
-    }
-    
-    for (int i = 0; i < arrlen(horde.invaders); i++)
-    {
-        horde.invaders[i].x += horde.xvel;
-        horde.invaders[i].y += yvel;
-    }
-}
-
-void make_horde_shoot()
-{
-    horde.timer += app.frame_time;
-    if (horde.timer >= horde.shot_timeout && arrlen(horde.invaders) > 0)
-    {
-        // someone shoots
-        const int i = rand() % arrlen(horde.invaders);
-        const int x = horde.invaders[i].x;
-        int y = horde.invaders[i].y;
-        for (int j = 0; j < i; j++)
-        {
-            int a = horde.invaders[j].x - x;
-            a = a < 0 ? -a : a;
-            if (a <= 2 && horde.invaders[j].y >= horde.invaders[i].y)
-            {
-                y = horde.invaders[j].y;
-                break;
-            }
-        }
-        struct horde_shot_t shot = {
-            .x = x + 5,
-            .y = y + 8,
-            .clip = { 24, 16 +  8 * (rand() % 3),  3,  7 },
-            .timer = 0
-        };
-        arrput(horde.shots, shot);
-
-        // reset
-        horde.timer = 0;
-        horde.shot_timeout = 1024 * (rand() % 2 + 1);
-    }
-}
-
-void update_horde()
-{
-    switch (horde.state)
-    {
-    case HORDE_STARTING:
-        horde.timer += app.frame_time;
-        if (horde.timer >= 16)
-        {
-            horde.start_anim_frames++;
-            if (horde.start_anim_frames == 55)
-                horde.state = HORDE_WAITING;
-            horde.timer = 0;
-        }
-        break;
-    case HORDE_WAITING:
-        horde.timer += app.frame_time;
-        if (horde.timer >= horde.waiting_timeout)
-        {
-            move_horde();
-            // animate
-        	horde.xclip = horde.xclip == 12 ? 0 : 12;
-			horde.timer = 0;
-        }
-        break;
-    }
-}
-
-void render_horde()
-{
-    for (int i = 0; i < arrlen(horde.invaders); i++)
-	{
-		SDL_Rect clip = { horde.xclip, 16, 12, 8 };
-		if (i / 11 > 2) clip.y = 32; // in 4th or 5th row
-        else if (i / 11 > 0) clip.y = 24; // in 2nd or 3rd row
-        render_clip(&clip, horde.invaders[i].x, horde.invaders[i].y);
-	}
-}
-
-*/
-
-
-// for (int i = 0; i < arrlen(horde.shots); i++)
-//     render_clip(&horde.shots[i].clip, horde.shots[i].x, horde.shots[i].y);
-
-/*void update_shots()
-{
-    // horde shots
-    
-
-    // player shots
-    
-}
-*/
