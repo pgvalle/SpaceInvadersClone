@@ -124,15 +124,15 @@ void render_credits()
 
 void render_scores()
 {
-    char score_str[6];
+    char score_str[7];
     // score
-    render_text("score", 8, 8);
-    sprintf(score_str, "%05d", app.score);
-    render_text(score_str, 8, 24);
+    render_text("your score", 8, 8);
+    sprintf(score_str, "%06d", app.score);
+    render_text(score_str, 24, 24);
     // high-score
-    render_text("hi-score", WORLD_WIDTH - 72, 8);
-    sprintf(score_str, "%05d", app.hi_score);
-    render_text(score_str, WORLD_WIDTH - 48, 24);
+    render_text("high-score", WORLD_WIDTH - 88, 8);
+    sprintf(score_str, "%06d", app.hi_score);
+    render_text(score_str, WORLD_WIDTH - 72, 24);
 }
 
 void render_score_advances_table()
@@ -1407,6 +1407,7 @@ int main(int argc, char** args)
 #define BUNKER_FIRST_X 32
 #define BUNKERS_Y 192
 
+// 22 x 16
 struct {
     SDL_Rect outer_bounds;
     SDL_Point points[352];
