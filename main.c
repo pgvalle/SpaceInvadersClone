@@ -1,11 +1,15 @@
 #include <SDL.h>
 #include <SDL_image.h>
 #include <SDL_ttf.h>
-#include "stb_ds.h"
+
 #include <stdio.h>
 #include <stdbool.h>
 #include <ctype.h>
 #include <time.h>
+
+#define STB_DS_IMPLEMENTATION
+#include "stb_ds.h"
+#undef STB_DS_IMPLEMENTATION
 
 // resources
 SDL_Texture* atlas = NULL, * font_atlas = NULL;
@@ -13,7 +17,7 @@ SDL_Texture* atlas = NULL, * font_atlas = NULL;
 /* APP */
 
 #define FPS 60
-#define SCALE 2
+#define SCALE 3
 #define RESOURCE_DIR "./res"
 #define FONT_PTSIZE 8
 
@@ -51,14 +55,14 @@ void render_text_until(const char* text, int x, int y, int n)
     for (int i = 0; i < n; i++)
     {
         // find mapping
-        int mapping = 0;
-        for (; mapping < len_characters; mapping++)
-            if (toupper(text[i]) == characters[mapping]) break;
+        int index = 0;
+        for (; index < len_characters; index++)
+            if (toupper(text[i]) == characters[index]) break;
 
-        if (mapping != len_characters) // success
+        if (index != len_characters) // success
         {
             SDL_Rect clip = {
-                mapping * FONT_PTSIZE, 0, FONT_PTSIZE, FONT_PTSIZE
+                index * FONT_PTSIZE, 0, FONT_PTSIZE, FONT_PTSIZE
             };
             SDL_Rect scale = {
                 SCALE * x, SCALE * y, SCALE * clip.w, SCALE * clip.h
@@ -112,7 +116,7 @@ void process_credit_events()
 
 void render_credits()
 {
-    char credits_str[11];
+    char credits_str[10];
     sprintf(credits_str, "CREDIT %02d", app.credits);
     render_text(credits_str, WORLD_WIDTH - 80, WORLD_HEIGHT - 16);
 }
@@ -120,7 +124,7 @@ void render_credits()
 
 void render_scores()
 {
-    char score_str[10];
+    char score_str[6];
     // score
     render_text("score", 8, 8);
     sprintf(score_str, "%05d", app.score);
@@ -158,6 +162,7 @@ void render_score_advances_table()
 struct {
     enum {
         MENU_DISPLAYING,
+        MENU_WAITING,
         MENU_BLINKING_ON,
         MENU_BLINKING_OFF
     } state;
@@ -269,6 +274,7 @@ struct {
 
 /* MENU SCREEN */
 
+static inline
 void reset_menu()
 {
     menu.state = MENU_DISPLAYING;
@@ -284,8 +290,11 @@ void process_menu_events()
     switch (app.event.key.keysym.sym)
     {
     case SDLK_RETURN:
-        if (menu.state == MENU_DISPLAYING)
-            menu.display_i = 14;
+        if (menu.state == MENU_DISPLAYING || menu.state == MENU_WAITING)
+        {
+            menu.state = MENU_BLINKING_ON;
+            menu.timer = 0;
+        }
         break;
     case SDLK_p:
         app.screen = APP_PLAY;
@@ -305,14 +314,18 @@ void update_menu()
     {
     case MENU_DISPLAYING:
         menu.timer += app.frame_time;
-        if (menu.display_i == 14 && menu.timer >= 1008)
+        if (menu.timer >= 160)
         {
-            menu.state = MENU_BLINKING_ON;
+            if (++menu.display_i == 14)
+                menu.state = MENU_WAITING;
             menu.timer = 0;
         }
-        else if (menu.display_i < 14 && menu.timer >= 160)
+        break;
+    case MENU_WAITING:
+        menu.timer += app.frame_time;
+        if (menu.timer >= 1008)
         {
-            menu.display_i++;
+            menu.state = MENU_BLINKING_ON;
             menu.timer = 0;
         }
         break;
@@ -343,6 +356,7 @@ void render_menu()
         render_text("SPACE INVADERS", 56, 56);
         render_score_advances_table();
         break;
+    case MENU_WAITING:
     case MENU_DISPLAYING:
         render_text_until("SPACE INVADERS", 56, 56, menu.display_i);
         break;
@@ -352,6 +366,7 @@ void render_menu()
 
 /* GAME OVER SCREEN */
 
+static inline
 void reset_over()
 {
     over.state = GAMEOVER_WAITING;
@@ -389,7 +404,9 @@ void process_over_events()
     case SDLK_q:
         if (over.state == GAMEOVER_BLINKING_ON ||
             over.state == GAMEOVER_BLINKING_OFF)
+        {
             app.screen = APP_QUIT;
+        }
     case SDLK_m:
         if (over.state == GAMEOVER_BLINKING_ON ||
             over.state == GAMEOVER_BLINKING_OFF)
@@ -494,6 +511,7 @@ void process_pause_events()
         break;
     case SDLK_ESCAPE:
         pause.state = PAUSE_RESUMING;
+        pause.timer = 0;
         break;
     case SDLK_q:
         app.screen = APP_QUIT;
@@ -621,8 +639,7 @@ void update_player()
         player.timer += app.frame_time;
         if (player.timer >= 112)
         {
-            player.dying_clip_swaps++;
-            if (player.dying_clip_swaps == 9)
+            if (++player.dying_clip_swaps == 9)
             {
                 player.state = PLAYER_DEAD;
                 player.lives--;
@@ -737,7 +754,6 @@ void update_horde_start_anim()
 
 void make_horde_shoot()
 {
-    horde.timer += app.frame_time;
     if (horde.timer >= horde.shot_timeout && arrlen(horde.invaders) > 0)
     {
         // someone shoots
@@ -764,7 +780,7 @@ void make_horde_shoot()
 
         // reset
         horde.timer = 0;
-        horde.shot_timeout = 1024 * (rand() % 2 + 1);
+        horde.shot_timeout = 512 * (rand() % 2 + 1);
     }
 }
 
@@ -815,21 +831,16 @@ void update_horde()
         update_horde_start_anim();
         break;
     case HORDE_MOVING:
+        horde.timer += app.frame_time;
         if (player.state == PLAYER_ALIVE)
-        {
-            make_horde_shoot();
-            move_horde();
-        }
-        else if (player.state == PLAYER_STARTING)
+            make_horde_shoot();           
+        if (player.state == PLAYER_STARTING || player.state == PLAYER_ALIVE)
             move_horde();
         break;
     case HORDE_WAITING:
         horde.wait_timer += app.frame_time;
-        if (horde.wait_timer >= 16 * 24)
-        {
+        if (horde.wait_timer >= 256)
             horde.state = HORDE_MOVING;
-            horde.wait_timer = 0;
-        }
         break;
     }
 }
@@ -980,7 +991,7 @@ void process_shot_collisions_with_tourist()
         const SDL_Rect player_rect = {
             player.shots[i].x, player.shots[i].y - 4, 1, 1
         };
-        const SDL_Rect tourist_rect = {tourist.x + 4, 40, 16, 8};
+        const SDL_Rect tourist_rect = { tourist.x + 4, 40, 16, 8 };
         if (SDL_HasIntersection(&tourist_rect, &player_rect) &&
             tourist.state == TOURIST_AVAILABLE)
         {
@@ -1017,12 +1028,12 @@ void process_shot_collisions_with_horde()
 {
     for (int i = 0; i < arrlen(player.shots); i++)
     {
-        const SDL_Rect prect = {
+        const SDL_Rect player_rect = {
             player.shots[i].x, player.shots[i].y - 4, 1, 1
         };
         for (int j = 0; j < arrlen(horde.invaders); j++)
         {
-            SDL_Rect irect = {
+            SDL_Rect invader_rect = {
                 horde.invaders[j].x + 2, horde.invaders[j].y, 8, 8
             };
             int score_inc = 30;
@@ -1030,17 +1041,17 @@ void process_shot_collisions_with_horde()
             if (horde.invaders[j].clip.y == 24)
             {
                 score_inc = 20;
-                irect.x -= 1;
-                irect.w += 3;
+                invader_rect.x -= 1;
+                invader_rect.w += 3;
             }
             else if (horde.invaders[j].clip.y == 32)
             {
                 score_inc = 10;
-                irect.x -= 2;
-                irect.w += 4;
+                invader_rect.x -= 2;
+                invader_rect.w += 4;
             }
 
-            if (SDL_HasIntersection(&prect, &irect))
+            if (SDL_HasIntersection(&player_rect, &invader_rect))
             {
                 // add explosion
                 const struct explosion_t explosion = {
@@ -1048,18 +1059,22 @@ void process_shot_collisions_with_horde()
                     .y = horde.invaders[j].y,
                     .clip = { 0, 40, 13,  8 },
                     .timer = 0,
-                    .timeout = 16 * 16
+                    .timeout = 256
                 };
                 arrput(explosions, explosion);
                 arrdel(player.shots, i);
                 i--;
 
-                if (j <= horde.invaders_updated)
+                // prevent updating twice the same invader (corner case)
+                if (j < horde.invaders_updated &&
+                    horde.invaders_updated != arrlen(horde.invaders))
+                {
                     horde.invaders_updated--;
+                }
                 arrdel(horde.invaders, j);
                 app.score += score_inc;
                 horde.state = HORDE_WAITING;
-                horde.timer = 0;
+                horde.wait_timer = 0;
                 break;
             }
         }

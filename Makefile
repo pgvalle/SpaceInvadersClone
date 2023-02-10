@@ -4,7 +4,7 @@ BUILD_DIR ?= ./build
 SRC_DIR ?= ./
 
 FLAGS := $(shell pkg-config --cflags --libs sdl2 SDL2_image SDL2_ttf SDL2_mixer) \
-	-O3 -Wall -std=c99 -lm -I$(SRC_DIR)
+	-O3 -std=c99 -lm -I$(SRC_DIR)
 
 SRCS := $(shell find $(SRC_DIR) -name "*.c")
 OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)
