@@ -1341,7 +1341,7 @@ int main(int argc, char** args)
     app.screen = APP_MENU;
     reset_menu();
     app.window = SDL_CreateWindow(
-        "",
+        "Space Invaders Clone",
         SDL_WINDOWPOS_CENTERED,
         SDL_WINDOWPOS_CENTERED,
         SCALE * WORLD_WIDTH,

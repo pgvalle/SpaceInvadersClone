@@ -1,9 +1,8 @@
 # Space Invaders Clone
-
-This game, as the name suggests, is yet another 1978 Arcade
+This game, as the name suggests, is yet another
 [SpaceInvaders](https://en.wikipedia.org/wiki/Space_Invaders)' clone.
-Obviously It's not 100% the same as the original one. But I guarantee it's good
-enough to be called Space Invaders Clone.
+Obviously It's not 100% the same as the original one.
+But I guarantee it's good enough to be called Space Invaders Clone.
 
 # Build instructions
 
@@ -24,19 +23,20 @@ which one prompts something other than "command not found" or so:\
 When the command runs, whichever it is, it's going to ask for your password.
 So you just type it and press enter.\
 **NOTE 3**: Don't worry if it seems like your keyboard stopped working because
-the password dots don't get printed out. It's working.
+nothing gets printed out. It's working.
 
 Then, follow these commands:
 ```
 $ git clone https://github.com/pgvalle/SpaceInvadersClone
-(some output showing up here)
+(some stuff showing up here)
 $ cd SpaceInvadersClone
 $ make
-(some output showing up here)
-$ cp build/SpaceInvadersClone.out .
-$ ./SpaceInvadersClone.out
+(some stuff showing up here)
+$ ./space_invaders.out
 ```
 And you're done. You should have the game executing now. YAY!
 
 ## Windows
 To be documented...
+
+# Concepts
