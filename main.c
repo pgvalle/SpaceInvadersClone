@@ -1255,9 +1255,9 @@ void process_player_shot_collision_with_bunker(int b)
                 if (my_point_in_rect(&bunkers[b].points[p], &shot_rect))
                 {
                     const struct explosion_t explosion = {
-                        .x = shot_rect.x - 2,
+                        .x = shot_rect.x - 3,
                         .y = shot_rect.y - 4,
-                        .clip = { 24, 40,  6,  8 },
+                        .clip = { 36, 24,  8,  8 },
                         .timer = 0,
                         .timeout = 256
                     };
@@ -1475,8 +1475,8 @@ void render_play()
     render_tourist();
     render_horde();
     render_player();
-    render_explosions();
     render_bunkers();
+    render_explosions();
 
     // live counter
     char player_lives_str[2] = { '0' + player.lives, '\0' };
