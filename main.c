@@ -272,6 +272,11 @@ struct {
     uint32_t timer, spawn_timeout;
 } tourist;
 
+struct {
+    SDL_Rect out_rect;
+    SDL_Point points[352];
+} bunkers[4];
+
 
 /* MENU SCREEN */
 
@@ -997,6 +1002,36 @@ void render_tourist()
 }
 
 
+void desintegrate_bunker_from_point(int b, int p)
+{
+    // up    -> p - 22
+    // down  -> p + 22
+    // left  -> p - 1
+    // right -> p + 1
+
+    bunkers[b].points[p].x = -1;
+}
+
+void render_bunkers()
+{
+    SDL_SetRenderDrawColor(app.renderer, 32, 255, 32, 255);
+
+    for (int i = 0; i < 4; i++)
+    {
+        for (int j = 0; j < 352; j++)
+        {
+            const SDL_Rect point_rect = {
+                bunkers[i].points[j].x * SCALE,
+                bunkers[i].points[j].y * SCALE,
+                SCALE,
+                SCALE
+            };
+            SDL_RenderFillRect(app.renderer, &point_rect);
+        }
+    }
+}
+
+
 void process_shot_collision_with_tourist()
 {
     const SDL_Rect tourist_rect = { tourist.x + 4, 40, 16, 8 };
@@ -1138,11 +1173,61 @@ void process_collision_between_shots()
     }
 }
 
+void process_player_shot_collision_with_bunker(int b)
+{
+    for (int i = 0; i < arrlen(player.shots); i++)
+    {
+        const SDL_Rect shot_rect = {
+            player.shots[i].x, player.shots[i].y - 4, 1, 4
+        };
+        if (SDL_HasIntersection(&bunkers[b].out_rect, &shot_rect))
+        {
+            for (int p = 0; p < 352; p++)
+            {
+                if (SDL_PointInRect(&bunkers[b].points[p], &shot_rect))
+                {
+                    arrdel(player.shots, i);
+                    i--;
+
+                    desintegrate_bunker_from_point(b, p);
+                    break;
+                }
+            }
+        }
+    }
+}
+
+void process_horde_shot_collision_with_bunker(int b)
+{
+    for (int i = 0; i < arrlen(horde.shots); i++)
+    {
+        // middle point of shot rect
+        const SDL_Rect shot_rect = {
+            horde.shots[i].x + 1, horde.shots[i].y + 3, 1, 1
+        };
+        if (SDL_HasIntersection(&bunkers[b].out_rect, &shot_rect))
+        {
+            for (int p = 0; p < 352; p++)
+            {
+                if (SDL_PointInRect(&bunkers[b].points[p], &shot_rect))
+                {
+                    arrdel(horde.shots, i);
+                    i--;
+
+                    desintegrate_bunker_from_point(b, p);
+                    break;
+                }
+            }
+        }
+    }
+}
+
 
 void reset_play()
 {
     app.score = 0;
 
+    play.timer = 0;
     play.state = PLAY_PLAYING;
 
     explosions = NULL;
@@ -1165,6 +1250,57 @@ void reset_play()
     tourist.available_appearances = rand() % 2 + 2; // 2 or 3 times
     tourist.timer = 0;
     tourist.spawn_timeout = gen_tourist_spawn_timeout();
+
+    memset(bunkers, 0xff, sizeof(bunkers));
+
+    for (int b = 0; b < 4; b++)
+    {
+        bunkers[b].out_rect = (SDL_Rect){32 + 46*b, 192, 22, 16 };
+
+        // top
+        for (int i = 0; i < 4; i++)
+        {
+            for (int j = 4 - i; j < 18 + i; j++)
+            {
+                bunkers[b].points[22 * i + j].x = 32 + 46 * b + j;
+                bunkers[b].points[22 * i + j].y = 192 + i;
+            }
+        }
+
+        // middle
+        for (int i = 4; i < 12; i++)
+        {
+            for (int j = 0; j < 22; j++)
+            {
+                bunkers[b].points[22 * i + j].x = 32 + 46 * b + j;
+                bunkers[b].points[22 * i + j].y = 192 + i;
+            }
+        }
+
+        for (int i = 0; i < 2; i++)
+        {
+            for (int j = 0; j < 8 - i; j++)
+            {
+                bunkers[b].points[22 * (12 + i) + j].x = 32 + 46 * b + j;
+                bunkers[b].points[22 * (12 + i) + j].y = 204 + i;
+
+                bunkers[b].points[22 * (12 + i) + j + 14 + i].x = 46 + 46 * b + j + i;
+                bunkers[b].points[22 * (12 + i) + j + 14 + i].y = 204 + i;
+            }
+        }
+
+        for (int i = 14; i < 16; i++)
+        {
+            for (int j = 0; j < 6; j++)
+            {
+                bunkers[b].points[22 * i + j].x = 32 + 46 * b + j;
+                bunkers[b].points[22 * i + j].y = 192 + i;
+
+                bunkers[b].points[22 * i + j + 16].x = 48 + 46 * b + j;
+                bunkers[b].points[22 * i + j + 16].y = 192 + i;
+            }
+        }
+    }
 }
 
 void process_play_events()
@@ -1197,6 +1333,11 @@ void update_play()
         process_shot_collision_with_horde();
         process_shot_collision_with_tourist();
         process_collision_between_shots();
+        for (int b = 0; b < 4; b++)
+        {
+            process_player_shot_collision_with_bunker(b);
+            process_horde_shot_collision_with_bunker(b);
+        }
 
         // update hi-score
         if (app.hi_score < app.score)
@@ -1247,6 +1388,7 @@ void render_play()
     render_horde();
     render_player();
     render_explosions();
+    render_bunkers();
 
     // live counter
     char player_lives_str[2] = { '0' + player.lives, '\0' };
@@ -1408,96 +1550,3 @@ int main(int argc, char** args)
 
     return 0;
 }
-
-/*// bunkers
-
-#define BUNKER_FIRST_X 32
-#define BUNKERS_Y 192
-
-// 22 x 16
-struct {
-    SDL_Rect outer_bounds;
-    SDL_Point points[352];
-} bunkers[4];
-
-SDL_Point bunkers[4][352];
-
-void init_bunker(int k)
-{
-    // top
-    for (int i = 0; i < 4; i++)
-    {
-        for (int j = 4 - i; j < 18 + i; j++)
-        {
-            bunkers[k][22 * i + j].x = BUNKER_FIRST_X + 46 * k + j;
-            bunkers[k][22 * i + j].y = BUNKERS_Y + i;
-        }
-    }
-
-    // middle
-    for (int i = 4; i < 12; i++)
-    {
-        for (int j = 0; j < 22; j++)
-        {
-            bunkers[k][22 * i + j].x = BUNKER_FIRST_X + 46 * k + j;
-            bunkers[k][22 * i + j].y = BUNKERS_Y + i;
-        }
-    }
-
-    for (int j = 0; j < 8; j++)
-    {
-        bunkers[k][22 * 12 + j].x = BUNKER_FIRST_X + 46 * k + j;
-        bunkers[k][22 * 12 + j].y = BUNKERS_Y + 12;
-
-        bunkers[k][22 * 12 + j + 14].x = BUNKER_FIRST_X + 46 * k + j + 14;
-        bunkers[k][22 * 12 + j + 14].y = BUNKERS_Y + 12;
-    }
-
-    for (int j = 0; j < 7; j++)
-    {
-        bunkers[k][22 * 13 + j].x = BUNKER_FIRST_X + 46 * k + j;
-        bunkers[k][22 * 13 + j].y = BUNKERS_Y + 13;
-
-        bunkers[k][22 * 13 + j + 15].x = BUNKER_FIRST_X + 46 * k + j + 15;
-        bunkers[k][22 * 13 + j + 15].y = BUNKERS_Y + 13;
-    }
-
-    for (int i = 14; i < 16; i++)
-    {
-        for (int j = 0; j < 6; j++)
-        {
-            bunkers[k][22 * i + j].x = BUNKER_FIRST_X + 46 * k + j;
-            bunkers[k][22 * i + j].y = BUNKERS_Y + i;
-
-            bunkers[k][22 * i + j + 16].x = BUNKER_FIRST_X + 46 * k + j + 16;
-            bunkers[k][22 * i + j + 16].y = BUNKERS_Y + i;
-        }
-    }
-}
-
-void init_bunkers()
-{
-    init_bunker(0);
-    init_bunker(1);
-    init_bunker(2);
-    init_bunker(3);
-}
-
-void render_bunkers()
-{
-    SDL_SetRenderDrawColor(app.renderer, 32, 255, 32, 255);
-
-    for (int i = 0; i < 4; i++)
-    {
-        for (int j = 0; j < 352; j++)
-        {
-            const SDL_Rect piece_rect = {
-                bunkers[i][j].x * SCALE,
-                bunkers[i][j].y * SCALE,
-                SCALE,
-                SCALE
-            };
-            SDL_RenderFillRect(app.renderer, &piece_rect);
-        }
-    }
-}*/
