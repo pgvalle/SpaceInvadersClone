@@ -1000,12 +1000,12 @@ void render_tourist()
 
 void process_shot_collision_with_tourist()
 {
+    const SDL_Rect tourist_rect = { tourist.x + 4, 40, 16, 8 };
     for (int i = 0; i < arrlen(player.shots); i++)
     {
         const SDL_Rect shot_rect = {
             player.shots[i].x, player.shots[i].y - 4, 1, 1
         };
-        const SDL_Rect tourist_rect = { tourist.x + 4, 40, 16, 8 };
         if (SDL_HasIntersection(&tourist_rect, &shot_rect) &&
             tourist.state == TOURIST_AVAILABLE)
         {
@@ -1020,12 +1020,13 @@ void process_shot_collision_with_tourist()
 
 void process_shot_collision_with_player()
 {
+    const SDL_Rect player_rect = { player.x + 2, 216, 13, 8 };
     for (int i = 0; i < arrlen(horde.shots); i++)
     {
-        const int shot_x = horde.shots[i].x;
-        const int shot_y = horde.shots[i].y;
-        if (shot_y >= 216 && shot_y <= 216 + 6 &&
-            shot_x >= player.x + 2 && shot_x <= player.x + 15)
+        const SDL_Rect shot_rect = {
+            horde.shots[i].x + 1, horde.shots[i].y, 1, 1
+        };
+        if (SDL_HasIntersection(&player_rect, &shot_rect))
         {
             arrdel(horde.shots, i);
             i--;
@@ -1040,7 +1041,7 @@ void process_shot_collision_with_horde()
 {
     for (int i = 0; i < arrlen(player.shots); i++)
     {
-        const SDL_Rect player_rect = {
+        const SDL_Rect shot_rect = {
             player.shots[i].x, player.shots[i].y - 4, 1, 1
         };
         for (int j = 0; j < arrlen(horde.invaders); j++)
@@ -1054,16 +1055,16 @@ void process_shot_collision_with_horde()
             {
                 score_inc = 20;
                 invader_rect.x -= 1;
-                invader_rect.w += 3;
+                invader_rect.w = 11;
             }
             else if (horde.invaders[j].clip.y == 32)
             {
                 score_inc = 10;
                 invader_rect.x -= 2;
-                invader_rect.w += 4;
+                invader_rect.w = 12;
             }
 
-            if (SDL_HasIntersection(&player_rect, &invader_rect))
+            if (SDL_HasIntersection(&shot_rect, &invader_rect))
             {
                 // add explosion
                 const struct explosion_t explosion = {
@@ -1083,6 +1084,7 @@ void process_shot_collision_with_horde()
                 
                 arrdel(horde.invaders, j);
                 app.score += score_inc;
+                // horde now needs to wait (make delay effect)
                 horde.state = HORDE_WAITING;
                 horde.wait_timer = 0;
                 break;
@@ -1095,36 +1097,38 @@ void process_collision_between_shots()
 {
     for (int i = 0; i < arrlen(horde.shots); i++)
     {
-        const int hshot_x = horde.shots[i].x;
-        const int hshot_y = horde.shots[i].y;
+        const SDL_Rect horde_shot_rect = {
+            horde.shots[i].x, horde.shots[i].y, 3, 4
+        };
         for (int j = 0; j < arrlen(player.shots); j++) 
         {
-            const int pshot_x = player.shots[j].x;
-            const int pshot_y = player.shots[j].y;
-            if (pshot_y <= hshot_y && abs(pshot_x - hshot_x) <= 1)
+            const SDL_Rect player_shot_rect = {
+                player.shots[i].x, player.shots[i].y - 4, 1, 4
+            };
+            if (SDL_HasIntersection(&horde_shot_rect, &player_shot_rect))
             {
-                // horde shot may be stronger than player shot and cut right through it
+                // horde shot may cut right through player shots (it's stronger)
                 if (rand() % 4 != 0)
                 {
-                    const struct explosion_t hshot_exp = {
-                        .x = hshot_x - 1,
-                        .y = hshot_y,
+                    const struct explosion_t horde_shot_explosion = {
+                        .x = horde_shot_rect.x - 2,
+                        .y = horde_shot_rect.y,
                         .clip = { 24, 40,  6,  8 },
                         .timer = 0,
                         .timeout = 16 * 24
                     };
-                    arrput(explosions, hshot_exp);
+                    arrput(explosions, horde_shot_explosion);
                     arrdel(horde.shots, i);
                     i--;
                 }
-                const struct explosion_t pshot_exp = {
-                    .x = pshot_x - 3,
-                    .y = pshot_y,
+                const struct explosion_t player_shot_explosion = {
+                    .x = player_shot_rect.x - 3,
+                    .y = player_shot_rect.y,
                     .clip = { 36, 24,  8,  8 },
                     .timer = 0,
                     .timeout = 16 * 24
                 };
-                arrput(explosions, pshot_exp);
+                arrput(explosions, player_shot_explosion);
                 arrdel(player.shots, j);
                 break;
             }
@@ -1230,7 +1234,7 @@ void render_play()
     // bar. Just to resemble the original game
     SDL_SetRenderDrawColor(app.renderer, 32, 255, 32, 255); // #20ff20
     const SDL_Rect rect = {
-        SCALE * 0, SCALE * 239, SCALE * 224, SCALE
+        SCALE * 0, SCALE * 239, SCALE * WORLD_WIDTH, SCALE
     };
     SDL_RenderFillRect(app.renderer, &rect);
 
