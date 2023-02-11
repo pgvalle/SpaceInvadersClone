@@ -916,7 +916,7 @@ void render_horde_shots()
 static inline
 int gen_tourist_score()
 {
-    return 100 + 50 * (rand() % 5);
+    return 100 * (rand() % 3 + 1);
 }
 
 static inline
@@ -1008,12 +1008,14 @@ void process_shot_collision_with_tourist()
         };
         if (SDL_HasIntersection(&tourist_rect, &shot_rect) &&
             tourist.state == TOURIST_AVAILABLE)
-        {
-            tourist.state = TOURIST_DYING;
-            player.lives += rand() % 2;
-            
+        {            
             arrdel(player.shots, i);
             i--;
+
+            tourist.state = TOURIST_DYING;
+            // 50% chance of getting +1 life if tourist gives +300 points
+            player.lives += tourist.score_inc == 300 ? rand() % 2 : 0;
+            break;
         }
     }
 }
@@ -1033,6 +1035,7 @@ void process_shot_collision_with_player()
             // player dead now
             player.state = PLAYER_DYING;
             player.timer = 0;
+            break;
         }
     }
 }
