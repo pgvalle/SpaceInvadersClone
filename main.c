@@ -1002,14 +1002,44 @@ void render_tourist()
 }
 
 
+static inline
+void remove_bunker_point_neighbor(int b, int p, int dx, int dy)
+{
+    const int x = p + dx;
+    const int y = p + 22 * dy;
+    if (0 <= x && x < 352 && p / 22 == x / 22 && 0 <= y && y < 352)
+        bunkers[b].points[x + y - p].x = -1;
+}
+
 void desintegrate_bunker_from_point(int b, int p)
 {
-    // up    -> p - 22
-    // down  -> p + 22
-    // left  -> p - 1
-    // right -> p + 1
-
-    bunkers[b].points[p].x = -1;
+    // atlas.png - green explosion clip
+    remove_bunker_point_neighbor(b, p,   0, -4);
+    remove_bunker_point_neighbor(b, p,  -2, -3);
+    remove_bunker_point_neighbor(b, p,   2, -3);
+    remove_bunker_point_neighbor(b, p,   0, -2);
+    remove_bunker_point_neighbor(b, p,   1, -2);
+    remove_bunker_point_neighbor(b, p,   3, -2);
+    remove_bunker_point_neighbor(b, p,  -1, -1);
+    remove_bunker_point_neighbor(b, p,   0, -1);
+    remove_bunker_point_neighbor(b, p,   1, -1);
+    remove_bunker_point_neighbor(b, p,   2, -1);
+    remove_bunker_point_neighbor(b, p,  -2,  0);
+    remove_bunker_point_neighbor(b, p,   0,  0);
+    remove_bunker_point_neighbor(b, p,   1,  0);
+    remove_bunker_point_neighbor(b, p,   2,  0);
+    remove_bunker_point_neighbor(b, p,  -1,  1);
+    remove_bunker_point_neighbor(b, p,   0,  1);
+    remove_bunker_point_neighbor(b, p,   1,  1);
+    remove_bunker_point_neighbor(b, p,   2,  1);
+    remove_bunker_point_neighbor(b, p,   3,  1);
+    remove_bunker_point_neighbor(b, p,  -2,  2);
+    remove_bunker_point_neighbor(b, p,   0,  2);
+    remove_bunker_point_neighbor(b, p,   1,  2);
+    remove_bunker_point_neighbor(b, p,   2,  2);
+    remove_bunker_point_neighbor(b, p,  -1,  3);
+    remove_bunker_point_neighbor(b, p,   1,  3);
+    remove_bunker_point_neighbor(b, p,   3,  3);
 }
 
 void render_bunkers()
@@ -1178,7 +1208,7 @@ void process_player_shot_collision_with_bunker(int b)
     for (int i = 0; i < arrlen(player.shots); i++)
     {
         const SDL_Rect shot_rect = {
-            player.shots[i].x, player.shots[i].y - 4, 1, 4
+            player.shots[i].x, player.shots[i].y, 1, 5
         };
         if (SDL_HasIntersection(&bunkers[b].out_rect, &shot_rect))
         {
@@ -1186,6 +1216,14 @@ void process_player_shot_collision_with_bunker(int b)
             {
                 if (SDL_PointInRect(&bunkers[b].points[p], &shot_rect))
                 {
+                    const struct explosion_t explosion = {
+                        .x = shot_rect.x - 2,
+                        .y = shot_rect.y - 4,
+                        .clip = { 24, 40,  6,  8 },
+                        .timer = 0,
+                        .timeout = 16 * 24
+                    };
+                    arrput(explosions, explosion);
                     arrdel(player.shots, i);
                     i--;
 
@@ -1211,6 +1249,14 @@ void process_horde_shot_collision_with_bunker(int b)
             {
                 if (SDL_PointInRect(&bunkers[b].points[p], &shot_rect))
                 {
+                    const struct explosion_t explosion = {
+                        .x = shot_rect.x - 2,
+                        .y = shot_rect.y - 4,
+                        .clip = { 24, 40,  6,  8 },
+                        .timer = 0,
+                        .timeout = 16 * 24
+                    };
+                    arrput(explosions, explosion);
                     arrdel(horde.shots, i);
                     i--;
 
