@@ -11,6 +11,12 @@
 #include "stb_ds.h"
 #undef STB_DS_IMPLEMENTATION
 
+bool my_point_in_rect(const SDL_Point* p, const SDL_Rect* r)
+{
+    return !(p->x < r->x || p->x > r->x + r->w\
+        || p->y < r->y || p->y > r->y + r->h);
+}
+
 // resources
 SDL_Texture* atlas = NULL, * font_atlas = NULL;
 
@@ -1214,7 +1220,7 @@ void process_player_shot_collision_with_bunker(int b)
         {
             for (int p = 0; p < 352; p++)
             {
-                if (SDL_PointInRect(&bunkers[b].points[p], &shot_rect))
+                if (my_point_in_rect(&bunkers[b].points[p], &shot_rect))
                 {
                     const struct explosion_t explosion = {
                         .x = shot_rect.x - 2,
@@ -1247,7 +1253,7 @@ void process_horde_shot_collision_with_bunker(int b)
         {
             for (int p = 0; p < 352; p++)
             {
-                if (SDL_PointInRect(&bunkers[b].points[p], &shot_rect))
+                if (my_point_in_rect(&bunkers[b].points[p], &shot_rect))
                 {
                     const struct explosion_t explosion = {
                         .x = shot_rect.x - 2,
