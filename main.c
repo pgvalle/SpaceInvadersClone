@@ -624,13 +624,13 @@ void update_player()
         break;
 	case PLAYER_ALIVE: {
         const uint8_t* keys = SDL_GetKeyboardState(NULL);
-        // moving player //
+        // moving player
         if (keys[SDL_SCANCODE_LEFT] && player.x > 14)
             player.x -= 1;
         if (keys[SDL_SCANCODE_RIGHT] && player.x < WORLD_WIDTH - 31)
             player.x += 1;
 
-        // shooting mechanic //
+        // shooting mechanic
         if (player.timer < 768)
             player.timer += app.frame_time;
         else if (keys[SDL_SCANCODE_SPACE])
@@ -646,7 +646,6 @@ void update_player()
             player.state = PLAYER_DYING;
             player.timer = 0;
         }
-
         break; }
     case PLAYER_DYING:
         player.timer += app.frame_time;
@@ -846,7 +845,7 @@ void update_horde()
         if (player.state == PLAYER_ALIVE)
         {
             horde.timer += app.frame_time;
-            make_horde_shoot();           
+            make_horde_shoot();
         }
         if (player.state == PLAYER_STARTING || player.state == PLAYER_ALIVE)
             move_horde();
@@ -1199,6 +1198,11 @@ void update_play()
         process_shot_collision_with_tourist();
         process_collision_between_shots();
 
+        // update hi-score
+        if (app.hi_score < app.score)
+            app.hi_score = app.score;
+
+        // all invaders killed
         if (player.state == PLAYER_ALIVE && arrlen(horde.invaders) == 0)
         {
             play.state = PLAY_RESTARTING;
@@ -1206,10 +1210,6 @@ void update_play()
             arrfree(horde.shots);
             arrfree(player.shots);
         }
-
-        // update score
-        if (app.hi_score < app.score)
-            app.hi_score = app.score;
 
         if (player.lives == 0 && player.state == PLAYER_DEAD)
         {
