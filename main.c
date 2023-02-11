@@ -1098,7 +1098,8 @@ void process_shot_collision_with_player()
         const SDL_Rect shot_rect = {
             horde.shots[i].x + 1, horde.shots[i].y, 1, 1
         };
-        if (SDL_HasIntersection(&player_rect, &shot_rect))
+        if (SDL_HasIntersection(&player_rect, &shot_rect) &&
+            player.state != PLAYER_DEAD)
         {
             arrdel(horde.shots, i);
             i--;
@@ -1176,7 +1177,7 @@ void process_collision_between_shots()
         for (int j = 0; j < arrlen(player.shots); j++) 
         {
             const SDL_Rect player_shot_rect = {
-                player.shots[i].x, player.shots[i].y - 4, 1, 4
+                player.shots[i].x, player.shots[i].y - 4, 1, 7
             };
             if (SDL_HasIntersection(&horde_shot_rect, &player_shot_rect))
             {
@@ -1209,6 +1210,39 @@ void process_collision_between_shots()
     }
 }
 
+void process_horde_collision_with_bunkers()
+{
+    // didn't reach bunkers yet or had already wiped them out
+    if (horde.invaders[0].y < 192 || horde.invaders[0].y >= 208)
+        return;
+    
+    for (int b = 0; b < 4; b++)
+    {
+        for (int i = 0; i < arrlen(horde.invaders); i++)
+        {
+            SDL_Rect invader_rect = {
+                horde.invaders[i].x + 2, horde.invaders[i].y, 8, 8
+            };
+            if (horde.invaders[i].clip.y == 24)
+            {
+                invader_rect.x -= 1;
+                invader_rect.w = 11;
+            }
+            else if (horde.invaders[i].clip.y == 32)
+            {
+                invader_rect.x -= 2;
+                invader_rect.w = 12;
+            }
+
+            for (int p = 0; p < 352; p++)
+            {
+                if (my_point_in_rect(&bunkers[b].points[p], &invader_rect))
+                    bunkers[b].points[p].x = -1;
+            }
+        }
+    }
+}
+
 void process_player_shot_collision_with_bunker(int b)
 {
     for (int i = 0; i < arrlen(player.shots); i++)
@@ -1227,7 +1261,7 @@ void process_player_shot_collision_with_bunker(int b)
                         .y = shot_rect.y - 4,
                         .clip = { 24, 40,  6,  8 },
                         .timer = 0,
-                        .timeout = 16 * 24
+                        .timeout = 256
                     };
                     arrput(explosions, explosion);
                     arrdel(player.shots, i);
@@ -1260,7 +1294,7 @@ void process_horde_shot_collision_with_bunker(int b)
                         .y = shot_rect.y - 4,
                         .clip = { 24, 40,  6,  8 },
                         .timer = 0,
-                        .timeout = 16 * 24
+                        .timeout = 256
                     };
                     arrput(explosions, explosion);
                     arrdel(horde.shots, i);
@@ -1390,6 +1424,7 @@ void update_play()
             process_player_shot_collision_with_bunker(b);
             process_horde_shot_collision_with_bunker(b);
         }
+        process_horde_collision_with_bunkers();
 
         // update hi-score
         if (app.hi_score < app.score)
@@ -1455,15 +1490,15 @@ void render_play()
 
 void app_main_loop()
 {
-    uint32_t start = 0, event_wait_timeout = 1000 / FPS;
+    uint32_t before = 0, event_wait_time = 1000 / FPS;
 
     while (app.screen != APP_QUIT)
     {
-        // beginning of frame. Get current time.
-        start = SDL_GetTicks();
+        // beginning of loop. Get current time.
+        const uint32_t start = SDL_GetTicks();
 
         // wait for event
-        if (SDL_WaitEventTimeout(&app.event, event_wait_timeout))
+        if (SDL_WaitEventTimeout(&app.event, event_wait_time))
         {
             process_credit_events();
             if (app.event.type == SDL_QUIT)
@@ -1485,13 +1520,15 @@ void app_main_loop()
             }
 
             // calculate remaining time to wait next loop.
-            const uint32_t processing_time = SDL_GetTicks() - start;
+            const uint32_t event_processing_time = SDL_GetTicks() - start;
             // careful not to be value lower than zero. it's an unsigned int.
-            event_wait_timeout = processing_time < event_wait_timeout ?
-                (event_wait_timeout - processing_time) : 0;
+            event_wait_time = event_processing_time < event_wait_time ?
+                (event_wait_time - event_processing_time) : 0;
         }
         else
         {
+            app.frame_time = SDL_GetTicks() - before;
+
             SDL_SetRenderDrawColor(app.renderer, 0, 0, 0, 255);
             SDL_RenderClear(app.renderer);
             switch (app.screen)
@@ -1515,17 +1552,13 @@ void app_main_loop()
                 render_over();
                 break;
             }
-
             render_scores();
             render_credits();
             SDL_RenderPresent(app.renderer);
 
-            app.frame_time = 0; // reset frame time
-            event_wait_timeout = 1000 / FPS; // reset event wait timeout
+            before = SDL_GetTicks();
+            event_wait_time = 1000 / FPS; // reset event wait time
         }
-
-        // accumulate frame time
-        app.frame_time += SDL_GetTicks() - start;
     }
 }
 
