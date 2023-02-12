@@ -57,29 +57,27 @@ struct {
 
 void render_text_until(const char* text, int x, int y, int n)
 {
-    const char* characters = CHARACTERS;
-    const int len_characters = strlen(CHARACTERS);
     for (int i = 0; i < n; i++)
     {
-        // find mapping
-        int index = 0;
-        for (; index < len_characters; index++)
-            if (toupper(text[i]) == characters[index]) break;
-
-        if (index != len_characters) // success
+        // find c in character set
+        const char c = toupper(text[i]);
+        for (int j = 0; j < sizeof(CHARACTERS) - 1; j++)
         {
-            SDL_Rect clip = {
-                index * FONT_PTSIZE, 0, FONT_PTSIZE, FONT_PTSIZE
-            };
-            SDL_Rect scale = {
-                SCALE * x, SCALE * y, SCALE * clip.w, SCALE * clip.h
-            };
-
-            // Correcting placement of 'I', '1' and '='. They are thinner.
-            if (toupper(text[i]) == 'I' || text[i] == '1' || text[i] == '=')
-                scale.x -= SCALE;
-
-            SDL_RenderCopy(app.renderer, font_atlas, &clip, &scale);
+            if (c == CHARACTERS[j])
+            {
+                const SDL_Rect clip = {
+                    j * FONT_PTSIZE, 0, FONT_PTSIZE, FONT_PTSIZE
+                };
+                SDL_Rect scale = {
+                    SCALE * x, SCALE * y, SCALE * clip.w, SCALE * clip.h
+                };
+                // Correcting placement of 'I', '1' and '='. They're thinner.
+                if (c == 'I' || c == '1' || c == '=')
+                    scale.x -= SCALE;
+                
+                SDL_RenderCopy(app.renderer, font_atlas, &clip, &scale);
+                break;
+            }
         }
 
         x += FONT_PTSIZE;
@@ -94,7 +92,7 @@ void render_text(const char* text, int x, int y)
 
 void render_clip(const SDL_Rect* clip, int x, int y)
 {
-    SDL_Rect scale = {
+    const SDL_Rect scale = {
         SCALE * x, SCALE * y, SCALE * clip->w, SCALE * clip->h
     };
     SDL_RenderCopy(app.renderer, atlas, clip, &scale);
@@ -123,23 +121,23 @@ void process_credit_events()
 
 void render_credits()
 {
-    char credits_str[10];
-    sprintf(credits_str, "CREDIT %02d", app.credits);
-    render_text(credits_str, WORLD_WIDTH - 80, WORLD_HEIGHT - 16);
+    char credit_text[10];
+    sprintf(credit_text, "CREDIT %02d", app.credits);
+    render_text(credit_text, WORLD_WIDTH - 80, WORLD_HEIGHT - 16);
 }
 
 
 void render_scores()
 {
-    char score_str[7];
+    char score_text[7];
     // score
     render_text("your score", 8, 8);
-    sprintf(score_str, "%06d", app.score);
-    render_text(score_str, 24, 24);
+    sprintf(score_text, "%06d", app.score);
+    render_text(score_text, 24, 24);
     // high-score
     render_text("high-score", WORLD_WIDTH - 88, 8);
-    sprintf(score_str, "%06d", app.hi_score);
-    render_text(score_str, WORLD_WIDTH - 72, 24);
+    sprintf(score_text, "%06d", app.hi_score);
+    render_text(score_text, WORLD_WIDTH - 72, 24);
 }
 
 void render_score_advances_table()
@@ -589,9 +587,9 @@ void render_pause()
         break;
     case PAUSE_RESUMING: {
         int countdown = 3 - (int)pause.timer / 1000;
-        char countdown_str[3];
-        sprintf(countdown_str, "%02d", countdown == 0 ? 1 : countdown);
-        render_text(countdown_str, WORLD_WIDTH / 2 - 8, 112);
+        char countdown_text[3];
+        sprintf(countdown_text, "%02d", countdown == 0 ? 1 : countdown);
+        render_text(countdown_text, WORLD_WIDTH / 2 - 8, 112);
         break; }
     }
 }
@@ -1502,8 +1500,8 @@ void render_play()
     render_explosions();
 
     // live counter
-    char player_lives_str[2] = { '0' + player.lives, '\0' };
-    render_text(player_lives_str, 8, WORLD_HEIGHT - 16);
+    char player_lives_text[2] = { '0' + player.lives, '\0' };
+    render_text(player_lives_text, 8, WORLD_HEIGHT - 16);
     // live cannons
     const SDL_Rect cannon_clip = { 0, 8, 16, 8 };
     for (int i = 0; i < player.lives - 1; i++)

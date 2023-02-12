@@ -60,18 +60,18 @@ There's a total of 8 state machines that you can find in the code. Here's the di
 
 ### Screens (main.c:39)
 ![screens](res/fsm/screens.png "screens")
-### Menu (main.c:170)
+### Menu (main.c:168)
 ![menu](res/fsm/menu.png "menu")
-### Play (main.c:209)
+### Play (main.c:207)
 ![play](res/fsm/play.png "play")
-### Pause (main.c:197)
+### Pause (main.c:195)
 ![pause](res/fsm/pause.png "pause")
-### Game Over (main.c:183)
+### Game Over (main.c:181)
 ![over](res/fsm/over.png "over")
 
 ## Event Loop
 
-Here's how I have my event loop (look at main.c:1515 for more details):
+Here's how I have my event loop (look at main.c:1513 for more details):
 ```
 void main_loop()
 {
@@ -110,7 +110,7 @@ void main_loop()
 
 First of all, a quick shout to [nothings](https://github.com/nothings).
 I used their dynamic structures library [stb_ds.h](https://github.com/nothings/stb/blob/master/stb_ds.h). Really good piece of software, btw! Saved me so much hours I can't even count.
-There are three dynamic collections in the game: explosions (main.c:217), invaders (main.c:249) and shots (main.c:235 and main.c:254).
+There are three dynamic collections in the game: explosions (main.c:215), invaders (main.c:247) and shots (main.c:233 and main.c:252).
 
 ## Something Else...
 
