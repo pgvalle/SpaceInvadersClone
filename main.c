@@ -2,6 +2,7 @@
 #include <SDL_image.h>
 #include <SDL_ttf.h>
 
+#include <math.h>
 #include <stdio.h>
 #include <stdbool.h>
 #include <ctype.h>
@@ -773,7 +774,7 @@ void update_horde_start_anim()
         horde.ymove = 0;
         horde.invaders_updated = 0;
         horde.timer = 0;
-        horde.shot_timeout = 498 * (rand() % 2 + 1);
+        horde.shot_timeout = 608 * (rand() % 2 + 1);
     }
 }
 
@@ -783,31 +784,53 @@ void make_horde_shoot()
     if (horde.shot_timer < horde.shot_timeout || arrlen(horde.invaders) == 0)
         return;
 
-    // someone shoots
-    const int i = rand() % arrlen(horde.invaders);
-    const int x = horde.invaders[i].x;
-    int y = horde.invaders[i].y;
-    for (int j = 0; j < i; j++)
+    // reset shot timing variables
+    horde.shot_timer = 0;
+    horde.shot_timeout = 608 * (rand() % 2 + 1);
+
+    // 1/2 change of being a random shot
+    bool is_random_shot = rand() % 2 == 0;
+    if (is_random_shot)
     {
-        int a = horde.invaders[j].x - x;
-        a = a < 0 ? -a : a;
-        if (a <= 2 && horde.invaders[j].y >= horde.invaders[i].y)
+        // pick a random invader to shoot
+        const int i = rand() % arrlen(horde.invaders);
+        for (int j = 0; j <= i; j++)
         {
-            y = horde.invaders[j].y;
+            // in same column as pick. That is the one shooting
+            if (abs(horde.invaders[j].x - horde.invaders[i].x) < 3)
+            {
+                struct horde_shot_t shot = {
+                    .x = horde.invaders[i].x + 5,
+                    .y = horde.invaders[j].y + 8,
+                    .clip = { 24, 16 +  8 * (rand() % 3),  3,  7 },
+                    .timer = 0
+                };
+                arrput(horde.shots, shot);
+                return;
+            }
+        }
+    }
+
+    // danger zone width is 5. Necessarily 1 column of invaders will be in it
+    SDL_Rect player_danger_zone = { player.x + 6, 0, 5, WORLD_HEIGHT };
+    for (int i = 0; i < arrlen(horde.invaders); i++)
+    {
+        const SDL_Rect invader_rect = {
+            horde.invaders[i].x, horde.invaders[i].y, 12, 8
+        };
+        // iterating from bottom to top so this invader itself is shooting
+        if (SDL_HasIntersection(&player_danger_zone, &invader_rect))
+        {
+            struct horde_shot_t shot = {
+                .x = invader_rect.x + 5,
+                .y = invader_rect.y + 8,
+                .clip = { 24, 16 +  8 * (rand() % 3),  3,  7 },
+                .timer = 0
+            };
+            arrput(horde.shots, shot);
             break;
         }
     }
-    struct horde_shot_t shot = {
-        .x = x + 5,
-        .y = y + 8,
-        .clip = { 24, 16 +  8 * (rand() % 3),  3,  7 },
-        .timer = 0
-    };
-    arrput(horde.shots, shot);
-
-    // reset
-    horde.shot_timer = 0;
-    horde.shot_timeout = 498 * (rand() % 2 + 1);
 }
 
 void move_horde()
@@ -873,7 +896,7 @@ void update_horde_shots()
 	{
         // update shot animation
         horde.shots[i].timer += app.frame_time;
-        if (horde.shots[i].timer >= 16 * 6)
+        if (horde.shots[i].timer >= 96)
         {
             horde.shots[i].clip.x -= 24;
             horde.shots[i].clip.x = (horde.shots[i].clip.x + 3) % 12;
@@ -891,7 +914,7 @@ void update_horde_shots()
                 .y = 232,
                 .clip = { 24, 40,  6,  8 },
                 .timer = 0,
-                .timeout = 16 * 8
+                .timeout = 128
             };
             arrput(explosions, explosion);
 			arrdel(horde.shots, i);
@@ -1289,7 +1312,7 @@ void process_horde_shot_collision_with_bunker(int b)
                 {
                     const struct explosion_t explosion = {
                         .x = shot_rect.x - 2,
-                        .y = shot_rect.y - 3,
+                        .y = shot_rect.y - 4,
                         .clip = { 24, 40,  6,  8 },
                         .timer = 0,
                         .timeout = 256
