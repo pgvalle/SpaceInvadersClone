@@ -14,8 +14,8 @@
 
 bool my_point_in_rect(const SDL_Point* p, const SDL_Rect* r)
 {
-    return !(p->x < r->x || p->x > r->x + r->w\
-        || p->y < r->y || p->y > r->y + r->h);
+    return !(p->x < r->x || p->x > r->x + r->w ||
+        p->y < r->y || p->y > r->y + r->h);
 }
 
 // resources
@@ -303,7 +303,7 @@ void process_menu_events()
     {
     case MENU_DISPLAYING:
     case MENU_WAITING:
-        if (key == SDLK_RETURN || key == SDLK_RETURN2)
+        if (key == SDLK_RETURN)
         {
             menu.state = MENU_BLINKING_ON;
             menu.timer = 0;
@@ -399,7 +399,7 @@ void process_over_events()
     switch (over.state)
     {
     case GAMEOVER_WAITING1:
-        if (key == SDLK_RETURN || key == SDLK_RETURN2)
+        if (key == SDLK_RETURN)
         {
             over.state = GAMEOVER_DISPLAYING;
             over.timer = 0;
@@ -407,7 +407,7 @@ void process_over_events()
         break;
     case GAMEOVER_WAITING2:
     case GAMEOVER_DISPLAYING:
-        if (key == SDLK_RETURN || key == SDLK_RETURN2)
+        if (key == SDLK_RETURN)
         {
             over.state = GAMEOVER_BLINKING_ON;
             over.timer = 0;
@@ -613,9 +613,7 @@ void update_explosions()
 void render_explosions()
 {
     for (int i = 0; i < arrlen(explosions); i++)
-        render_clip(
-            &explosions[i].clip, explosions[i].x, explosions[i].y
-        );
+        render_clip(&explosions[i].clip, explosions[i].x, explosions[i].y);
 }
 
 
@@ -722,7 +720,7 @@ void update_player_shots()
                 .y = 34,
                 .clip = { 36, 24,  8,  8 },
                 .timer = 0,
-                .timeout = 16 * 16
+                .timeout = 256
             };
             arrput(explosions, explosion);
             arrdel(player.shots, i);
@@ -772,7 +770,7 @@ void update_horde_start_anim()
         horde.ymove = 0;
         horde.invaders_updated = 0;
         horde.timer = 0;
-        horde.shot_timeout = 608 * (rand() % 2 + 1);
+        horde.shot_timeout = 496 * (rand() % 2 + 1);
     }
 }
 
@@ -784,23 +782,22 @@ void make_horde_shoot()
 
     // reset shot timing variables
     horde.shot_timer = 0;
-    horde.shot_timeout = 608 * (rand() % 2 + 1);
+    horde.shot_timeout = 496 * (rand() % 2 + 1);
 
     // 1/2 change of being a random shot
-    bool is_random_shot = rand() % 2 == 0;
-    if (is_random_shot)
+    if (rand() % 2 == 0)
     {
         // pick a random invader to shoot
         const int i = rand() % arrlen(horde.invaders);
         for (int j = 0; j <= i; j++)
         {
-            // in same column as pick. That is the one shooting
-            if (abs(horde.invaders[j].x - horde.invaders[i].x) < 3)
+            // horizontal distance < 3 => invader j in same column as invader i
+            if (abs(horde.invaders[i].x- horde.invaders[j].x) < 3)
             {
                 struct horde_shot_t shot = {
                     .x = horde.invaders[i].x + 5,
                     .y = horde.invaders[j].y + 8,
-                    .clip = { 24, 16 +  8 * (rand() % 3),  3,  7 },
+                    .clip = { 24, 8 * (rand() % 3 + 2),  3,  7 },
                     .timer = 0
                 };
                 arrput(horde.shots, shot);
@@ -837,34 +834,35 @@ void move_horde()
         return;
 
     horde.invaders_updated %= arrlen(horde.invaders);
-    
-    const int i = horde.invaders_updated;
-    // move this guy
+    const int i = horde.invaders_updated; // index of invader to update
+    // move
     horde.invaders[i].x += horde.xmove;
     horde.invaders[i].y += horde.ymove;
-    // animate
-    horde.invaders[i].clip.x = horde.invaders[i].clip.x == 0 ? 12 : 0;
-    // now someone got updated this frame
-    horde.invaders_updated++;
-    
-    // horde entirely updated so maybe it's time to flip directions next frame
-    bool all_updated = horde.invaders_updated == arrlen(horde.invaders);
-    if (all_updated && horde.ymove == 0)
+    horde.invaders[i].clip.x = horde.invaders[i].clip.x == 0 ? 12 : 0; // animate
+    horde.invaders_updated++; // +1 updated
+
+    // horde partially updated so we're done.
+    if (horde.invaders_updated < arrlen(horde.invaders))
+        return;
+    // fully updated and moved down. Don't move down next time
+    if (horde.ymove != 0)
     {
-        // find out if horde should change direction
-        for (int j = 0; j < arrlen(horde.invaders); j++)
+        horde.ymove = 0;
+        return;
+    }
+
+    // fully updated and didn't move down. Maybe it's time to flip directions
+    for (int j = 0; j < arrlen(horde.invaders); j++)
+    {
+        // should change directions and move down
+        const int x = horde.invaders[j].x;
+        if (x <= 10 || x >= WORLD_WIDTH - 22)
         {
-            const int x = horde.invaders[j].x;
-            if (x <= 10 || x >= WORLD_WIDTH - 22) // should change directions
-            {
-                horde.xmove = -horde.xmove;
-                horde.ymove = 8;
-                break;
-            }
+            horde.xmove = -horde.xmove;
+            horde.ymove = 8;
+            break;
         }
     }
-    else if (all_updated)
-        horde.ymove = 0;
 }
 
 void update_horde()
@@ -951,7 +949,7 @@ int gen_tourist_score()
 static inline
 int gen_tourist_spawn_timeout()
 {
-    return 1024 * (rand() % (30 - 20 + 1) + 20);
+    return 1008 * (rand() % (30 - 20 + 1) + 20);
 }
 
 void update_tourist()
@@ -1125,7 +1123,7 @@ void process_shot_collision_with_player()
             // player dead now
             player.state = PLAYER_DYING;
             player.timer = 0;
-            break;
+            return;
         }
     }
 }
@@ -1159,7 +1157,6 @@ void process_shot_collision_with_horde()
 
             if (SDL_HasIntersection(&shot_rect, &invader_rect))
             {
-                // add explosion
                 const struct explosion_t explosion = {
                     .x = horde.invaders[j].x,
                     .y = horde.invaders[j].y,
@@ -1170,17 +1167,17 @@ void process_shot_collision_with_horde()
                 arrput(explosions, explosion);
                 arrdel(player.shots, i);
                 i--;
+                arrdel(horde.invaders, j);
+                app.score += score_inc;
 
                 // prevent updating twice the same invader (corner case)
                 if (j < horde.invaders_updated)
                     horde.invaders_updated--;
                 
-                arrdel(horde.invaders, j);
-                app.score += score_inc;
                 // horde now needs to wait (make delay effect)
                 horde.state = HORDE_WAITING;
                 horde.timer = 0;
-                break;
+                return;
             }
         }
     }
@@ -1200,30 +1197,32 @@ void process_collision_between_shots()
             };
             if (SDL_HasIntersection(&horde_shot_rect, &player_shot_rect))
             {
-                // horde shot may cut right through player shots (it's stronger)
-                if (rand() % 4 != 0)
+                // 1/4 of change horde shot cut right through player shot
+                bool has_cut_through_shot = rand() % 4 == 0;
+                if (!has_cut_through_shot) // horde shot must be deleted
                 {
                     const struct explosion_t horde_shot_explosion = {
                         .x = horde_shot_rect.x - 2,
                         .y = horde_shot_rect.y + 1,
                         .clip = { 24, 40,  6,  8 },
                         .timer = 0,
-                        .timeout = 16 * 24
+                        .timeout = 384
                     };
                     arrput(explosions, horde_shot_explosion);
                     arrdel(horde.shots, i);
                     i--;
                 }
+
                 const struct explosion_t player_shot_explosion = {
                     .x = player_shot_rect.x - 3,
                     .y = player_shot_rect.y - 1,
                     .clip = { 36, 24,  8,  8 },
                     .timer = 0,
-                    .timeout = 16 * 24
+                    .timeout = 384
                 };
                 arrput(explosions, player_shot_explosion);
                 arrdel(player.shots, j);
-                break;
+                return;
             }
         }
     }
@@ -1287,7 +1286,7 @@ void process_player_shot_collision_with_bunker(int b)
                     i--;
 
                     desintegrate_bunker_from_point(b, p);
-                    break;
+                    return;
                 }
             }
         }
