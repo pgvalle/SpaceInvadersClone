@@ -745,6 +745,12 @@ void render_player_shots()
 }
 
 
+static inline
+uint32_t gen_horde_shot_timeout()
+{
+    return 496 * (rand() % 2 + 1);
+}
+
 void update_horde_start_anim()
 {
     if (horde.invaders_updated < 55)
@@ -770,7 +776,7 @@ void update_horde_start_anim()
         horde.ymove = 0;
         horde.invaders_updated = 0;
         horde.timer = 0;
-        horde.shot_timeout = 496 * (rand() % 2 + 1);
+        horde.shot_timeout = gen_horde_shot_timeout();
     }
 }
 
@@ -782,7 +788,7 @@ void make_horde_shoot()
 
     // reset shot timing variables
     horde.shot_timer = 0;
-    horde.shot_timeout = 496 * (rand() % 2 + 1);
+    horde.shot_timeout = gen_horde_shot_timeout();
 
     // 1/2 change of being a random shot
     if (rand() % 2 == 0)
@@ -1453,6 +1459,7 @@ void update_play()
         {
             play.state = PLAY_RESTARTING;
             play.timer = 0;
+            horde.shot_timer = gen_horde_shot_timeout();
             arrfree(horde.shots);
             arrfree(player.shots);
         }
