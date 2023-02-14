@@ -24,7 +24,7 @@ SDL_Texture* atlas = NULL, * font_atlas = NULL;
 /* APP */
 
 #define FPS 60
-#define SCALE 1
+#define SCALE 3
 #define RESOURCE_DIR "./res"
 #define FONT_PTSIZE 8
 
@@ -1075,10 +1075,24 @@ void render_bunkers()
 {
     SDL_SetRenderDrawColor(app.renderer, 32, 255, 32, 255);
 
-    SDL_RenderDrawPoints(app.renderer, bunkers[0].points, 352);
-    SDL_RenderDrawPoints(app.renderer, bunkers[1].points, 352);
-    SDL_RenderDrawPoints(app.renderer, bunkers[2].points, 352);
-    SDL_RenderDrawPoints(app.renderer, bunkers[3].points, 352);
+    for (int p = 0; p < 352; p++)
+    {
+        const SDL_Rect stretched_points[4] = {
+            { SCALE * bunkers[0].points[p].x,
+              SCALE * bunkers[0].points[p].y,
+              SCALE, SCALE },
+            { SCALE * bunkers[1].points[p].x,
+              SCALE * bunkers[1].points[p].y,
+              SCALE, SCALE },
+            { SCALE * bunkers[2].points[p].x,
+              SCALE * bunkers[2].points[p].y,
+              SCALE, SCALE },
+            { SCALE * bunkers[3].points[p].x,
+              SCALE * bunkers[3].points[p].y,
+              SCALE, SCALE }
+        };
+        SDL_RenderFillRects(app.renderer, stretched_points, 4);
+    }
 }
 
 
@@ -1450,7 +1464,6 @@ void update_play()
         {
             play.state = PLAY_RESTARTING;
             play.timer = 0;
-            horde.shot_timer = gen_horde_shot_timeout();
             arrfree(horde.shots);
             arrfree(player.shots);
         }
