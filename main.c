@@ -24,7 +24,7 @@ SDL_Texture* atlas = NULL, * font_atlas = NULL;
 /* APP */
 
 #define FPS 60
-#define SCALE 3
+#define SCALE 2
 #define RESOURCE_DIR "./res"
 #define FONT_PTSIZE 8
 
@@ -732,6 +732,7 @@ void update_player_shots()
 
 void render_player_shots()
 {
+    SDL_SetRenderDrawColor(app.renderer, 255, 255, 255, 255);
     for (int i = 0; i < arrlen(player.shots); i++)
 	{
 		const SDL_Rect shot_rect = {
@@ -740,7 +741,6 @@ void render_player_shots()
 			SCALE,
 			SCALE * 4,
 		};
-		SDL_SetRenderDrawColor(app.renderer, 255, 255, 255, 255);
 		SDL_RenderFillRect(app.renderer, &shot_rect);
 	}
 }
@@ -1202,9 +1202,8 @@ void process_collision_between_shots()
             };
             if (SDL_HasIntersection(&horde_shot_rect, &player_shot_rect))
             {
-                // 1/4 of change horde shot cut right through player shot
-                bool has_cut_through_shot = rand() % 4 == 0;
-                if (!has_cut_through_shot) // horde shot must be deleted
+                // 25% chance horde shot cut right through player shot
+                if (rand() % 4 != 0) // 75% it explodes as well
                 {
                     const struct explosion_t horde_shot_explosion = {
                         .x = horde_shot_rect.x - 2,
@@ -1551,11 +1550,10 @@ void app_main_loop()
             // careful not to be value lower than zero. it's an unsigned int.
             event_wait_time = event_processing_time < event_wait_time ?
                 (event_wait_time - event_processing_time) : 0;
-
-            
         }
         else
         {
+            event_wait_time = 1000 / FPS; // reset event wait time
             app.frame_time = SDL_GetTicks64() - before;
             before += app.frame_time;
 
@@ -1585,8 +1583,6 @@ void app_main_loop()
             render_scores();
             render_credits();
             SDL_RenderPresent(app.renderer);
-
-            event_wait_time = 1000 / FPS; // reset event wait time
         }
     }
 }
@@ -1661,6 +1657,11 @@ int main(int argc, char** args)
 
     IMG_Quit();
     SDL_Quit();
+
+    arrfree(horde.invaders);
+    arrfree(horde.shots);
+    arrfree(player.shots);
+    arrfree(explosions);
 
     return 0;
 }
