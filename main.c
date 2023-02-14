@@ -24,7 +24,7 @@ SDL_Texture* atlas = NULL, * font_atlas = NULL;
 /* APP */
 
 #define FPS 60
-#define SCALE 2
+#define SCALE 1
 #define RESOURCE_DIR "./res"
 #define FONT_PTSIZE 8
 
@@ -52,7 +52,7 @@ struct {
     int credits; // useless. Just an easteregg
     int score, hi_score;
 
-    uint32_t frame_time;
+    uint64_t frame_time;
 } app;
 
 void render_text_until(const char* text, int x, int y, int n)
@@ -174,7 +174,7 @@ struct {
 
     int display_i;
 
-    uint32_t timer;
+    uint64_t timer;
 } menu;
 
 struct {
@@ -188,7 +188,7 @@ struct {
 
     int display_i;
 
-    uint32_t timer;
+    uint64_t timer;
 } over;
 
 struct {
@@ -198,7 +198,7 @@ struct {
         PAUSE_RESUMING
     } state;
 
-    uint32_t timer;
+    uint64_t timer;
 } pause;
 
 /* ALL PLAY SCREEN STRUCTS */
@@ -209,13 +209,13 @@ struct {
         PLAY_RESTARTING
     } state;
 
-    uint32_t timer;
+    uint64_t timer;
 } play;
 
 struct explosion_t {
     int x, y;
     SDL_Rect clip;
-    uint32_t timer, timeout;
+    uint64_t timer, timeout;
 }* explosions;
 
 struct {
@@ -232,7 +232,7 @@ struct {
 
     SDL_Point* shots;
 
-    uint32_t timer;
+    uint64_t timer;
 } player;
 
 struct {
@@ -252,14 +252,14 @@ struct {
     struct horde_shot_t {
         int x, y;
         SDL_Rect clip;
-        uint32_t timer;
+        uint64_t timer;
     }* shots;
 
     // One invader is updated each frame.
     // horde is up-to-date only when all invaders are up-to-date.
     int invaders_updated;
 
-    uint32_t timer, shot_timer, shot_timeout;
+    uint64_t timer, shot_timer, shot_timeout;
 } horde;
 
 struct {
@@ -274,7 +274,7 @@ struct {
     int score_inc;
     int available_appearances;
 
-    uint32_t timer, spawn_timeout;
+    uint64_t timer, spawn_timeout;
 } tourist;
 
 struct {
@@ -746,7 +746,7 @@ void render_player_shots()
 
 
 static inline
-uint32_t gen_horde_shot_timeout()
+uint64_t gen_horde_shot_timeout()
 {
     return 496 * (rand() % 2 + 1);
 }
@@ -1075,19 +1075,10 @@ void render_bunkers()
 {
     SDL_SetRenderDrawColor(app.renderer, 32, 255, 32, 255);
 
-    for (int i = 0; i < 4; i++)
-    {
-        for (int j = 0; j < 352; j++)
-        {
-            const SDL_Rect point_rect = {
-                bunkers[i].points[j].x * SCALE,
-                bunkers[i].points[j].y * SCALE,
-                SCALE,
-                SCALE
-            };
-            SDL_RenderFillRect(app.renderer, &point_rect);
-        }
-    }
+    SDL_RenderDrawPoints(app.renderer, bunkers[0].points, 352);
+    SDL_RenderDrawPoints(app.renderer, bunkers[1].points, 352);
+    SDL_RenderDrawPoints(app.renderer, bunkers[2].points, 352);
+    SDL_RenderDrawPoints(app.renderer, bunkers[3].points, 352);
 }
 
 
@@ -1506,7 +1497,8 @@ void render_play()
     render_explosions();
 
     // live counter
-    char player_lives_text[2] = { '0' + player.lives, '\0' };
+    char player_lives_text[3];
+    sprintf(player_lives_text, "%d", player.lives);
     render_text(player_lives_text, 8, WORLD_HEIGHT - 16);
     // live cannons
     const SDL_Rect cannon_clip = { 0, 8, 16, 8 };
@@ -1518,12 +1510,12 @@ void render_play()
 
 void app_main_loop()
 {
-    uint32_t before = 0, event_wait_time = 1000 / FPS;
+    uint64_t before = 0, event_wait_time = 1000 / FPS;
 
     while (app.screen != APP_QUIT)
     {
         // beginning of loop. Get current time.
-        const uint32_t start = SDL_GetTicks();
+        const uint64_t start = SDL_GetTicks64();
 
         // wait for event
         if (SDL_WaitEventTimeout(&app.event, event_wait_time))
@@ -1548,14 +1540,16 @@ void app_main_loop()
             }
 
             // calculate remaining time to wait next loop.
-            const uint32_t event_processing_time = SDL_GetTicks() - start;
+            const uint64_t event_processing_time = SDL_GetTicks64() - start;
             // careful not to be value lower than zero. it's an unsigned int.
-            event_wait_time -= event_processing_time < event_wait_time ?
-                event_processing_time : 0;
+            event_wait_time = event_processing_time < event_wait_time ?
+                (event_wait_time - event_processing_time) : 0;
+
+            
         }
         else
         {
-            app.frame_time = SDL_GetTicks() - before;
+            app.frame_time = SDL_GetTicks64() - before;
             before += app.frame_time;
 
             SDL_SetRenderDrawColor(app.renderer, 0, 0, 0, 255);
