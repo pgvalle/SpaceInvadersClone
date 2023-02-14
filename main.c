@@ -530,6 +530,7 @@ void process_pause_events()
     {
     case SDLK_m:
         app.screen = APP_MENU;
+        app.score = 0;
         reset_menu();
         break;
     case SDLK_ESCAPE:
@@ -733,14 +734,14 @@ void render_player_shots()
 {
     for (int i = 0; i < arrlen(player.shots); i++)
 	{
-		SDL_Rect rect = {
+		const SDL_Rect shot_rect = {
 			SCALE * player.shots[i].x,
 			SCALE * player.shots[i].y,
 			SCALE,
 			SCALE * 4,
 		};
 		SDL_SetRenderDrawColor(app.renderer, 255, 255, 255, 255);
-		SDL_RenderFillRect(app.renderer, &rect);
+		SDL_RenderFillRect(app.renderer, &shot_rect);
 	}
 }
 
@@ -813,14 +814,13 @@ void make_horde_shoot()
     }
 
     // danger zone width is 5. Necessarily 1 column of invaders will be in it
-    SDL_Rect player_danger_zone = { player.x + 6, 0, 5, WORLD_HEIGHT };
+    SDL_Rect danger_zone = { player.x + 6, 0, 5, WORLD_HEIGHT };
     for (int i = 0; i < arrlen(horde.invaders); i++)
     {
         const SDL_Rect invader_rect = {
             horde.invaders[i].x, horde.invaders[i].y, 12, 8
         };
-        // iterating from bottom to top so this invader itself is shooting
-        if (SDL_HasIntersection(&player_danger_zone, &invader_rect))
+        if (SDL_HasIntersection(&danger_zone, &invader_rect))
         {
             struct horde_shot_t shot = {
                 .x = invader_rect.x + 5,
@@ -929,20 +929,14 @@ void render_horde()
 {
     for (int i = 0; i < arrlen(horde.invaders); i++)
         render_clip(
-            &horde.invaders[i].clip,
-            horde.invaders[i].x,
-            horde.invaders[i].y
+            &horde.invaders[i].clip, horde.invaders[i].x, horde.invaders[i].y
         );
 }
 
 void render_horde_shots()
 {
     for (int i = 0; i < arrlen(horde.shots); i++)
-        render_clip(
-            &horde.shots[i].clip,
-            horde.shots[i].x,
-            horde.shots[i].y
-        );
+        render_clip(&horde.shots[i].clip, horde.shots[i].x, horde.shots[i].y);
 }
 
 
@@ -1077,7 +1071,7 @@ void render_bunkers()
 
     for (int p = 0; p < 352; p++)
     {
-        const SDL_Rect stretched_points[4] = {
+        const SDL_Rect scaled_points[4] = {
             { SCALE * bunkers[0].points[p].x,
               SCALE * bunkers[0].points[p].y,
               SCALE, SCALE },
@@ -1091,7 +1085,7 @@ void render_bunkers()
               SCALE * bunkers[3].points[p].y,
               SCALE, SCALE }
         };
-        SDL_RenderFillRects(app.renderer, stretched_points, 4);
+        SDL_RenderFillRects(app.renderer, scaled_points, 4);
     }
 }
 
@@ -1134,7 +1128,7 @@ void process_shot_collision_with_player()
             // player dead now
             player.state = PLAYER_DYING;
             player.timer = 0;
-            return;
+            break;
         }
     }
 }
@@ -1204,7 +1198,7 @@ void process_collision_between_shots()
         for (int j = 0; j < arrlen(player.shots); j++) 
         {
             const SDL_Rect player_shot_rect = {
-                player.shots[i].x, player.shots[i].y, 1, 5
+                player.shots[j].x, player.shots[j].y, 1, 5
             };
             if (SDL_HasIntersection(&horde_shot_rect, &player_shot_rect))
             {
