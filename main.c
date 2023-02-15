@@ -900,9 +900,7 @@ void update_horde_shots()
         horde.shots[i].timer += app.frame_time;
         if (horde.shots[i].timer >= 96)
         {
-            horde.shots[i].clip.x -= 24;
-            horde.shots[i].clip.x = (horde.shots[i].clip.x + 3) % 12;
-            horde.shots[i].clip.x += 24;
+            horde.shots[i].clip.x = 24 + (horde.shots[i].clip.x - 21) % 12;
             horde.shots[i].timer = 0;
         }
 
