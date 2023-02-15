@@ -26,10 +26,7 @@ SDL_Texture* atlas = NULL, * font_atlas = NULL;
 #define FPS 60
 #define SCALE 2
 #define RESOURCE_DIR "./res"
-#define FONT_PTSIZE 8
 
-#define CHARACTERS_MONO " A B C D E F G H  I J K L M N O P Q R S T U V W X"\
-	" Y Z 0  1 2 3 4 5 6 7 8 9 * ? -  < > = "
 #define CHARACTERS "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789*?-<>="
 
 #define WORLD_WIDTH  224
@@ -65,22 +62,17 @@ void render_text_until(const char* text, int x, int y, int n)
         {
             if (c == CHARACTERS[j])
             {
-                const SDL_Rect clip = {
-                    j * FONT_PTSIZE, 0, FONT_PTSIZE, FONT_PTSIZE
-                };
-                SDL_Rect scale = {
+                const SDL_Rect clip = {j * 8, 0, 8, 8 };
+                const SDL_Rect scale = {
                     SCALE * x, SCALE * y, SCALE * clip.w, SCALE * clip.h
                 };
-                // Correcting placement of 'I', '1' and '='. They're thinner.
-                if (c == 'I' || c == '1' || c == '=')
-                    scale.x -= SCALE;
                 
                 SDL_RenderCopy(app.renderer, font_atlas, &clip, &scale);
                 break;
             }
         }
 
-        x += FONT_PTSIZE;
+        x += 8;
     }
 }
 
@@ -145,19 +137,19 @@ void render_score_advances_table()
     render_text("*SCORE ADVANCES TABLE*", 24, 128);
 
     const SDL_Rect tourist_clip = { 0,  0, 24,  8 };
-    render_clip(&tourist_clip, 58, 152);
-    render_text("=?? MYSTERY", 80, 152);
+    render_clip(&tourist_clip, 60, 152);
+    render_text("=? MYSTERY", 80, 152);
 
     const SDL_Rect invader1_clip = { 0, 16, 12,  8 };
-    render_clip(&invader1_clip, 64, 168);
+    render_clip(&invader1_clip, 66, 168);
     render_text("=30 POINTS", 80, 168);
 
     const SDL_Rect invader2_clip = { 0, 24, 12,  8 };
-    render_clip(&invader2_clip, 64, 184);
+    render_clip(&invader2_clip, 66, 184);
     render_text("=20 POINTS", 80, 184);
 
     const SDL_Rect invader3_clip = { 0, 32, 12,  8 };
-    render_clip(&invader3_clip, 64, 200);
+    render_clip(&invader3_clip, 66, 200);
     render_text("=10 POINTS", 80, 200);
 }
 
@@ -1622,22 +1614,8 @@ int main(int argc, char** args)
 
     atlas = IMG_LoadTexture(app.renderer, RESOURCE_DIR "/atlas.png");
     SDL_assert(atlas);
-
-    TTF_Init();
-    {
-        TTF_Font* font = TTF_OpenFont(RESOURCE_DIR "/font.ttf", FONT_PTSIZE);
-        SDL_assert(font);
-
-        const SDL_Color white = {255, 255, 255, 255};
-        SDL_Surface* font_surf = TTF_RenderUTF8_Solid(font, CHARACTERS_MONO, white);
-
-        // create the texture and free the surface
-        font_atlas = SDL_CreateTextureFromSurface(app.renderer, font_surf);
-        SDL_FreeSurface(font_surf);
-
-        TTF_CloseFont(font);
-    }
-    TTF_Quit();
+    font_atlas = IMG_LoadTexture(app.renderer, RESOURCE_DIR "/font_atlas.png");
+    SDL_assert(font_atlas);
     
     app_main_loop(); // execution
 

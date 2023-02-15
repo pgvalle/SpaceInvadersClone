@@ -116,4 +116,4 @@ There are three dynamic collections in the game: explosions (main.c:215), invade
 
 I was supposed to implement an algorithm, data structure or effect in my game that would make it more than just an example application implemented using all the concepts required.
 I came up with a technique to render texts (main.c:58).\
-I basically picked an almost monospaced font, rendered ascii characters in a specific order as a texture once, and used that specific order to quickly map a character, say 'A', to a section of the texture which contains 'A'. It helped me rendering dynamic ui elements like the score counter.
+I basically picked an almost monospaced font, rendered ascii characters in a specific order as an image once, and used that specific order to quickly map a character, say 'A', to a section of the image which contains 'A'. It helped me rendering dynamic ui elements like the score counter.
