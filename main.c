@@ -1510,6 +1510,12 @@ void app_main_loop()
 
     while (app.screen != APP_QUIT)
     {
+<<<<<<< HEAD
+=======
+        // beginning of loop. Get current time.
+        const uint64_t start = SDL_GetTicks();
+
+>>>>>>> 603043c9751c9d461475ce06cbb9f68a3d4d165d
         // wait for event
         if (SDL_WaitEventTimeout(&app.event, event_wait_time))
         {
@@ -1533,14 +1539,25 @@ void app_main_loop()
             }
 
             // calculate remaining time to wait next loop.
+<<<<<<< HEAD
             const uint64_t processing_time = SDL_GetTicks() - event_start;
             event_start += processing_time;
+=======
+            const uint64_t event_processing_time = SDL_GetTicks() - start;
+>>>>>>> 603043c9751c9d461475ce06cbb9f68a3d4d165d
             // careful not to be value lower than zero. it's an unsigned int.
             event_wait_time = processing_time < event_wait_time ?
                 (event_wait_time - processing_time) : 0;
         }
         else
         {
+<<<<<<< HEAD
+=======
+            event_wait_time = 1000 / FPS; // reset event wait time
+            app.frame_time = SDL_GetTicks() - before;
+            before += app.frame_time;
+
+>>>>>>> 603043c9751c9d461475ce06cbb9f68a3d4d165d
             SDL_SetRenderDrawColor(app.renderer, 0, 0, 0, 255);
             SDL_RenderClear(app.renderer);
             switch (app.screen)
