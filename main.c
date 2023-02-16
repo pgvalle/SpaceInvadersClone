@@ -1506,13 +1506,10 @@ void render_play()
 
 void app_main_loop()
 {
-    uint64_t before = 0, event_wait_time = 1000 / FPS;
+    uint64_t frame_start = 0, event_start = 0, event_wait_time = 1000 / FPS;
 
     while (app.screen != APP_QUIT)
     {
-        // beginning of loop. Get current time.
-        const uint64_t start = SDL_GetTicks64();
-
         // wait for event
         if (SDL_WaitEventTimeout(&app.event, event_wait_time))
         {
@@ -1536,17 +1533,14 @@ void app_main_loop()
             }
 
             // calculate remaining time to wait next loop.
-            const uint64_t event_processing_time = SDL_GetTicks64() - start;
+            const uint64_t processing_time = SDL_GetTicks() - event_start;
+            event_start += processing_time;
             // careful not to be value lower than zero. it's an unsigned int.
-            event_wait_time = event_processing_time < event_wait_time ?
-                (event_wait_time - event_processing_time) : 0;
+            event_wait_time = processing_time < event_wait_time ?
+                (event_wait_time - processing_time) : 0;
         }
         else
         {
-            event_wait_time = 1000 / FPS; // reset event wait time
-            app.frame_time = SDL_GetTicks64() - before;
-            before += app.frame_time;
-
             SDL_SetRenderDrawColor(app.renderer, 0, 0, 0, 255);
             SDL_RenderClear(app.renderer);
             switch (app.screen)
@@ -1573,6 +1567,10 @@ void app_main_loop()
             render_scores();
             render_credits();
             SDL_RenderPresent(app.renderer);
+        
+            app.frame_time = SDL_GetTicks() - frame_start;
+            frame_start += app.frame_time;
+            event_wait_time = 1000 / FPS; // reset event wait time
         }
     }
 }
