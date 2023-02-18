@@ -63,10 +63,7 @@ void render_text_until(const char* text, int x, int y, int n)
             if (c == CHARACTERS[j])
             {
                 const SDL_Rect clip = {j * 8, 0, 8, 8 };
-                const SDL_Rect scale = {
-                    SCALE * x, SCALE * y, SCALE * clip.w, SCALE * clip.h
-                };
-                
+                const SDL_Rect scale = { x, y, clip.w, clip.h };
                 SDL_RenderCopy(app.renderer, font_atlas, &clip, &scale);
                 break;
             }
@@ -84,9 +81,7 @@ void render_text(const char* text, int x, int y)
 
 void render_clip(const SDL_Rect* clip, int x, int y)
 {
-    const SDL_Rect scale = {
-        SCALE * x, SCALE * y, SCALE * clip->w, SCALE * clip->h
-    };
+    const SDL_Rect scale = { x, y, clip->w, clip->h };
     SDL_RenderCopy(app.renderer, atlas, clip, &scale);
 }
 
@@ -476,9 +471,7 @@ void render_over()
     {
         SDL_SetRenderDrawBlendMode(app.renderer, SDL_BLENDMODE_BLEND);
         SDL_SetRenderDrawColor(app.renderer, 0, 0, 0, 225);
-        const SDL_Rect overlay_rect = {
-            0, 0, SCALE * WORLD_WIDTH, SCALE * WORLD_HEIGHT
-        };
+        const SDL_Rect overlay_rect = { 0, 0, WORLD_WIDTH, WORLD_HEIGHT };
         SDL_RenderFillRect(app.renderer, &overlay_rect);
         SDL_SetRenderDrawBlendMode(app.renderer, SDL_BLENDMODE_NONE);
     }
@@ -563,9 +556,7 @@ void render_pause()
     // make background darker. It feels like game is really paused
     SDL_SetRenderDrawBlendMode(app.renderer, SDL_BLENDMODE_BLEND);
     SDL_SetRenderDrawColor(app.renderer, 0, 0, 0, 225);
-    const SDL_Rect overlay_rect = {
-        0, 0, SCALE * WORLD_WIDTH, SCALE * WORLD_HEIGHT
-    };
+    const SDL_Rect overlay_rect = { 0, 0, WORLD_WIDTH, WORLD_HEIGHT };
     SDL_RenderFillRect(app.renderer, &overlay_rect);
     SDL_SetRenderDrawBlendMode(app.renderer, SDL_BLENDMODE_NONE);
 
@@ -728,10 +719,7 @@ void render_player_shots()
     for (int i = 0; i < arrlen(player.shots); i++)
 	{
 		const SDL_Rect shot_rect = {
-			SCALE * player.shots[i].x,
-			SCALE * player.shots[i].y,
-			SCALE,
-			SCALE * 4,
+			player.shots[i].x, player.shots[i].y, 1, 4
 		};
 		SDL_RenderFillRect(app.renderer, &shot_rect);
 	}
@@ -1061,21 +1049,13 @@ void render_bunkers()
 
     for (int p = 0; p < 352; p++)
     {
-        const SDL_Rect scaled_points[4] = {
-            { SCALE * bunkers[0].points[p].x,
-              SCALE * bunkers[0].points[p].y,
-              SCALE, SCALE },
-            { SCALE * bunkers[1].points[p].x,
-              SCALE * bunkers[1].points[p].y,
-              SCALE, SCALE },
-            { SCALE * bunkers[2].points[p].x,
-              SCALE * bunkers[2].points[p].y,
-              SCALE, SCALE },
-            { SCALE * bunkers[3].points[p].x,
-              SCALE * bunkers[3].points[p].y,
-              SCALE, SCALE }
+        const SDL_Point points[4] = {
+            bunkers[0].points[p],
+            bunkers[1].points[p],
+            bunkers[2].points[p],
+            bunkers[3].points[p]
         };
-        SDL_RenderFillRects(app.renderer, scaled_points, 4);
+        SDL_RenderDrawPoints(app.renderer, points, 4);
     }
 }
 
@@ -1479,10 +1459,8 @@ void render_play()
     // useless stuff
     // bar. Just to resemble the original game
     SDL_SetRenderDrawColor(app.renderer, 32, 255, 32, 255); // #20ff20
-    const SDL_Rect rect = {
-        SCALE * 0, SCALE * 239, SCALE * WORLD_WIDTH, SCALE
-    };
-    SDL_RenderFillRect(app.renderer, &rect);
+    const SDL_Rect bar_rect = { 0, 239, WORLD_WIDTH, 1 };
+    SDL_RenderFillRect(app.renderer, &bar_rect);
 
     render_player_shots();
     render_horde_shots();
@@ -1596,6 +1574,8 @@ int main(int argc, char** args)
         SDL_WINDOW_INPUT_FOCUS | SDL_WINDOW_MOUSE_FOCUS
     );
     app.renderer = SDL_CreateRenderer(app.window, -1, SDL_RENDERER_ACCELERATED);
+    SDL_RenderSetScale(app.renderer, SCALE, SCALE);
+    SDL_RenderSetIntegerScale(app.renderer, SDL_TRUE);
     app.frame_time = 0;
 
     app.score = 0;
