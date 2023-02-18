@@ -1047,16 +1047,10 @@ void render_bunkers()
 {
     SDL_SetRenderDrawColor(app.renderer, 32, 255, 32, 255);
 
-    for (int p = 0; p < 352; p++)
-    {
-        const SDL_Point points[4] = {
-            bunkers[0].points[p],
-            bunkers[1].points[p],
-            bunkers[2].points[p],
-            bunkers[3].points[p]
-        };
-        SDL_RenderDrawPoints(app.renderer, points, 4);
-    }
+    SDL_RenderDrawPoints(app.renderer, bunkers[0].points, 352);
+    SDL_RenderDrawPoints(app.renderer, bunkers[1].points, 352);
+    SDL_RenderDrawPoints(app.renderer, bunkers[2].points, 352);
+    SDL_RenderDrawPoints(app.renderer, bunkers[3].points, 352);
 }
 
 
@@ -1545,6 +1539,9 @@ void app_main_loop()
             render_scores();
             render_credits();
             SDL_RenderPresent(app.renderer);
+
+            printf("\x1b[2J\r%d", app.frame_time);
+            fflush(stdout);
         
             app.frame_time = SDL_GetTicks() - frame_start;
             frame_start += app.frame_time;
