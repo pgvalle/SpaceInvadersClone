@@ -1508,7 +1508,7 @@ void app_main_loop()
             const uint64_t processing_time = SDL_GetTicks() - event_start;
             event_start += processing_time;
             // careful not to be value lower than zero. it's an unsigned int.
-            event_wait_time = processing_time <= event_wait_time ?
+            event_wait_time = processing_time < event_wait_time ?
                 (event_wait_time - processing_time) : 0;
         }
         else
@@ -1539,12 +1539,11 @@ void app_main_loop()
             render_scores();
             render_credits();
             SDL_RenderPresent(app.renderer);
-
-            printf("\x1b[2J\r%d", app.frame_time);
-            fflush(stdout);
         
             app.frame_time = SDL_GetTicks() - frame_start;
             frame_start += app.frame_time;
+
+            event_start = frame_start;
             event_wait_time = 1000 / FPS; // reset event wait time
         }
     }
