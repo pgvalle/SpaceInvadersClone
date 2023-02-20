@@ -1543,7 +1543,7 @@ void update_and_render_screen()
     SDL_RenderPresent(renderer);
 }
 
-void SCREEN_main_loop()
+void main_loop()
 {
     uint64_t frame_start = 0, event_start = 0, event_wait_time = 1000 / FPS;
 
@@ -1616,7 +1616,7 @@ int main(int argc, char** args)
     font_atlas = IMG_LoadTexture(renderer, RESOURCES "/font_atlas.png");
     SDL_assert(font_atlas);
     
-    SCREEN_main_loop(); // execution
+    main_loop(); // execution
 
     // termination
 
