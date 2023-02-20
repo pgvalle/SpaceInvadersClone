@@ -8,34 +8,16 @@ But I guarantee it's good enough to be called Space Invaders Clone.
 # Build instructions
 ## Linux
 
-**NOTE 1**: For newbies, you must remember the command prompt from Windows, right?
-Probably you even did some stuff in there. So, bring that experience to mind
-everytime you read *terminal* here.
-
-To start, open up a *terminal* window and try out each of these commands to see
-which one prompts something other than "command not found" or so:\
-**NOTE 2**: Don't copy the $. It's just a symbol people use to mean "that's a
-*terminal* window", if you didn't know.
+To start, you must install sdl2 and sdl2-image. If you don't know what the packages names are,
+here are the commands to install those in debian, arch and fedora based distros with some extra
+stuff you need but might not have installed:
 
 1. `$ sudo apt install make gcc git libsdl2-dev libsdl2-image-dev libsdl2-ttf-dev libsdl2-mixer-dev`
 2. `$ sudo pacman -S make gcc git sdl2 sdl2_image sdl2_ttf sdl2_mixer`
 3. `$ sudo dnf install make gcc git-all SDL2-devel SDL2_image-devel SDL2_ttf-devel SDL2_mixer-devel`
 
-When the command runs, whichever it is, it's going to ask for your password.
-So you just type it and press enter.\
-**NOTE 3**: Don't worry if it seems like your keyboard stopped working because
-nothing gets printed out. It's working.
-
-Then, follow these commands:
-```
-$ git clone https://github.com/pgvalle/SpaceInvadersClone
-(some stuff showing up here)
-$ cd SpaceInvadersClone
-$ make
-(some stuff showing up here)
-$ ./space_invaders.out
-```
-And you're done. You should have the game executing now. YAY!
+Using make should produce an executable called space_invaders.out inside the repo root folder
+And you're done. You should be able to execute the game now.
 
 ## Windows
 
@@ -75,31 +57,30 @@ Here's how I have my event loop (look at main.c:1513 for more details):
 ```
 void main_loop()
 {
-    uint32_t before = 0, event_wait_time = 1000 / FPS;
+    uint32_t frame_start = 0, event_start = 0, event_wait_time = 1000 / FPS;
 
     while (app.screen != APP_QUIT)
     {
-        // beginning of loop. Get current time.
-        const uint32_t start = SDL_GetTicks();
-
         // wait for event
         if (SDL_WaitEventTimeout(&app.event, event_wait_time))
         {
             // switch statement for screen event handling ...
 
             // calculate remaining time to wait next loop.
-            const uint32_t event_processing_time = SDL_GetTicks() - start;
+            const uint32_t processing_time = SDL_GetTicks() - start;
+            event_start += processing_time;
             // careful not to be value lower than zero. it's an unsigned int.
-            event_wait_time -= event_processing_time < event_wait_time ?
-                event_processing_time : 0;
+            event_wait_time = processing_time < event_wait_time ?
+                (event_wait_time - processing_time) : 0;
         }
         else
         {
-            app.frame_time = SDL_GetTicks() - before;
-            before += app.frame_time;
-
             // switch statement for screen updating and rendering ...
-
+            
+            app.frame_time = SDL_GetTicks() - frame_start;
+            frame_start += app.frame_time;
+            
+            event_start = frame_start;
             event_wait_time = 1000 / FPS; // reset event wait time
         }
     }
