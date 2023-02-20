@@ -1,6 +1,5 @@
 #include <SDL.h>
 #include <SDL_image.h>
-#include <SDL_ttf.h>
 
 #include <math.h>
 #include <stdio.h>
@@ -60,13 +59,12 @@ void render_text_until(const char* text, int x, int y, int n)
         {
             if (c == CHARACTERS[j])
             {
-                const SDL_Rect clip = {j * 8, 0, 8, 8 };
+                const SDL_Rect clip = { 8 * j, 0, 8, 8 };
                 const SDL_Rect scale = { x, y, clip.w, clip.h };
                 SDL_RenderCopy(renderer, font_atlas, &clip, &scale);
                 break;
             }
         }
-
         x += 8;
     }
 }
@@ -1011,47 +1009,32 @@ void render_tourist()
 
 // bunkers //
 
-static inline
-void remove_bunker_point_neighbor(int b, int p, int dx, int dy)
-{
-    const int x = p + dx;
-    const int y = p + 22 * dy;
-    if (0 <= x && x < 352 && p / 22 == x / 22 && 0 <= y && y < 352)
-    {
-        bunkers[b].points[x + y - p].x = -1;
-        bunkers[b].points[x + y - p].y = -1;
-    }
-}
-
 void desintegrate_bunker_from_point(int b, int p)
 {
-    // atlas.png - green explosion clip
-    remove_bunker_point_neighbor(b, p,   0, -4);
-    remove_bunker_point_neighbor(b, p,  -2, -3);
-    remove_bunker_point_neighbor(b, p,   2, -3);
-    remove_bunker_point_neighbor(b, p,   0, -2);
-    remove_bunker_point_neighbor(b, p,   1, -2);
-    remove_bunker_point_neighbor(b, p,   3, -2);
-    remove_bunker_point_neighbor(b, p,  -1, -1);
-    remove_bunker_point_neighbor(b, p,   0, -1);
-    remove_bunker_point_neighbor(b, p,   1, -1);
-    remove_bunker_point_neighbor(b, p,   2, -1);
-    remove_bunker_point_neighbor(b, p,  -2,  0);
-    remove_bunker_point_neighbor(b, p,   0,  0);
-    remove_bunker_point_neighbor(b, p,   1,  0);
-    remove_bunker_point_neighbor(b, p,   2,  0);
-    remove_bunker_point_neighbor(b, p,  -1,  1);
-    remove_bunker_point_neighbor(b, p,   0,  1);
-    remove_bunker_point_neighbor(b, p,   1,  1);
-    remove_bunker_point_neighbor(b, p,   2,  1);
-    remove_bunker_point_neighbor(b, p,   3,  1);
-    remove_bunker_point_neighbor(b, p,  -2,  2);
-    remove_bunker_point_neighbor(b, p,   0,  2);
-    remove_bunker_point_neighbor(b, p,   1,  2);
-    remove_bunker_point_neighbor(b, p,   2,  2);
-    remove_bunker_point_neighbor(b, p,  -1,  3);
-    remove_bunker_point_neighbor(b, p,   1,  3);
-    remove_bunker_point_neighbor(b, p,   3,  3);
+    // offsets from center to remove
+    const SDL_Point offsets[26] = {
+        {  0, -4 },
+        { -2, -3 }, {  2, -3 },
+        {  0, -2 }, {  1, -2 }, {  3, -2 },
+        { -1, -1 },
+        {  0, -1 }, {  1, -1 }, {  2, -1 },
+        { -2,  0 }, {  0,  0 }, {  1,  0 }, {  2,  0 },
+        { -1,  1 }, {  0,  1 }, {  1,  1 }, {  2,  1 }, {  3,  1 },
+        { -2,  2 },
+        {  0,  2 }, {  1,  2 }, {  2,  2 },
+        { -1,  3 }, {  1,  3 }, {  3,  3 },
+    };
+
+    for (int i = 0; i < 26; i++)
+    {
+        const int x = p % 22 + offsets[i].x;
+        const int y = p / 22 + offsets[i].y;
+        if (0 <= x && x < 22 && 0 <= y && y < 16)
+        {
+            bunkers[b].points[22 * y + x].x = -1;
+            bunkers[b].points[22 * y + x].y = -1;
+        }
+    }
 }
 
 void render_bunkers()
@@ -1465,9 +1448,8 @@ void update_play()
 
 void render_play()
 {
-    // useless stuff
-    // bar. Just to resemble the original game
-    SDL_SetRenderDrawColor(renderer, 32, 255, 32, 255); // #20ff20
+    // useless bar. Just to resemble the original game
+    SDL_SetRenderDrawColor(renderer, 32, 255, 32, 255);
     const SDL_Rect bar_rect = { 0, 239, WIDTH, 1 };
     SDL_RenderFillRect(renderer, &bar_rect);
 
@@ -1495,6 +1477,7 @@ void render_play()
 void process_screen_events(const SDL_Event* event)
 {
     process_credit_events(event);
+
     if (event->type == SDL_QUIT)
         screen = SCREEN_QUIT;
     else switch (screen)
