@@ -18,39 +18,37 @@ bool my_point_in_rect(const SDL_Point* p, const SDL_Rect* r)
         p->y < r->y || p->y > r->y + r->h);
 }
 
-// resources
-SDL_Texture* atlas = NULL, * font_atlas = NULL;
-
-/* APP */
+// IMPORTANT MACROS //
 
 #define FPS 60
 #define SCALE 2
-#define RESOURCE_DIR "./res"
+#define RESOURCES "./res"
 
 #define CHARACTERS "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789*?-<>="
 
-#define WORLD_WIDTH  224
-#define WORLD_HEIGHT 256
+#define WIDTH  224
+#define HEIGHT 256
 
-struct {
-	enum {
-        APP_MENU,
-		APP_PLAY,
-		APP_PAUSE,
-        APP_GAMEOVER,
-		APP_QUIT
-	} screen;
 
-	SDL_Window* window;
-    SDL_Event event;
+// APP VARIABLES //
 
-    SDL_Renderer* renderer;
+enum {
+    SCREEN_MENU,
+    SCREEN_PLAY,
+    SCREEN_PAUSE,
+    SCREEN_GAMEOVER,
+    SCREEN_QUIT
+} screen;
+SDL_Window* window;
+SDL_Renderer* renderer;
+uint32_t frame_delta;
 
-    int credits; // useless. Just an easteregg
-    int score, hi_score;
+int credits;
+int score, hi_score;
 
-    uint64_t frame_time;
-} app;
+SDL_Texture* atlas, * font_atlas;
+
+// app utilities //
 
 void render_text_until(const char* text, int x, int y, int n)
 {
@@ -64,7 +62,7 @@ void render_text_until(const char* text, int x, int y, int n)
             {
                 const SDL_Rect clip = {j * 8, 0, 8, 8 };
                 const SDL_Rect scale = { x, y, clip.w, clip.h };
-                SDL_RenderCopy(app.renderer, font_atlas, &clip, &scale);
+                SDL_RenderCopy(renderer, font_atlas, &clip, &scale);
                 break;
             }
         }
@@ -82,26 +80,26 @@ void render_text(const char* text, int x, int y)
 void render_clip(const SDL_Rect* clip, int x, int y)
 {
     const SDL_Rect scale = { x, y, clip->w, clip->h };
-    SDL_RenderCopy(app.renderer, atlas, clip, &scale);
+    SDL_RenderCopy(renderer, atlas, clip, &scale);
 }
 
 
-void process_credit_events()
+void process_credit_events(const SDL_Event* event)
 {
-    if (app.event.type != SDL_KEYDOWN)
+    if (event->type != SDL_KEYDOWN)
         return;
     
-    switch (app.event.key.keysym.sym)
+    switch (event->key.keysym.sym)
     {
     case SDLK_PLUS:
     case SDLK_KP_PLUS:
-        if (app.credits < 99)
-            app.credits++;
+        if (credits < 99)
+            credits++;
         break;
     case SDLK_MINUS:
     case SDLK_KP_MINUS:
-        if (app.credits > 0)
-            app.credits--;
+        if (credits > 0)
+            credits--;
         break;
     }
 }
@@ -109,8 +107,8 @@ void process_credit_events()
 void render_credits()
 {
     char credit_text[10];
-    sprintf(credit_text, "CREDIT %02d", app.credits);
-    render_text(credit_text, WORLD_WIDTH - 80, WORLD_HEIGHT - 16);
+    sprintf(credit_text, "CREDIT %02d", credits);
+    render_text(credit_text, WIDTH - 80, HEIGHT - 16);
 }
 
 
@@ -119,12 +117,12 @@ void render_scores()
     char score_text[7];
     // score
     render_text("your score", 8, 8);
-    sprintf(score_text, "%06d", app.score);
+    sprintf(score_text, "%06d", score);
     render_text(score_text, 24, 24);
     // high-score
-    render_text("high-score", WORLD_WIDTH - 88, 8);
-    sprintf(score_text, "%06d", app.hi_score);
-    render_text(score_text, WORLD_WIDTH - 72, 24);
+    render_text("high-score", WIDTH - 88, 8);
+    sprintf(score_text, "%06d", hi_score);
+    render_text(score_text, WIDTH - 72, 24);
 }
 
 void render_score_advances_table()
@@ -149,7 +147,7 @@ void render_score_advances_table()
 }
 
 
-/* SCREENS STRUCTS (for each app screen) */
+// SCREENS STRUCTS (for each app screen) //
 
 struct {
     enum {
@@ -270,7 +268,7 @@ struct {
 } bunkers[4];
 
 
-/* MENU SCREEN */
+// MENU SCREEN IMPLEMENTATION //
 
 void reset_menu()
 {
@@ -280,12 +278,12 @@ void reset_menu()
 }
 
 void reset_play();
-void process_menu_events()
+void process_menu_events(const SDL_Event* event)
 {
-    if (app.event.type != SDL_KEYDOWN || app.event.key.repeat)
+    if (event->type != SDL_KEYDOWN || event->key.repeat)
         return;
     
-    SDL_Keycode key = app.event.key.keysym.sym;
+    SDL_Keycode key = event->key.keysym.sym;
     switch (menu.state)
     {
     case MENU_DISPLAYING:
@@ -300,13 +298,13 @@ void process_menu_events()
     case MENU_BLINKING_OFF:
         if (key == SDLK_p)
         {
-            app.screen = APP_PLAY;
-            if (app.credits > 0)
-                app.credits--;
+            screen = SCREEN_PLAY;
+            if (credits > 0)
+                credits--;
             reset_play();
         }
         else if (key == SDLK_q)
-            app.screen = APP_QUIT;
+            screen = SCREEN_QUIT;
         break;
     }
 }
@@ -316,7 +314,7 @@ void update_menu()
     switch (menu.state)
     {
     case MENU_DISPLAYING:
-        menu.timer += app.frame_time;
+        menu.timer += frame_delta;
         if (menu.timer >= 160)
         {
             if (++menu.display_i == 14)
@@ -325,7 +323,7 @@ void update_menu()
         }
         break;
     case MENU_WAITING:
-        menu.timer += app.frame_time;
+        menu.timer += frame_delta;
         if (menu.timer >= 1008)
         {
             menu.state = MENU_BLINKING_ON;
@@ -334,7 +332,7 @@ void update_menu()
         break;
     case MENU_BLINKING_ON:
     case MENU_BLINKING_OFF:
-        menu.timer += app.frame_time;
+        menu.timer += frame_delta;
         if (menu.timer >= 498)
         {
             menu.state = (menu.state == MENU_BLINKING_ON ?
@@ -367,7 +365,7 @@ void render_menu()
 }
 
 
-/* GAME OVER SCREEN */
+// GAME OVER SCREEN IMPLEMENTATION //
 
 void reset_over()
 {
@@ -377,12 +375,12 @@ void reset_over()
 }
 
 void reset_play();
-void process_over_events()
+void process_over_events(const SDL_Event* event)
 {
-    if (app.event.type != SDL_KEYDOWN || app.event.key.repeat)
+    if (event->type != SDL_KEYDOWN || event->key.repeat)
         return;
 
-    SDL_Keycode key = app.event.key.keysym.sym;
+    SDL_Keycode key = event->key.keysym.sym;
     switch (over.state)
     {
     case GAMEOVER_WAITING1:
@@ -406,16 +404,16 @@ void process_over_events()
         {
         case SDLK_RETURN:
         case SDLK_RETURN2:
-            app.screen = APP_PLAY;
-            if (app.credits > 0)
-                app.credits--;
+            screen = SCREEN_PLAY;
+            if (credits > 0)
+                credits--;
             reset_play();
             break;
         case SDLK_q:
-            app.screen = APP_QUIT;
+            screen = SCREEN_QUIT;
             break;
         case SDLK_m:
-            app.screen = APP_MENU;
+            screen = SCREEN_MENU;
             reset_menu();
             break;
         }
@@ -428,7 +426,7 @@ void update_over()
     switch (over.state)
     {
     case GAMEOVER_WAITING1:
-        over.timer += app.frame_time;
+        over.timer += frame_delta;
         if (over.timer >= 2000)
         {
             over.state = GAMEOVER_DISPLAYING;
@@ -436,7 +434,7 @@ void update_over()
         }
         break;
     case GAMEOVER_DISPLAYING:
-        over.timer += app.frame_time;
+        over.timer += frame_delta;
         if (over.timer >= 160)
         {
             if (++over.display_i == 8)
@@ -445,7 +443,7 @@ void update_over()
         }
         break;
     case GAMEOVER_WAITING2:
-        over.timer += app.frame_time;
+        over.timer += frame_delta;
         if (over.timer >= 1008)
         {
             over.state = GAMEOVER_BLINKING_ON;
@@ -454,7 +452,7 @@ void update_over()
         break;
     case GAMEOVER_BLINKING_ON:
     case GAMEOVER_BLINKING_OFF:
-        over.timer += app.frame_time;
+        over.timer += frame_delta;
         if (over.timer >= 498)
         {
             over.state = (over.state == GAMEOVER_BLINKING_ON ?
@@ -469,11 +467,11 @@ void render_over()
 {
     if (over.state != GAMEOVER_WAITING1)
     {
-        SDL_SetRenderDrawBlendMode(app.renderer, SDL_BLENDMODE_BLEND);
-        SDL_SetRenderDrawColor(app.renderer, 0, 0, 0, 225);
-        const SDL_Rect overlay_rect = { 0, 0, WORLD_WIDTH, WORLD_HEIGHT };
-        SDL_RenderFillRect(app.renderer, &overlay_rect);
-        SDL_SetRenderDrawBlendMode(app.renderer, SDL_BLENDMODE_NONE);
+        SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 225);
+        const SDL_Rect overlay_rect = { 0, 0, WIDTH, HEIGHT };
+        SDL_RenderFillRect(renderer, &overlay_rect);
+        SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
     }
 
     switch (over.state)
@@ -497,7 +495,7 @@ void render_over()
 }
 
 
-/* PAUSE SCREEN */
+// PAUSE SCREEN IMPLEMENTATION //
 
 void reset_pause()
 {
@@ -505,17 +503,17 @@ void reset_pause()
     pause.timer = 0;
 }
 
-void process_pause_events()
+void process_pause_events(const SDL_Event* event)
 {
-    if (app.event.type != SDL_KEYDOWN || app.event.key.repeat ||
+    if (event->type != SDL_KEYDOWN || event->key.repeat ||
         pause.state == PAUSE_RESUMING)
         return;
     
-    switch (app.event.key.keysym.sym)
+    switch (event->key.keysym.sym)
     {
     case SDLK_m:
-        app.screen = APP_MENU;
-        app.score = 0;
+        screen = SCREEN_MENU;
+        score = 0;
         reset_menu();
         break;
     case SDLK_ESCAPE:
@@ -523,7 +521,7 @@ void process_pause_events()
         pause.timer = 0;
         break;
     case SDLK_q:
-        app.screen = APP_QUIT;
+        screen = SCREEN_QUIT;
         reset_over();
         break;
     }
@@ -535,7 +533,7 @@ void update_pause()
     {
     case PAUSE_BLINKING_ON:
     case PAUSE_BLINKING_OFF:
-        pause.timer += app.frame_time;
+        pause.timer += frame_delta;
         if (pause.timer >= 498) // 16 * 32 (half second)
         {
             pause.state = (pause.state == PAUSE_BLINKING_ON ?
@@ -544,9 +542,9 @@ void update_pause()
         }
         break;
     case PAUSE_RESUMING:
-        pause.timer += app.frame_time;
+        pause.timer += frame_delta;
         if (pause.timer >= 3008) // 16 * 188 (3 seconds)
-            app.screen = APP_PLAY;
+            screen = SCREEN_PLAY;
         break;
     }
 }
@@ -554,11 +552,11 @@ void update_pause()
 void render_pause()
 {
     // make background darker. It feels like game is really paused
-    SDL_SetRenderDrawBlendMode(app.renderer, SDL_BLENDMODE_BLEND);
-    SDL_SetRenderDrawColor(app.renderer, 0, 0, 0, 225);
-    const SDL_Rect overlay_rect = { 0, 0, WORLD_WIDTH, WORLD_HEIGHT };
-    SDL_RenderFillRect(app.renderer, &overlay_rect);
-    SDL_SetRenderDrawBlendMode(app.renderer, SDL_BLENDMODE_NONE);
+    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 225);
+    const SDL_Rect overlay_rect = { 0, 0, WIDTH, HEIGHT };
+    SDL_RenderFillRect(renderer, &overlay_rect);
+    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
 
     switch (pause.state)
     {
@@ -573,19 +571,21 @@ void render_pause()
         int countdown = 3 - (int)pause.timer / 1000;
         char countdown_text[3];
         sprintf(countdown_text, "%02d", countdown == 0 ? 1 : countdown);
-        render_text(countdown_text, WORLD_WIDTH / 2 - 8, 112);
+        render_text(countdown_text, WIDTH / 2 - 8, 112);
         break; }
     }
 }
 
 
-/* PLAY SCREEN */
+// PLAY SCREEN IMPLEMENTATION //
+
+// explosions //
 
 void update_explosions()
 {
     for (int i = 0; i < arrlen(explosions); i++)
     {
-        explosions[i].timer += app.frame_time;
+        explosions[i].timer += frame_delta;
         if (explosions[i].timer >= explosions[i].timeout)
         {
             arrdel(explosions, i);
@@ -601,12 +601,14 @@ void render_explosions()
 }
 
 
+// player //
+
 void update_player()
 {
 	switch (player.state)
 	{
     case PLAYER_STARTING:
-        player.timer += app.frame_time;
+        player.timer += frame_delta;
         if (player.timer >= 2000)
         {
             player.state = PLAYER_ALIVE;
@@ -619,12 +621,12 @@ void update_player()
         // moving player
         if (keys[SDL_SCANCODE_LEFT] && player.x > 14)
             player.x -= 1;
-        if (keys[SDL_SCANCODE_RIGHT] && player.x < WORLD_WIDTH - 31)
+        if (keys[SDL_SCANCODE_RIGHT] && player.x < WIDTH - 31)
             player.x += 1;
 
         // shooting mechanic
         if (player.timer < 768)
-            player.timer += app.frame_time;
+            player.timer += frame_delta;
         else if (keys[SDL_SCANCODE_SPACE])
         {
             const SDL_Point shot = { player.x + 8, 216 };
@@ -640,7 +642,7 @@ void update_player()
         }
         break; }
     case PLAYER_DYING:
-        player.timer += app.frame_time;
+        player.timer += frame_delta;
         if (player.timer >= 112)
         {
             if (++player.dying_clip_swaps == 9)
@@ -653,13 +655,13 @@ void update_player()
         }
         break;
 	case PLAYER_DEAD:
-		player.timer += app.frame_time;
+		player.timer += frame_delta;
 		if (player.timer >= 2000)
 		{
             // horde reached player. game over
             if (horde.invaders[0].y == 216)
             {
-                app.screen = APP_GAMEOVER;
+                screen = SCREEN_GAMEOVER;
                 reset_over();
             }
             else
@@ -715,16 +717,18 @@ void update_player_shots()
 
 void render_player_shots()
 {
-    SDL_SetRenderDrawColor(app.renderer, 255, 255, 255, 255);
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
     for (int i = 0; i < arrlen(player.shots); i++)
 	{
 		const SDL_Rect shot_rect = {
 			player.shots[i].x, player.shots[i].y, 1, 4
 		};
-		SDL_RenderFillRect(app.renderer, &shot_rect);
+		SDL_RenderFillRect(renderer, &shot_rect);
 	}
 }
 
+
+// horde //
 
 static inline
 uint64_t gen_horde_shot_timeout()
@@ -763,7 +767,7 @@ void update_horde_start_anim()
 
 void make_horde_shoot()
 {
-    horde.shot_timer += app.frame_time;
+    horde.shot_timer += frame_delta;
     if (horde.shot_timer < horde.shot_timeout || arrlen(horde.invaders) == 0)
         return;
 
@@ -794,7 +798,7 @@ void make_horde_shoot()
     }
 
     // danger zone width is 5. Necessarily 1 column of invaders will be in it
-    SDL_Rect danger_zone = { player.x + 6, 0, 5, WORLD_HEIGHT };
+    SDL_Rect danger_zone = { player.x + 6, 0, 5, HEIGHT };
     for (int i = 0; i < arrlen(horde.invaders); i++)
     {
         const SDL_Rect invader_rect = {
@@ -842,7 +846,7 @@ void move_horde()
     {
         // should change directions and move down
         const int x = horde.invaders[j].x;
-        if (x <= 10 || x >= WORLD_WIDTH - 22)
+        if (x <= 10 || x >= WIDTH - 22)
         {
             horde.xmove = -horde.xmove;
             horde.ymove = 8;
@@ -865,7 +869,7 @@ void update_horde()
             move_horde();
         break;
     case HORDE_WAITING:
-        horde.timer += app.frame_time;
+        horde.timer += frame_delta;
         if (horde.timer >= 256)
             horde.state = HORDE_MOVING;
         break;
@@ -877,7 +881,7 @@ void update_horde_shots()
     for (int i = 0; i < arrlen(horde.shots); i++)
 	{
         // update shot animation
-        horde.shots[i].timer += app.frame_time;
+        horde.shots[i].timer += frame_delta;
         if (horde.shots[i].timer >= 96)
         {
             horde.shots[i].clip.x = 24 + (horde.shots[i].clip.x - 21) % 12;
@@ -918,6 +922,8 @@ void render_horde_shots()
 }
 
 
+// tourist //
+
 static inline
 int gen_tourist_score()
 {
@@ -937,20 +943,20 @@ void update_tourist()
     case TOURIST_AVAILABLE:
         tourist.x += tourist.xvel;
         // reached end of screen. unavailable
-        if (tourist.x <= 8.f || tourist.x >= WORLD_WIDTH - 32.f)
+        if (tourist.x <= 8.f || tourist.x >= WIDTH - 32.f)
             tourist.state = TOURIST_UNAVAILABLE;
         break;
     case TOURIST_UNAVAILABLE:
         if (tourist.available_appearances == 0)
             break;
 
-        tourist.timer += app.frame_time;
+        tourist.timer += frame_delta;
         if (tourist.timer >= tourist.spawn_timeout) // spawn
         {
             tourist.state = TOURIST_AVAILABLE;
             // spawn either left or right
             tourist.xvel = rand() % 2 ? 0.65f : -0.65f;
-            tourist.x = tourist.xvel > 0.0f ? 8.f : (WORLD_WIDTH - 32.f);
+            tourist.x = tourist.xvel > 0.0f ? 8.f : (WIDTH - 32.f);
 
             tourist.score_inc = gen_tourist_score();
  
@@ -961,16 +967,16 @@ void update_tourist()
         }
         break;
     case TOURIST_DYING:
-        tourist.timer += app.frame_time;
+        tourist.timer += frame_delta;
         if (tourist.timer >= 384)
         {
             tourist.state = TOURIST_SHOWING_SCORE;
-            app.score += tourist.score_inc;
+            score += tourist.score_inc;
             tourist.timer = 0; // reset timer
         }
         break;
     case TOURIST_SHOWING_SCORE:
-        tourist.timer += app.frame_time;
+        tourist.timer += frame_delta;
         if (tourist.timer >= 1280)
         {
             tourist.state = TOURIST_UNAVAILABLE;
@@ -1002,6 +1008,8 @@ void render_tourist()
     }
 }
 
+
+// bunkers //
 
 static inline
 void remove_bunker_point_neighbor(int b, int p, int dx, int dy)
@@ -1045,14 +1053,16 @@ void desintegrate_bunker_from_point(int b, int p)
 
 void render_bunkers()
 {
-    SDL_SetRenderDrawColor(app.renderer, 32, 255, 32, 255);
+    SDL_SetRenderDrawColor(renderer, 32, 255, 32, 255);
 
-    SDL_RenderDrawPoints(app.renderer, bunkers[0].points, 352);
-    SDL_RenderDrawPoints(app.renderer, bunkers[1].points, 352);
-    SDL_RenderDrawPoints(app.renderer, bunkers[2].points, 352);
-    SDL_RenderDrawPoints(app.renderer, bunkers[3].points, 352);
+    SDL_RenderDrawPoints(renderer, bunkers[0].points, 352);
+    SDL_RenderDrawPoints(renderer, bunkers[1].points, 352);
+    SDL_RenderDrawPoints(renderer, bunkers[2].points, 352);
+    SDL_RenderDrawPoints(renderer, bunkers[3].points, 352);
 }
 
+
+// collisions //
 
 void process_shot_collision_with_tourist()
 {
@@ -1137,7 +1147,7 @@ void process_shot_collision_with_horde()
                 arrdel(player.shots, i);
                 i--;
                 arrdel(horde.invaders, j);
-                app.score += score_inc;
+                score += score_inc;
 
                 // prevent updating twice the same invader (corner case)
                 if (j < horde.invaders_updated)
@@ -1295,9 +1305,11 @@ void process_horde_shot_collision_with_bunker(int b)
 }
 
 
+// base //
+
 void reset_play()
 {
-    app.score = 0;
+    score = 0;
 
     play.timer = 0;
     play.state = PLAY_PLAYING;
@@ -1375,12 +1387,12 @@ void reset_play()
     }
 }
 
-void process_play_events()
+void process_play_events(const SDL_Event* event)
 {
-    if (app.event.type == SDL_KEYDOWN && !app.event.key.repeat &&
-        app.event.key.keysym.sym == SDLK_ESCAPE)
+    if (event->type == SDL_KEYDOWN && !event->key.repeat &&
+        event->key.keysym.sym == SDLK_ESCAPE)
     {
-        app.screen = APP_PAUSE;
+        screen = SCREEN_PAUSE;
         reset_pause();
     }
 }
@@ -1413,8 +1425,8 @@ void update_play()
         process_horde_collision_with_bunkers();
 
         // update hi-score
-        if (app.hi_score < app.score)
-            app.hi_score = app.score;
+        if (hi_score < score)
+            hi_score = score;
 
         // all invaders killed
         if (player.state == PLAYER_ALIVE && arrlen(horde.invaders) == 0)
@@ -1427,22 +1439,22 @@ void update_play()
 
         if (player.lives == 0 && player.state == PLAYER_DEAD)
         {
-            app.screen = APP_GAMEOVER;
+            screen = SCREEN_GAMEOVER;
             reset_over();
         }
         break;
     case PLAY_RESTARTING:
         update_explosions();
         
-        play.timer += app.frame_time;
+        play.timer += frame_delta;
         if (play.timer >= 1504)
         {
             // keep score and life counter
-            const int score = app.score;
-            const int lives = player.lives;
+            const int score_backup = score;
+            const int lives_backup = player.lives;
             reset_play();
-            app.score = score;
-            player.lives = lives;
+            score = score_backup;
+            player.lives = lives_backup;
         }
         break;
     }
@@ -1452,9 +1464,9 @@ void render_play()
 {
     // useless stuff
     // bar. Just to resemble the original game
-    SDL_SetRenderDrawColor(app.renderer, 32, 255, 32, 255); // #20ff20
-    const SDL_Rect bar_rect = { 0, 239, WORLD_WIDTH, 1 };
-    SDL_RenderFillRect(app.renderer, &bar_rect);
+    SDL_SetRenderDrawColor(renderer, 32, 255, 32, 255); // #20ff20
+    const SDL_Rect bar_rect = { 0, 239, WIDTH, 1 };
+    SDL_RenderFillRect(renderer, &bar_rect);
 
     render_player_shots();
     render_horde_shots();
@@ -1467,42 +1479,81 @@ void render_play()
     // live counter
     char player_lives_text[3];
     sprintf(player_lives_text, "%d", player.lives);
-    render_text(player_lives_text, 8, WORLD_HEIGHT - 16);
+    render_text(player_lives_text, 8, HEIGHT - 16);
     // live cannons
     const SDL_Rect cannon_clip = { 0, 8, 16, 8 };
     for (int i = 0; i < player.lives - 1; i++)
-        render_clip(&cannon_clip, 24 + i * 16, WORLD_HEIGHT - 16);
+        render_clip(&cannon_clip, 24 + i * 16, HEIGHT - 16);
 }
 
-/* MAIN LOOP AND ENTRY POINT */
 
-void app_main_loop()
+// MAIN LOOP STUFF AND ENTRY POINT //
+
+void process_screen_events(const SDL_Event* event)
+{
+    process_credit_events(event);
+    if (event->type == SDL_QUIT)
+        screen = SCREEN_QUIT;
+    else switch (screen)
+    {
+    case SCREEN_MENU:
+        process_menu_events(event);
+        break;
+    case SCREEN_PLAY:
+        process_play_events(event);
+        break;
+    case SCREEN_PAUSE:
+        process_pause_events(event);
+        break;
+    case SCREEN_GAMEOVER:
+        process_over_events(event);
+        break;
+    }
+}
+
+void update_and_render_screen()
+{
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    SDL_RenderClear(renderer);
+
+    switch (screen)
+    {
+    case SCREEN_PAUSE:
+        update_pause();
+        render_play();
+        render_pause();
+        break;
+    case SCREEN_MENU:
+        update_menu();
+        render_menu();
+        break;
+    case SCREEN_PLAY:
+        update_play();
+        render_play();
+        break;
+    case SCREEN_GAMEOVER:
+        update_over();
+        render_play();
+        render_over();
+        break;
+    }
+    render_scores();
+    render_credits();
+
+    SDL_RenderPresent(renderer);
+}
+
+void SCREEN_main_loop()
 {
     uint64_t frame_start = 0, event_start = 0, event_wait_time = 1000 / FPS;
 
-    while (app.screen != APP_QUIT)
+    while (screen != SCREEN_QUIT)
     {
         // wait for event
-        if (SDL_WaitEventTimeout(&app.event, event_wait_time))
+        SDL_Event event;
+        if (SDL_WaitEventTimeout(&event, event_wait_time))
         {
-            process_credit_events();
-            if (app.event.type == SDL_QUIT)
-                app.screen = APP_QUIT;
-            else switch (app.screen)
-            {
-            case APP_MENU:
-                process_menu_events();
-                break;
-            case APP_PLAY:
-                process_play_events();
-                break;
-            case APP_PAUSE:
-                process_pause_events();
-                break;
-            case APP_GAMEOVER:
-                process_over_events();
-                break;
-            }
+            process_screen_events(&event);
 
             // calculate remaining time to wait next loop.
             const uint64_t processing_time = SDL_GetTicks() - event_start;
@@ -1513,35 +1564,10 @@ void app_main_loop()
         }
         else
         {
-            SDL_SetRenderDrawColor(app.renderer, 0, 0, 0, 255);
-            SDL_RenderClear(app.renderer);
-            switch (app.screen)
-            {
-            case APP_PAUSE:
-                update_pause();
-                render_play();
-                render_pause();
-                break;
-            case APP_MENU:
-                update_menu();
-                render_menu();
-                break;
-            case APP_PLAY:
-                update_play();
-                render_play();
-                break;
-            case APP_GAMEOVER:
-                update_over();
-                render_play();
-                render_over();
-                break;
-            }
-            render_scores();
-            render_credits();
-            SDL_RenderPresent(app.renderer);
+            update_and_render_screen();
         
-            app.frame_time = SDL_GetTicks() - frame_start;
-            frame_start += app.frame_time;
+            frame_delta = SDL_GetTicks() - frame_start;
+            frame_start += frame_delta;
 
             event_start = frame_start;
             event_wait_time = 1000 / FPS; // reset event wait time
@@ -1559,51 +1585,50 @@ int main(int argc, char** args)
 
     SDL_ShowCursor(SDL_DISABLE);
 
-    app.screen = APP_MENU;
+    screen = SCREEN_MENU;
     reset_menu();
-    app.window = SDL_CreateWindow(
+    window = SDL_CreateWindow(
         "Space Invaders Clone",
         SDL_WINDOWPOS_CENTERED,
         SDL_WINDOWPOS_CENTERED,
-        SCALE * WORLD_WIDTH,
-        SCALE * WORLD_HEIGHT,
+        SCALE * WIDTH,
+        SCALE * HEIGHT,
         SDL_WINDOW_INPUT_FOCUS | SDL_WINDOW_MOUSE_FOCUS
     );
-    app.renderer = SDL_CreateRenderer(app.window, -1, SDL_RENDERER_ACCELERATED);
-    SDL_RenderSetScale(app.renderer, SCALE, SCALE);
-    SDL_RenderSetIntegerScale(app.renderer, SDL_TRUE);
-    app.frame_time = 0;
+    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+    SDL_RenderSetScale(renderer, SCALE, SCALE);
+    SDL_RenderSetIntegerScale(renderer, SDL_TRUE);
+    frame_delta = 0;
 
-    app.score = 0;
-    app.hi_score = 0;
-    // load hi-score
+    score = 0;
+    hi_score = 0;
     FILE* hi_score_file = fopen("hi_score.txt", "r");
     if (hi_score_file)
     {
-        fscanf(hi_score_file, "%6d", &app.hi_score);
+        fscanf(hi_score_file, "%6d", &hi_score);
         fclose(hi_score_file);
     }
     else
         fclose(fopen("hi_score.txt", "w"));
 
-    atlas = IMG_LoadTexture(app.renderer, RESOURCE_DIR "/atlas.png");
+    atlas = IMG_LoadTexture(renderer, RESOURCES "/atlas.png");
     SDL_assert(atlas);
-    font_atlas = IMG_LoadTexture(app.renderer, RESOURCE_DIR "/font_atlas.png");
+    font_atlas = IMG_LoadTexture(renderer, RESOURCES "/font_atlas.png");
     SDL_assert(font_atlas);
     
-    app_main_loop(); // execution
+    SCREEN_main_loop(); // execution
 
     // termination
 
     // save score
     hi_score_file = fopen("hi_score.txt", "w");
-    fprintf(hi_score_file, "%6d", app.hi_score);
+    fprintf(hi_score_file, "%6d", hi_score);
     fclose(hi_score_file);
 
     SDL_DestroyTexture(font_atlas);
     SDL_DestroyTexture(atlas);
-    SDL_DestroyRenderer(app.renderer);
-    SDL_DestroyWindow(app.window);
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
 
     IMG_Quit();
     SDL_Quit();
