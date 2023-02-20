@@ -38,22 +38,23 @@ To be documented...
 
 ## Finite State Machines
 
-There's a total of 8 state machines that you can find in the code. Here's the diagram for each one of them:
+There's a total of 8 state machines that you can find in the code.
+Here's the diagram for each one of them:
 
-### Screens (main.c:39)
+### Screens
 ![screens](res/fsm/screens.png "screens")
-### Menu (main.c:168)
+### Menu
 ![menu](res/fsm/menu.png "menu")
-### Play (main.c:207)
+### Play
 ![play](res/fsm/play.png "play")
-### Pause (main.c:195)
+### Pause
 ![pause](res/fsm/pause.png "pause")
-### Game Over (main.c:181)
+### Game Over
 ![over](res/fsm/over.png "over")
 
 ## Event Loop
 
-Here's how I have my event loop (look at main.c:1513 for more details):
+Here's how I have my event loop:
 ```
 void main_loop()
 {
@@ -67,7 +68,7 @@ void main_loop()
             // switch statement for screen event handling ...
 
             // calculate remaining time to wait next loop.
-            const uint32_t processing_time = SDL_GetTicks() - start;
+            const uint32_t processing_time = SDL_GetTicks() - event_start;
             event_start += processing_time;
             // careful not to be value lower than zero. it's an unsigned int.
             event_wait_time = processing_time < event_wait_time ?
@@ -90,11 +91,15 @@ void main_loop()
 ## Dynamic collections
 
 First of all, a quick shout to [nothings](https://github.com/nothings).
-I used their dynamic structures library [stb_ds.h](https://github.com/nothings/stb/blob/master/stb_ds.h). Really good piece of software, btw! Saved me so much hours I can't even count.
-There are three dynamic collections in the game: explosions (main.c:215), invaders (main.c:247) and shots (main.c:233 and main.c:252).
+I used their dynamic structures library [stb_ds.h](https://github.com/nothings/stb/blob/master/stb_ds.h).
+Really good piece of software, btw! Saved me so much hours I can't even count.
+There are three dynamic collections in the game: explosions, invaders and shots.
 
 ## Something Else...
 
-I was supposed to implement an algorithm, data structure or effect in my game that would make it more than just an example application implemented using all the concepts required.
-I came up with a technique to render texts (main.c:58).\
-I basically picked an almost monospaced font, rendered ascii characters in a specific order as an image once, and used that specific order to quickly map a character, say 'A', to a section of the image which contains 'A'. It helped me rendering dynamic ui elements like the score counter.
+I was supposed to implement an algorithm, data structure or effect in my game
+that would make it more than just an example application implemented using all the concepts required.
+I came up with a technique to render texts which basically consisted in rendering ascii characters
+using sdl-ttf once and saving the output as a png. Then, as the font picked is ~~almost~~ monospaced,
+it became easier to map a character, say 'A', to a section of the image that contains 'A'.
+It helped me rendering dynamic ui elements like the score counter.
