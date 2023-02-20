@@ -14,8 +14,8 @@
 
 bool my_point_in_rect(const SDL_Point* p, const SDL_Rect* r)
 {
-    return !(p->x < r->x || p->x > r->x + r->w ||
-        p->y < r->y || p->y > r->y + r->h);
+    return !(p->x < r->x || p->x >= r->x + r->w ||
+        p->y < r->y || p->y >= r->y + r->h);
 }
 
 // IMPORTANT MACROS //
@@ -1017,7 +1017,10 @@ void remove_bunker_point_neighbor(int b, int p, int dx, int dy)
     const int x = p + dx;
     const int y = p + 22 * dy;
     if (0 <= x && x < 352 && p / 22 == x / 22 && 0 <= y && y < 352)
+    {
         bunkers[b].points[x + y - p].x = -1;
+        bunkers[b].points[x + y - p].y = -1;
+    }
 }
 
 void desintegrate_bunker_from_point(int b, int p)
@@ -1277,7 +1280,7 @@ void process_horde_shot_collision_with_bunker(int b)
     {
         // middle point of shot rect
         const SDL_Rect shot_rect = {
-            horde.shots[i].x + 1, horde.shots[i].y + 3, 1, 1
+            horde.shots[i].x + 1, horde.shots[i].y + 1, 1, 1
         };
         if (SDL_HasIntersection(&bunkers[b].out_rect, &shot_rect))
         {
@@ -1297,7 +1300,7 @@ void process_horde_shot_collision_with_bunker(int b)
                     i--;
 
                     desintegrate_bunker_from_point(b, p);
-                    break;
+                    return;
                 }
             }
         }
