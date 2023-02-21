@@ -49,9 +49,9 @@ SDL_Texture* atlas, * font_atlas;
 
 // app utilities //
 
-void render_text_until(const char* text, int x, int y, int n)
+void render_text(const char* text, int size, int x, int y)
 {
-    for (int i = 0; i < n; i++)
+    for (int i = 0; i < size; i++)
     {
         // find c in character set
         const char c = toupper(text[i]);
@@ -67,12 +67,6 @@ void render_text_until(const char* text, int x, int y, int n)
         }
         x += 8;
     }
-}
-
-static inline
-void render_text(const char* text, int x, int y)
-{
-    render_text_until(text, x, y, strlen(text));
 }
 
 void render_clip(const SDL_Rect* clip, int x, int y)
@@ -106,7 +100,7 @@ void render_credits()
 {
     char credit_text[10];
     sprintf(credit_text, "CREDIT %02d", credits);
-    render_text(credit_text, WIDTH - 80, HEIGHT - 16);
+    render_text(credit_text, 9, WIDTH - 80, HEIGHT - 16);
 }
 
 
@@ -114,34 +108,34 @@ void render_scores()
 {
     char score_text[7];
     // score
-    render_text("your score", 8, 8);
+    render_text("your score", 10, 8, 8);
     sprintf(score_text, "%06d", score);
-    render_text(score_text, 24, 24);
+    render_text(score_text, 6, 24, 24);
     // high-score
-    render_text("high-score", WIDTH - 88, 8);
+    render_text("high-score", 10, WIDTH - 88, 8);
     sprintf(score_text, "%06d", hi_score);
-    render_text(score_text, WIDTH - 72, 24);
+    render_text(score_text, 6, WIDTH - 72, 24);
 }
 
 void render_score_advances_table()
 {
-    render_text("*SCORE ADVANCES TABLE*", 24, 128);
+    render_text("*SCORE ADVANCES TABLE*", 22, 24, 128);
 
     const SDL_Rect tourist_clip = { 0,  0, 24,  8 };
     render_clip(&tourist_clip, 60, 152);
-    render_text("=? MYSTERY", 80, 152);
+    render_text("=? MYSTERY", 10, 80, 152);
 
     const SDL_Rect invader1_clip = { 0, 16, 12,  8 };
     render_clip(&invader1_clip, 66, 168);
-    render_text("=30 POINTS", 80, 168);
+    render_text("=30 POINTS", 10, 80, 168);
 
     const SDL_Rect invader2_clip = { 0, 24, 12,  8 };
     render_clip(&invader2_clip, 66, 184);
-    render_text("=20 POINTS", 80, 184);
+    render_text("=20 POINTS", 10, 80, 184);
 
     const SDL_Rect invader3_clip = { 0, 32, 12,  8 };
     render_clip(&invader3_clip, 66, 200);
-    render_text("=10 POINTS", 80, 200);
+    render_text("=10 POINTS", 10, 80, 200);
 }
 
 
@@ -157,7 +151,7 @@ struct {
 
     int display_i;
 
-    uint64_t timer;
+    uint32_t timer;
 } menu;
 
 struct {
@@ -171,7 +165,7 @@ struct {
 
     int display_i;
 
-    uint64_t timer;
+    uint32_t timer;
 } over;
 
 struct {
@@ -181,7 +175,7 @@ struct {
         PAUSE_RESUMING
     } state;
 
-    uint64_t timer;
+    uint32_t timer;
 } pause;
 
 /* ALL PLAY SCREEN STRUCTS */
@@ -192,13 +186,13 @@ struct {
         PLAY_RESTARTING
     } state;
 
-    uint64_t timer;
+    uint32_t timer;
 } play;
 
 struct explosion_t {
     int x, y;
     SDL_Rect clip;
-    uint64_t timer, timeout;
+    int32_t lifetime;
 }* explosions;
 
 struct {
@@ -215,7 +209,7 @@ struct {
 
     SDL_Point* shots;
 
-    uint64_t timer;
+    uint32_t timer;
 } player;
 
 struct {
@@ -235,14 +229,14 @@ struct {
     struct horde_shot_t {
         int x, y;
         SDL_Rect clip;
-        uint64_t timer;
+        uint32_t timer;
     }* shots;
 
     // One invader is updated each frame.
     // horde is up-to-date only when all invaders are up-to-date.
     int invaders_updated;
 
-    uint64_t timer, shot_timer, shot_timeout;
+    uint32_t timer, shot_timer, shot_timeout;
 } horde;
 
 struct {
@@ -257,7 +251,7 @@ struct {
     int score_inc;
     int available_appearances;
 
-    uint64_t timer, spawn_timeout;
+    uint32_t timer, spawn_timeout;
 } tourist;
 
 struct {
@@ -343,21 +337,18 @@ void update_menu()
 
 void render_menu()
 {
-    render_scores();
-    render_credits();
-
     switch (menu.state)
     {
     case MENU_BLINKING_ON:
-        render_text("<P> PLAY", 80, 80);
-        render_text("<Q> QUIT", 80, 96);
+        render_text("<P> PLAY", 8, 80, 80);
+        render_text("<Q> QUIT", 8, 80, 96);
     case MENU_BLINKING_OFF:
-        render_text("SPACE INVADERS", 56, 56);
+        render_text("SPACE INVADERS", 14, 56, 56);
         render_score_advances_table();
         break;
     case MENU_WAITING:
     case MENU_DISPLAYING:
-        render_text_until("SPACE INVADERS", 56, 56, menu.display_i);
+        render_text("SPACE INVADERS", menu.display_i, 56, 56);
         break;
     }
 }
@@ -477,16 +468,16 @@ void render_over()
     case GAMEOVER_WAITING2:
     case GAMEOVER_DISPLAYING:
         SDL_SetTextureColorMod(font_atlas, 216, 32, 32);
-        render_text_until("YOU LOST", 80, 56, over.display_i);
+        render_text("YOU LOST", over.display_i, 80, 56);
         SDL_SetTextureColorMod(font_atlas, 255, 255, 255);
         break;
     case GAMEOVER_BLINKING_ON:
-        render_text("<ENTER> GO AGAIN", 48, 80);
-        render_text("<M> MENU", 80, 96);
-        render_text("<Q> QUIT", 80, 112);
+        render_text("<ENTER> GO AGAIN", 16, 48, 80);
+        render_text("<M> MENU", 8, 80, 96);
+        render_text("<Q> QUIT", 8, 80, 112);
     case GAMEOVER_BLINKING_OFF:
         SDL_SetTextureColorMod(font_atlas, 216, 32, 32);
-        render_text("YOU LOST", 80, 56);
+        render_text("YOU LOST", 8, 80, 56);
         SDL_SetTextureColorMod(font_atlas, 255, 255, 255);
         break;
     }
@@ -559,9 +550,9 @@ void render_pause()
     switch (pause.state)
     {
     case PAUSE_BLINKING_ON:
-        render_text("<ESC> RESUME", 64, 64);
-        render_text("<M> MENU", 80, 80);
-        render_text("<Q> QUIT", 80, 96);
+        render_text("<ESC> RESUME", 12, 64, 64);
+        render_text("<M> MENU", 8, 80, 80);
+        render_text("<Q> QUIT", 8, 80, 96);
     case PAUSE_BLINKING_OFF:
         render_score_advances_table();
         break;
@@ -569,7 +560,7 @@ void render_pause()
         int countdown = 3 - (int)pause.timer / 1000;
         char countdown_text[3];
         sprintf(countdown_text, "%02d", countdown == 0 ? 1 : countdown);
-        render_text(countdown_text, WIDTH / 2 - 8, 112);
+        render_text(countdown_text, 2, WIDTH / 2 - 8, 112);
         break; }
     }
 }
@@ -583,8 +574,8 @@ void update_explosions()
 {
     for (int i = 0; i < arrlen(explosions); i++)
     {
-        explosions[i].timer += frame_delta;
-        if (explosions[i].timer >= explosions[i].timeout)
+        explosions[i].lifetime -= frame_delta;
+        if (explosions[i].lifetime <= 0)
         {
             arrdel(explosions, i);
             i--;
@@ -703,8 +694,7 @@ void update_player_shots()
                 .x = player.shots[i].x - 3,
                 .y = 34,
                 .clip = { 36, 24,  8,  8 },
-                .timer = 0,
-                .timeout = 256
+                .lifetime = 256
             };
             arrput(explosions, explosion);
             arrdel(player.shots, i);
@@ -729,9 +719,9 @@ void render_player_shots()
 // horde //
 
 static inline
-uint64_t gen_horde_shot_timeout()
+uint32_t gen_horde_shot_timeout()
 {
-    return 496 * (rand() % 2 + 1);
+    return 498 * (rand() % 2 + 1);
 }
 
 void update_horde_start_anim()
@@ -895,8 +885,7 @@ void update_horde_shots()
                 .x = horde.shots[i].x - 1,
                 .y = 232,
                 .clip = { 24, 40,  6,  8 },
-                .timer = 0,
-                .timeout = 128
+                .lifetime = 128
             };
             arrput(explosions, explosion);
 			arrdel(horde.shots, i);
@@ -908,15 +897,19 @@ void update_horde_shots()
 void render_horde()
 {
     for (int i = 0; i < arrlen(horde.invaders); i++)
-        render_clip(
-            &horde.invaders[i].clip, horde.invaders[i].x, horde.invaders[i].y
-        );
+    {
+        const struct invader_t invader = horde.invaders[i];
+        render_clip(&invader.clip, invader.x, invader.y);
+    }
 }
 
 void render_horde_shots()
 {
     for (int i = 0; i < arrlen(horde.shots); i++)
-        render_clip(&horde.shots[i].clip, horde.shots[i].x, horde.shots[i].y);
+    {
+        const struct horde_shot_t shot = horde.shots[i];
+        render_clip(&shot.clip, shot.x, shot.y);
+    }
 }
 
 
@@ -998,9 +991,9 @@ void render_tourist()
         break; }
     case TOURIST_SHOWING_SCORE: {
         char tourist_score[4];
-        sprintf(tourist_score, "%d", tourist.score_inc);
+        sprintf(tourist_score, "%3d", tourist.score_inc);
         SDL_SetTextureColorMod(font_atlas, 216, 32, 32);
-        render_text(tourist_score, tourist.x, 40);
+        render_text(tourist_score, 3, tourist.x, 40);
         SDL_SetTextureColorMod(font_atlas, 255, 255, 255);
         break; }
     }
@@ -1126,8 +1119,7 @@ void process_shot_collision_with_horde()
                     .x = horde.invaders[j].x,
                     .y = horde.invaders[j].y,
                     .clip = { 0, 40, 13,  8 },
-                    .timer = 0,
-                    .timeout = 256
+                    .lifetime = 256
                 };
                 arrput(explosions, explosion);
                 arrdel(player.shots, i);
@@ -1169,8 +1161,7 @@ void process_collision_between_shots()
                         .x = horde_shot_rect.x - 2,
                         .y = horde_shot_rect.y + 1,
                         .clip = { 24, 40,  6,  8 },
-                        .timer = 0,
-                        .timeout = 384
+                        .lifetime = 384
                     };
                     arrput(explosions, horde_shot_explosion);
                     arrdel(horde.shots, i);
@@ -1181,8 +1172,7 @@ void process_collision_between_shots()
                     .x = player_shot_rect.x - 3,
                     .y = player_shot_rect.y - 1,
                     .clip = { 36, 24,  8,  8 },
-                    .timer = 0,
-                    .timeout = 384
+                    .lifetime = 384
                 };
                 arrput(explosions, player_shot_explosion);
                 arrdel(player.shots, j);
@@ -1242,8 +1232,7 @@ void process_player_shot_collision_with_bunker(int b)
                         .x = shot_rect.x - 3,
                         .y = shot_rect.y - 4,
                         .clip = { 36, 24,  8,  8 },
-                        .timer = 0,
-                        .timeout = 256
+                        .lifetime = 256
                     };
                     arrput(explosions, explosion);
                     arrdel(player.shots, i);
@@ -1275,8 +1264,7 @@ void process_horde_shot_collision_with_bunker(int b)
                         .x = shot_rect.x - 2,
                         .y = shot_rect.y - 4,
                         .clip = { 24, 40,  6,  8 },
-                        .timer = 0,
-                        .timeout = 256
+                        .lifetime = 256
                     };
                     arrput(explosions, explosion);
                     arrdel(horde.shots, i);
@@ -1321,54 +1309,39 @@ void reset_play()
     tourist.timer = 0;
     tourist.spawn_timeout = gen_tourist_spawn_timeout();
 
-    memset(bunkers, 0xff, sizeof(bunkers));
-
     for (int b = 0; b < 4; b++)
     {
-        bunkers[b].out_rect = (SDL_Rect){32 + 46*b, 192, 22, 16 };
+        bunkers[b].out_rect = (SDL_Rect){ 32 + 46 * b, 192, 22, 16 };
 
-        // top
-        for (int i = 0; i < 4; i++)
+        for (int p = 0; p < 352; p++)
         {
-            for (int j = 4 - i; j < 18 + i; j++)
+            bunkers[b].points[p] = (SDL_Point){
+                p % 22 + 32 + 46 * b, p / 22 + 192
+            };
+        }
+
+        bunkers[b].points[293] = (SDL_Point){ -1, -1 };
+        bunkers[b].points[300] = (SDL_Point){ -1, -1 };
+
+        for (int i = 3; i >= 0; i--)
+        {
+            for (int j = 0; j < 4 - i; j++)
             {
-                bunkers[b].points[22 * i + j].x = 32 + 46 * b + j;
-                bunkers[b].points[22 * i + j].y = 192 + i;
+                bunkers[b].points[22 * i + j] = (SDL_Point){ -1, -1 };
+                bunkers[b].points[22 * i - j + 21] = (SDL_Point){ -1, -1 };
             }
         }
 
-        // middle
-        for (int i = 4; i < 12; i++)
+        for (int i = 8; i < 14; i++)
         {
-            for (int j = 0; j < 22; j++)
-            {
-                bunkers[b].points[22 * i + j].x = 32 + 46 * b + j;
-                bunkers[b].points[22 * i + j].y = 192 + i;
-            }
+            bunkers[b].points[264 + i] = (SDL_Point){ -1, -1 };
+            bunkers[b].points[286 + i] = (SDL_Point){ -1, -1 };
         }
 
-        for (int i = 0; i < 2; i++)
+        for (int i = 6; i < 16; i++)
         {
-            for (int j = 0; j < 8 - i; j++)
-            {
-                bunkers[b].points[22 * (12 + i) + j].x = 32 + 46 * b + j;
-                bunkers[b].points[22 * (12 + i) + j].y = 204 + i;
-
-                bunkers[b].points[22 * (12 + i) + j + 14 + i].x = 46 + 46 * b + j + i;
-                bunkers[b].points[22 * (12 + i) + j + 14 + i].y = 204 + i;
-            }
-        }
-
-        for (int i = 14; i < 16; i++)
-        {
-            for (int j = 0; j < 6; j++)
-            {
-                bunkers[b].points[22 * i + j].x = 32 + 46 * b + j;
-                bunkers[b].points[22 * i + j].y = 192 + i;
-
-                bunkers[b].points[22 * i + j + 16].x = 48 + 46 * b + j;
-                bunkers[b].points[22 * i + j + 16].y = 192 + i;
-            }
+            bunkers[b].points[308 + i] = (SDL_Point){ -1, -1 };
+            bunkers[b].points[330 + i] = (SDL_Point){ -1, -1 };
         }
     }
 }
@@ -1464,7 +1437,7 @@ void render_play()
     // live counter
     char player_lives_text[3];
     sprintf(player_lives_text, "%d", player.lives);
-    render_text(player_lives_text, 8, HEIGHT - 16);
+    render_text(player_lives_text, 2, 8, HEIGHT - 16);
     // live cannons
     const SDL_Rect cannon_clip = { 0, 8, 16, 8 };
     for (int i = 0; i < player.lives - 1; i++)
@@ -1531,7 +1504,7 @@ void update_and_render_screen()
 
 void main_loop()
 {
-    uint64_t frame_start = 0, event_start = 0, event_wait_time = 1000 / FPS;
+    uint32_t frame_start = 0, event_start = 0, event_wait_time = 1000 / FPS;
 
     while (screen != SCREEN_QUIT)
     {
@@ -1542,7 +1515,7 @@ void main_loop()
             process_screen_events(&event);
 
             // calculate remaining time to wait next loop.
-            const uint64_t processing_time = SDL_GetTicks() - event_start;
+            const uint32_t processing_time = SDL_GetTicks() - event_start;
             event_start += processing_time;
             // careful not to be value lower than zero. it's an unsigned int.
             event_wait_time = processing_time < event_wait_time ?
