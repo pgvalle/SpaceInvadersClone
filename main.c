@@ -259,6 +259,8 @@ struct {
     SDL_Point points[352];
 } bunkers[4];
 
+SDL_Point useless_bar[WIDTH];
+
 
 // MENU SCREEN IMPLEMENTATION //
 
@@ -880,6 +882,11 @@ void update_horde_shots()
 		horde.shots[i].y += 2;
 		if (horde.shots[i].y >= 232)
         {
+            // take away some bar pixels
+            useless_bar[horde.shots[i].x] = (SDL_Point){ -1, -1 };
+            useless_bar[horde.shots[i].x + 2] = (SDL_Point){ -1, -1 };
+            useless_bar[horde.shots[i].x + 4] = (SDL_Point){ -1, -1 };
+
             // add explosion
             const struct explosion_t explosion = {
                 .x = horde.shots[i].x - 1,
@@ -1344,6 +1351,9 @@ void reset_play()
             bunkers[b].points[330 + i] = (SDL_Point){ -1, -1 };
         }
     }
+
+    for (int i = 0; i < WIDTH; i++)
+        useless_bar[i] = (SDL_Point){ i, 239 };
 }
 
 void process_play_events(const SDL_Event* event)
@@ -1421,10 +1431,9 @@ void update_play()
 
 void render_play()
 {
-    // useless bar. Just to resemble the original game
+    // Just to resemble the original game
     SDL_SetRenderDrawColor(renderer, 32, 255, 32, 255);
-    const SDL_Rect bar_rect = { 0, 239, WIDTH, 1 };
-    SDL_RenderFillRect(renderer, &bar_rect);
+    SDL_RenderDrawPoints(renderer, useless_bar, WIDTH);
 
     render_player_shots();
     render_horde_shots();
