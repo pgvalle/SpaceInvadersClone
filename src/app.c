@@ -3,12 +3,6 @@
 
 // implementing utility functions //
 
-void render_clip(const SDL_Rect* clip, int x, int y)
-{
-    const SDL_Rect scale = { x, y, clip->w, clip->h };
-    SDL_RenderCopy(ren, atlas, clip, &scale);
-}
-
 #define CHARS "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789*?-<>="
 
 void render_text(const char* text, int length, int x, int y)
@@ -30,12 +24,6 @@ void render_text(const char* text, int length, int x, int y)
         }
         x += TILE;
     }
-}
-
-int point_in_rect(const SDL_Point* point, const SDL_Rect* rect)
-{
-    return !(point->x < rect->x || point->x >= rect->x + rect->w ||
-        point->y < rect->y || point->y >= rect->y + rect->h);
 }
 
 // defining global context declared in app.h //

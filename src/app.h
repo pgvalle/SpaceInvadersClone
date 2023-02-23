@@ -38,13 +38,24 @@ extern int score, hi_score;
 extern SDL_Texture* atlas;
 
 ///////////////////////////////////////////////////////////////////////////////
-// UTILITIES //
+// RENDERING UTILS //
 ///////////////////////////////////////////////////////////////////////////////
 
-void render_clip(const SDL_Rect* clip, int x, int y);
+static inline
+void render_clip(const SDL_Rect* clip, int x, int y)
+{
+    const SDL_Rect scale = { x, y, clip->w, clip->h };
+    SDL_RenderCopy(ren, atlas, clip, &scale);
+}
+
 void render_text(const char* text, int length, int x, int y);
 
-int point_in_rect(const SDL_Point* point, const SDL_Rect* rect);
+static inline
+int point_in_rect(const SDL_Point* point, const SDL_Rect* rect)
+{
+    return !(point->x < rect->x || point->x >= rect->x + rect->w ||
+        point->y < rect->y || point->y >= rect->y + rect->h);
+}
 
 
 #endif // APP_H
