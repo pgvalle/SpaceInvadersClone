@@ -39,6 +39,8 @@ void render_text(const char* text, int len, int x, int y)
 
 void load_app_resources()
 {
+    // ATLAS //
+
     int width = 48, height = 96;
     void* pixels = stbi_load(RESOURCES "/atlas.png", &width, &height, NULL, 4);
     if (pixels == NULL) {
@@ -56,6 +58,12 @@ void load_app_resources()
         stbi_image_free(pixels);
         SDL_FreeSurface(surface);
     }
+
+    // ICON //
+
+    SDL_Surface* icon = SDL_LoadBMP(RESOURCES "/icon.bmp");
+    SDL_SetWindowIcon(win, icon);
+    SDL_FreeSurface(icon);
 }
 
 void free_app_resources()
