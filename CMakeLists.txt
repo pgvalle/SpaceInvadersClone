@@ -1,7 +1,8 @@
 cmake_minimum_required(VERSION 3.12)
 
 project(SpaceInvadersClone)
-add_executable(SpaceInvadersClone main.c)
+file(GLOB_RECURSE SOURCE_FILES src/*.h src/*.c)
+add_executable(SpaceInvadersClone ${SOURCE_FILES})
 
 set_target_properties(
 	SpaceInvadersClone PROPERTIES
@@ -18,7 +19,7 @@ if(WIN32)
 		SDL2
 		GIT_REPOSITORY https://github.com/libsdl-org/SDL
 		GIT_TAG release-2.26.4
-		SOURCE_DIR ${CMAKE_SOURCE_DIR}/ext/SDL2
+		SOURCE_DIR ext/SDL2
 	)
 
 	# configuring SDL2 build
