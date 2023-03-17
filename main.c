@@ -89,16 +89,17 @@ void process_credit_events(const SDL_Event* event)
     
     switch (event->key.keysym.sym) {
     case SDLK_PLUS:
-    case SDLK_KP_PLUS:
+    case SDLK_KP_PLUS: {
         if (credits < 99)
             credits++;
         break;
+    }
     case SDLK_MINUS:
-    case SDLK_KP_MINUS:
+    case SDLK_KP_MINUS: {
         if (credits > 0)
             credits--;
         break;
-    }
+    }}
 }
 
 void render_credits()
@@ -1505,7 +1506,6 @@ void load_resources()
         stbi_image_free(pixels);
         SDL_FreeSurface(surface);
     }
-    printf("Here!\n");
 }
 
 void free_resources()
@@ -1523,15 +1523,13 @@ void free_resources()
 
 int main(int argc, char** args)
 {
-    const int SCALE = 2;
+    const int INITIAL_SCALE = 2;
 
     // INITIALIZATION //
 
     SDL_Init(SDL_INIT_EVERYTHING);
     // Mix_Init(MIX_INIT_MP3);
     srand(time(NULL));
-
-    
 
     SDL_ShowCursor(SDL_FALSE); // retro games don't have a cursor showing up
     // they don't grab any sort of mouse events as well.
@@ -1541,10 +1539,10 @@ int main(int argc, char** args)
     screen = SCREEN_MENU;
     reset_menu();
     win = SDL_CreateWindow("Space Invaders Clone", SDL_WINDOWPOS_CENTERED,
-        SDL_WINDOWPOS_CENTERED, SCALE * WIDTH, SCALE * HEIGHT,
+        SDL_WINDOWPOS_CENTERED, INITIAL_SCALE * WIDTH, INITIAL_SCALE * HEIGHT,
         SDL_WINDOW_INPUT_FOCUS | SDL_WINDOW_MOUSE_FOCUS);
     ren = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED);
-    SDL_RenderSetScale(ren, SCALE, SCALE);
+    SDL_RenderSetScale(ren, INITIAL_SCALE, INITIAL_SCALE);
     credits = 1;
     score = hi_score = 0;
 
