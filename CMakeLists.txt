@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.12)
 
 project(SpaceInvadersClone)
-add_executable(SpaceInvadersClone stb_ds.h main.c)
+add_executable(SpaceInvadersClone main.c)
 
 set_target_properties(
 	SpaceInvadersClone PROPERTIES
@@ -10,12 +10,31 @@ set_target_properties(
 	C_EXTENSIONS        FALSE
 )
 
-find_package(SDL2       REQUIRED)
-find_package(SDL2_image REQUIRED)
+if(WIN32)
+	include(FetchContent)
 
-target_link_libraries(
-	SpaceInvadersClone
-	SDL2::SDL2main
-	SDL2::SDL2
-	SDL2_image::SDL2_image
-)
+	# downloading SDL2
+	FetchContent_Declare(
+		SDL2
+		GIT_REPOSITORY https://github.com/libsdl-org/SDL
+		GIT_TAG release-2.26.4
+		SOURCE_DIR ${CMAKE_SOURCE_DIR}/ext/SDL2
+	)
+
+	# configuring SDL2 build
+	set(SDL_STATIC_ENABLED_BY_DEFAULT OFF)
+	set(SDL_TEST_ENABLED_BY_DEFAULT   OFF)
+
+	# integrating SDL2 with project
+	FetchContent_MakeAvailable(SDL2)
+	FetchContent_GetProperties(SDL2)
+	add_dependencies(SpaceInvadersClone SDL2)
+	target_include_directories(SpaceInvadersClone PRIVATE ${SDL2_INCLUDE_DIRS})
+	target_link_libraries(SpaceInvadersClone PRIVATE SDL2main SDL2)
+
+	add_custom_command(TARGET SpaceInvadersClone POST_BUILD
+	    COMMAND ${CMAKE_COMMAND} -E copy ${SDL2_BINARY_DIR}/SDL2d.dll ${CMAKE_BINARY_DIR}
+	)
+else()
+	find_package(SDL2 REQUIRED)
+endif()
