@@ -5,7 +5,7 @@
 #include <time.h>
 
 #include <SDL.h>
-#include <SDL_mixer.h>
+// #include <SDL_mixer.h>
 
 #define STB_DS_IMPLEMENTATION
 #include "stb_ds.h"
@@ -45,18 +45,20 @@ static SDL_Texture* atlas;
 ///////////////////////////////////////////////////////////////////////////////
 
 static inline
-void render_clip(const SDL_Rect* clip, int x, int y) {
+void render_clip(const SDL_Rect* clip, int x, int y)
+{
     const SDL_Rect scale = { x, y, clip->w, clip->h };
     SDL_RenderCopy(ren, atlas, clip, &scale);
 }
 
-void render_text(const char* text, int length, int x, int y) {
+void render_text(const char* text, int length, int x, int y)
+{
     const static char CHARS[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789*?-<>=";
     const static int CHARS_LEN_WRAP = 6;
     for (int i = 0; i < length; i++) {
-        const char c = toupper(text[i]);
+        const char c_upper = toupper(text[i]);
         for (int j = 0; j < sizeof(CHARS) - 1; j++) {
-            if (c == CHARS[j]) {
+            if (c_upper == CHARS[j]) {
                 const SDL_Rect clip = { TILE * (j % CHARS_LEN_WRAP),
                     40 + TILE * (j / CHARS_LEN_WRAP), TILE, TILE };
                 render_clip(&clip, x, y);
@@ -68,7 +70,8 @@ void render_text(const char* text, int length, int x, int y) {
 }
 
 static inline
-int point_in_rect(const SDL_Point* point, const SDL_Rect* rect) {
+int point_in_rect(const SDL_Point* point, const SDL_Rect* rect)
+{
     return !(point->x < rect->x || point->x >= rect->x + rect->w ||
         point->y < rect->y || point->y >= rect->y + rect->h);
 }
@@ -79,7 +82,8 @@ int point_in_rect(const SDL_Point* point, const SDL_Rect* rect) {
 
 static int credits;
 
-void process_credit_events(const SDL_Event* event) {
+void process_credit_events(const SDL_Event* event)
+{
     if (event->type != SDL_KEYDOWN)
         return;
     
@@ -97,7 +101,8 @@ void process_credit_events(const SDL_Event* event) {
     }
 }
 
-void render_credits() {
+void render_credits()
+{
     static char credit_text[10];
     sprintf(credit_text, "CREDIT %02d", credits);
     render_text(credit_text, 9, WIDTH - 80, HEIGHT - 16);
@@ -109,7 +114,8 @@ void render_credits() {
 
 static int score, hi_score;
 
-void render_scores() {
+void render_scores()
+{
     static char score_text[7];
     // score
     render_text("YOUR SCORE", 10, 8, 8);
@@ -121,7 +127,8 @@ void render_scores() {
     render_text(score_text, 6, WIDTH - 72, 24);
 }
 
-void render_score_advances_table() {
+void render_score_advances_table()
+{
     render_text("*SCORE ADVANCES TABLE*", 22, 24, 128);
 
     const SDL_Rect tourist_clip = { 0,  0, 24,  8 };
@@ -158,14 +165,16 @@ struct {
     Uint32 timer;
 } menu;
 
-void reset_menu() {
+void reset_menu()
+{
     menu.state = MENU_DISPLAYING;
     menu.display_i = 0;
     menu.timer = 0;
 }
 
 void reset_play();
-void process_menu_events(const SDL_Event* event) {
+void process_menu_events(const SDL_Event* event)
+{
     if (event->type != SDL_KEYDOWN || event->key.repeat)
         return;
     
@@ -192,7 +201,8 @@ void process_menu_events(const SDL_Event* event) {
     }
 }
 
-void update_menu(Uint32 delta) {
+void update_menu(Uint32 delta)
+{
     switch (menu.state) {
     case MENU_DISPLAYING:
         menu.timer += delta;
@@ -221,7 +231,8 @@ void update_menu(Uint32 delta) {
     }
 }
 
-void render_menu() {
+void render_menu()
+{
     switch (menu.state) {
     case MENU_BLINKING_ON:
         render_text("<P> PLAY", 8, 80, 80);
@@ -251,14 +262,16 @@ struct {
     Uint32 timer;
 } pause;
 
-void reset_pause() {
+void reset_pause()
+{
     pause.state = PAUSE_BLINKING_ON;
     pause.timer = 0;
 }
 
 void reset_menu();
 void reset_over();
-void process_pause_events(const SDL_Event* event) {
+void process_pause_events(const SDL_Event* event)
+{
     if (event->type != SDL_KEYDOWN || event->key.repeat ||
         pause.state == PAUSE_RESUMING)
         return;
@@ -280,7 +293,8 @@ void process_pause_events(const SDL_Event* event) {
     }
 }
 
-void update_pause(Uint32 delta) {
+void update_pause(Uint32 delta)
+{
     switch (pause.state) {
     case PAUSE_BLINKING_ON:
     case PAUSE_BLINKING_OFF:
@@ -299,7 +313,8 @@ void update_pause(Uint32 delta) {
     }
 }
 
-void render_pause() {
+void render_pause()
+{
     // make background darker. It feels like game is really paused
     SDL_SetRenderDrawBlendMode(ren, SDL_BLENDMODE_BLEND);
     SDL_SetRenderDrawColor(ren, 0, 0, 0, 225);
@@ -350,7 +365,8 @@ void reset_over()
 }
 
 void reset_play();
-void process_over_events(const SDL_Event* event) {
+void process_over_events(const SDL_Event* event)
+{
     if (event->type != SDL_KEYDOWN || event->key.repeat)
         return;
 
@@ -391,7 +407,8 @@ void process_over_events(const SDL_Event* event) {
     }
 }
 
-void update_over(Uint32 delta) {
+void update_over(Uint32 delta)
+{
     switch (over.state) {
     case GAMEOVER_WAITING1:
         over.timer += delta;
@@ -428,7 +445,8 @@ void update_over(Uint32 delta) {
     }
 }
 
-void render_over() {
+void render_over()
+{
     if (over.state != GAMEOVER_WAITING1) {
         SDL_SetRenderDrawBlendMode(ren, SDL_BLENDMODE_BLEND);
         SDL_SetRenderDrawColor(ren, 0, 0, 0, 225);
@@ -545,11 +563,9 @@ SDL_Point useless_bar[WIDTH];
 
 void update_explosions(Uint32 delta)
 {
-    for (int i = 0; i < arrlen(explosions); i++)
-    {
+    for (int i = 0; i < arrlen(explosions); i++) {
         explosions[i].lifetime -= delta;
-        if (explosions[i].lifetime <= 0)
-        {
+        if (explosions[i].lifetime <= 0) {
             arrdel(explosions, i);
             i--;
         }
@@ -566,12 +582,10 @@ void render_explosions()
 
 void update_player(Uint32 delta)
 {
-	switch (player.state)
-	{
+	switch (player.state) {
     case PLAYER_STARTING:
         player.timer += delta;
-        if (player.timer >= 2000)
-        {
+        if (player.timer >= 2000) {
             player.state = PLAYER_ALIVE;
             player.x = 14;
             player.timer = 0;
@@ -588,26 +602,22 @@ void update_player(Uint32 delta)
         // shooting mechanic
         if (player.timer < 768)
             player.timer += delta;
-        else if (keys[SDL_SCANCODE_SPACE])
-        {
+        else if (keys[SDL_SCANCODE_SPACE]) {
             const SDL_Point shot = { player.x + 8, 216 };
             arrput(player.shots, shot);
             player.timer = 0;
         }
 
         // check if horde has reached player
-        if (arrlen(horde.invaders) > 0 && horde.invaders[0].y == 216)
-        {
+        if (arrlen(horde.invaders) > 0 && horde.invaders[0].y == 216) {
             player.state = PLAYER_DYING;
             player.timer = 0;
         }
         break; }
     case PLAYER_DYING:
         player.timer += delta;
-        if (player.timer >= 112)
-        {
-            if (++player.dying_clip_swaps == 9)
-            {
+        if (player.timer >= 112) {
+            if (++player.dying_clip_swaps == 9) {
                 player.state = PLAYER_DEAD;
                 player.lives--;
                 player.dying_clip_swaps = 0;
@@ -617,16 +627,12 @@ void update_player(Uint32 delta)
         break;
 	case PLAYER_DEAD:
 		player.timer += delta;
-		if (player.timer >= 2000)
-		{
+		if (player.timer >= 2000) {
             // horde reached player. game over
-            if (horde.invaders[0].y == 216)
-            {
+            if (horde.invaders[0].y == 216) {
                 screen = SCREEN_GAMEOVER;
                 reset_over();
-            }
-            else
-            {
+            } else {
                 player.state = PLAYER_ALIVE;
                 player.x = 14;
                 player.timer = 0;
@@ -638,29 +644,28 @@ void update_player(Uint32 delta)
 
 void render_player()
 {
-    switch (player.state)
-    {
+    switch (player.state) {
     case PLAYER_DYING: {
         const SDL_Rect clip = {
             (player.dying_clip_swaps % 2 + 1) * 16, 8, 16, 8
         };
         render_clip(&clip, player.x, 216);
-        break; }
+        break;
+    }
     case PLAYER_ALIVE: {
         const SDL_Rect clip = { 0, 8, 16, 8 };
         render_clip(&clip, player.x, 216);
-        break; }
+        break;
+    }
     }	    
 }
 
 void update_player_shots()
 {
-    for (int i = 0; i < arrlen(player.shots); i++)
-	{
+    for (int i = 0; i < arrlen(player.shots); i++) {
         // reached top of screen
 		player.shots[i].y -= 4;
-		if (player.shots[i].y <= 32)
-		{
+		if (player.shots[i].y <= 32) {
             // add explosion
             const struct explosion_t explosion = {
                 .x = player.shots[i].x - 3,
@@ -678,11 +683,8 @@ void update_player_shots()
 void render_player_shots()
 {
     SDL_SetRenderDrawColor(ren, 255, 255, 255, 255);
-    for (int i = 0; i < arrlen(player.shots); i++)
-	{
-		const SDL_Rect shot_rect = {
-			player.shots[i].x, player.shots[i].y, 1, 4
-		};
+    for (int i = 0; i < arrlen(player.shots); i++) {
+		const SDL_Rect shot_rect = {player.shots[i].x, player.shots[i].y, 1, 4 };
 		SDL_RenderFillRect(ren, &shot_rect);
 	}
 }
@@ -697,8 +699,7 @@ uint32_t gen_horde_shot_timeout()
 
 void update_horde_start_anim()
 {
-    if (horde.invaders_updated < 55)
-    {
+    if (horde.invaders_updated < 55) {
         const int i = 4 - horde.invaders_updated / 11; // 4, 3, 2, 1, 0
         const int j = horde.invaders_updated % 11; // 0, 1, 2, ..., 10
         // clip rect for invader
@@ -712,9 +713,8 @@ void update_horde_start_anim()
         };
         arrput(horde.invaders, invader);
         horde.invaders_updated++;
-    }
-    else // done. Now move right
-    {
+    } else {
+        // done. Now move right
         horde.state = HORDE_MOVING;
         horde.xmove = 2;
         horde.ymove = 0;
@@ -724,8 +724,7 @@ void update_horde_start_anim()
     }
 }
 
-void make_horde_shoot()
-{
+void make_horde_shoot() {
     if (horde.shot_timer < horde.shot_timeout || arrlen(horde.invaders) == 0)
         return;
 
@@ -734,15 +733,12 @@ void make_horde_shoot()
     horde.shot_timeout = gen_horde_shot_timeout();
 
     // 1/2 change of being a random shot
-    if (rand() % 2 == 0)
-    {
+    if (rand() % 2 == 0) {
         // pick a random invader to shoot
         const int i = rand() % arrlen(horde.invaders);
-        for (int j = 0; j <= i; j++)
-        {
+        for (int j = 0; j <= i; j++) {
             // horizontal distance < 3 => invader j in same column as invader i
-            if (abs(horde.invaders[i].x- horde.invaders[j].x) < 3)
-            {
+            if (abs(horde.invaders[i].x- horde.invaders[j].x) < 3) {
                 struct horde_shot_t shot = {
                     .x = horde.invaders[i].x + 5,
                     .y = horde.invaders[j].y + 8,
@@ -757,13 +753,10 @@ void make_horde_shoot()
 
     // danger zone width is 5. Necessarily 1 column of invaders will be in it
     SDL_Rect danger_zone = { player.x + 6, 0, 5, HEIGHT };
-    for (int i = 0; i < arrlen(horde.invaders); i++)
-    {
-        const SDL_Rect invader_rect = {
-            horde.invaders[i].x, horde.invaders[i].y, 12, 8
-        };
-        if (SDL_HasIntersection(&danger_zone, &invader_rect))
-        {
+    for (int i = 0; i < arrlen(horde.invaders); i++) {
+        const SDL_Rect invader_rect = { horde.invaders[i].x,
+            horde.invaders[i].y, 12, 8 };
+        if (SDL_HasIntersection(&danger_zone, &invader_rect)) {
             struct horde_shot_t shot = {
                 .x = invader_rect.x + 5,
                 .y = invader_rect.y + 8,
@@ -793,19 +786,16 @@ void move_horde()
     if (horde.invaders_updated < arrlen(horde.invaders))
         return;
     // fully updated and moved down. Don't move down next time
-    if (horde.ymove != 0)
-    {
+    if (horde.ymove != 0) {
         horde.ymove = 0;
         return;
     }
 
     // fully updated and didn't move down. Maybe it's time to flip directions
-    for (int j = 0; j < arrlen(horde.invaders); j++)
-    {
+    for (int j = 0; j < arrlen(horde.invaders); j++) {
         // should change directions and move down
         const int x = horde.invaders[j].x;
-        if (x <= 10 || x >= WIDTH - 22)
-        {
+        if (x <= 10 || x >= WIDTH - 22) {
             horde.xmove = -horde.xmove;
             horde.ymove = 8;
             break;
@@ -815,14 +805,12 @@ void move_horde()
 
 void update_horde(Uint32 delta)
 {
-    switch (horde.state)
-    {
+    switch (horde.state) {
     case HORDE_STARTING:
         update_horde_start_anim();
         break;
     case HORDE_MOVING:
-        if (player.state == PLAYER_ALIVE)
-        {
+        if (player.state == PLAYER_ALIVE) {
             horde.shot_timer += delta;
             make_horde_shoot();
         }
@@ -839,20 +827,17 @@ void update_horde(Uint32 delta)
 
 void update_horde_shots(Uint32 delta)
 {
-    for (int i = 0; i < arrlen(horde.shots); i++)
-	{
+    for (int i = 0; i < arrlen(horde.shots); i++) {
         // update shot animation
         horde.shots[i].timer += delta;
-        if (horde.shots[i].timer >= 96)
-        {
+        if (horde.shots[i].timer >= 96) {
             horde.shots[i].clip.x = 24 + (horde.shots[i].clip.x - 21) % 12;
             horde.shots[i].timer = 0;
         }
 
         // reached bottom of screen
 		horde.shots[i].y += 2;
-		if (horde.shots[i].y >= 232)
-        {
+		if (horde.shots[i].y >= 232) {
             // take away some bar pixels
             useless_bar[horde.shots[i].x] = (SDL_Point){ -1, -1 };
             useless_bar[horde.shots[i].x + 2] = (SDL_Point){ -1, -1 };
@@ -874,8 +859,7 @@ void update_horde_shots(Uint32 delta)
 
 void render_horde()
 {
-    for (int i = 0; i < arrlen(horde.invaders); i++)
-    {
+    for (int i = 0; i < arrlen(horde.invaders); i++) {
         const struct invader_t invader = horde.invaders[i];
         render_clip(&invader.clip, invader.x, invader.y);
     }
@@ -883,8 +867,7 @@ void render_horde()
 
 void render_horde_shots()
 {
-    for (int i = 0; i < arrlen(horde.shots); i++)
-    {
+    for (int i = 0; i < arrlen(horde.shots); i++) {
         const struct horde_shot_t shot = horde.shots[i];
         render_clip(&shot.clip, shot.x, shot.y);
     }
@@ -906,8 +889,7 @@ int gen_tourist_spawn_timeout()
 
 void update_tourist(Uint32 delta)
 {
-    switch (tourist.state)
-    {
+    switch (tourist.state) {
     case TOURIST_AVAILABLE:
         tourist.x += tourist.xvel;
         // reached end of screen. unavailable
@@ -919,8 +901,7 @@ void update_tourist(Uint32 delta)
             break;
 
         tourist.timer += delta;
-        if (tourist.timer >= tourist.spawn_timeout) // spawn
-        {
+        if (tourist.timer >= tourist.spawn_timeout) { // spawn
             tourist.state = TOURIST_AVAILABLE;
             // spawn either left or right
             tourist.xvel = rand() % 2 ? 0.65f : -0.65f;
@@ -936,8 +917,7 @@ void update_tourist(Uint32 delta)
         break;
     case TOURIST_DYING:
         tourist.timer += delta;
-        if (tourist.timer >= 384)
-        {
+        if (tourist.timer >= 384) {
             tourist.state = TOURIST_SHOWING_SCORE;
             score += tourist.score_inc;
             tourist.timer = 0; // reset timer
@@ -945,8 +925,7 @@ void update_tourist(Uint32 delta)
         break;
     case TOURIST_SHOWING_SCORE:
         tourist.timer += delta;
-        if (tourist.timer >= 1280)
-        {
+        if (tourist.timer >= 1280) {
             tourist.state = TOURIST_UNAVAILABLE;
             tourist.timer = 0; // reset timer
         }
@@ -956,8 +935,7 @@ void update_tourist(Uint32 delta)
 
 void render_tourist()
 {
-    switch (tourist.state)
-    {
+    switch (tourist.state) {
     case TOURIST_AVAILABLE: {
         const SDL_Rect tourist_clip = { 0,  0, 24,  8 };
         render_clip(&tourist_clip, tourist.x, 40);
@@ -969,6 +947,7 @@ void render_tourist()
     case TOURIST_SHOWING_SCORE: {
         char tourist_score[4];
         sprintf(tourist_score, "%3d", tourist.score_inc);
+
         SDL_SetTextureColorMod(atlas, 216, 32, 32);
         render_text(tourist_score, 3, tourist.x, 40);
         SDL_SetTextureColorMod(atlas, 255, 255, 255);
@@ -994,12 +973,10 @@ void desintegrate_bunker_from_point(int b, int p)
         { -1,  3 }, {  1,  3 }, {  3,  3 },
     };
 
-    for (int i = 0; i < 26; i++)
-    {
+    for (int i = 0; i < 26; i++) {
         const int x = p % 22 + offsets[i].x;
         const int y = p / 22 + offsets[i].y;
-        if (0 <= x && x < 22 && 0 <= y && y < 16)
-        {
+        if (0 <= x && x < 22 && 0 <= y && y < 16) {
             bunkers[b].points[22 * y + x].x = -1;
             bunkers[b].points[22 * y + x].y = -1;
         }
@@ -1063,33 +1040,26 @@ void process_shot_collision_with_player()
 
 void process_shot_collision_with_horde()
 {
-    for (int i = 0; i < arrlen(player.shots); i++)
-    {
-        const SDL_Rect shot_rect = {
-            player.shots[i].x, player.shots[i].y - 4, 1, 1
-        };
-        for (int j = 0; j < arrlen(horde.invaders); j++)
-        {
+    for (int i = 0; i < arrlen(player.shots); i++) {
+        const SDL_Rect shot_rect = { player.shots[i].x,
+            player.shots[i].y - 4, 1, 1 };
+        for (int j = 0; j < arrlen(horde.invaders); j++) {
             SDL_Rect invader_rect = {
                 horde.invaders[j].x + 2, horde.invaders[j].y, 8, 8
             };
             int score_inc = 30;
             // 16, 24, 32
-            if (horde.invaders[j].clip.y == 24)
-            {
+            if (horde.invaders[j].clip.y == 24) {
                 score_inc = 20;
                 invader_rect.x -= 1;
                 invader_rect.w = 11;
-            }
-            else if (horde.invaders[j].clip.y == 32)
-            {
+            } else if (horde.invaders[j].clip.y == 32) {
                 score_inc = 10;
                 invader_rect.x -= 2;
                 invader_rect.w = 12;
             }
 
-            if (SDL_HasIntersection(&shot_rect, &invader_rect))
-            {
+            if (SDL_HasIntersection(&shot_rect, &invader_rect)) {
                 const struct explosion_t explosion = {
                     .x = horde.invaders[j].x,
                     .y = horde.invaders[j].y,
@@ -1117,21 +1087,15 @@ void process_shot_collision_with_horde()
 
 void process_collision_between_shots()
 {
-    for (int i = 0; i < arrlen(horde.shots); i++)
-    {
-        const SDL_Rect horde_shot_rect = {
-            horde.shots[i].x, horde.shots[i].y, 3, 8
-        };
-        for (int j = 0; j < arrlen(player.shots); j++) 
-        {
-            const SDL_Rect player_shot_rect = {
-                player.shots[j].x, player.shots[j].y, 1, 5
-            };
-            if (SDL_HasIntersection(&horde_shot_rect, &player_shot_rect))
-            {
+    for (int i = 0; i < arrlen(horde.shots); i++) {
+        const SDL_Rect horde_shot_rect = { horde.shots[i].x,
+            horde.shots[i].y, 3, 8 };
+        for (int j = 0; j < arrlen(player.shots); j++) {
+            const SDL_Rect player_shot_rect = { player.shots[j].x,
+                player.shots[j].y, 1, 5 };
+            if (SDL_HasIntersection(&horde_shot_rect, &player_shot_rect)) {
                 // 25% chance horde shot cut right through player shot
-                if (rand() % 4 != 0) // 75% it explodes as well
-                {
+                if (rand() % 4 != 0) { // 75% it explodes as well
                     const struct explosion_t horde_shot_explosion = {
                         .x = horde_shot_rect.x - 2,
                         .y = horde_shot_rect.y + 1,
@@ -1163,26 +1127,20 @@ void process_horde_collision_with_bunkers()
     if (horde.invaders[0].y < 192 || horde.invaders[0].y >= 208)
         return;
     
-    for (int b = 0; b < 4; b++)
-    {
-        for (int i = 0; i < arrlen(horde.invaders); i++)
-        {
-            SDL_Rect invader_rect = {
-                horde.invaders[i].x + 2, horde.invaders[i].y, 8, 8
-            };
-            if (horde.invaders[i].clip.y == 24)
-            {
+    for (int b = 0; b < 4; b++) {
+        for (int i = 0; i < arrlen(horde.invaders); i++) {
+            SDL_Rect invader_rect = { horde.invaders[i].x + 2,
+                horde.invaders[i].y, 8, 8 };
+            if (horde.invaders[i].clip.y == 24) {
                 invader_rect.x -= 1;
                 invader_rect.w = 11;
             }
-            else if (horde.invaders[i].clip.y == 32)
-            {
+            else if (horde.invaders[i].clip.y == 32) {
                 invader_rect.x -= 2;
                 invader_rect.w = 12;
             }
 
-            for (int p = 0; p < 352; p++)
-            {
+            for (int p = 0; p < 352; p++) {
                 if (point_in_rect(&bunkers[b].points[p], &invader_rect))
                     bunkers[b].points[p].x = -1;
             }
@@ -1192,8 +1150,7 @@ void process_horde_collision_with_bunkers()
 
 void process_player_shot_collision_with_bunker(int b)
 {
-    for (int i = 0; i < arrlen(player.shots); i++)
-    {
+    for (int i = 0; i < arrlen(player.shots); i++) {
         const SDL_Rect shot_rect = {
             player.shots[i].x, player.shots[i].y, 1, 5
         };
@@ -1522,34 +1479,33 @@ void load_resources()
     // score info
 
     FILE* hi_score_file = fopen("hi_score.txt", "r");
-    if (hi_score_file)
-    {
+    if (hi_score_file) {
         fscanf(hi_score_file, "%6d", &hi_score);
         fclose(hi_score_file);
-    }
-    else
+    } else {
         fclose(fopen("hi_score.txt", "w"));
+    }
 
     // atlas //
 
-    const int ATLAS_W = 48, ATLAS_H = 46;
-    void* pixels = stbi_load(RESOURCES "/atlas.png", NULL, NULL, NULL, 4);
-    if (pixels == NULL)
-    {
-        const SDL_Rect rect = { 0, 0, ATLAS_W, ATLAS_H };
-        SDL_Surface* surface = SDL_CreateRGBSurface(0, ATLAS_W, ATLAS_H, 24,
+    int width = 48, height = 96;
+    void* pixels = stbi_load(RESOURCES "/atlas.png", &width, &height, NULL, 4);
+    if (pixels == NULL) {
+        const SDL_Rect rect = { 0, 0, width, height };
+        SDL_Surface* surface = SDL_CreateRGBSurface(0, width, height, 24,
             0xff0000, 0x00ff00, 0x0000ff, 0);
         
         SDL_FillRect(surface, &rect, 0xffffff);
         atlas = SDL_CreateTextureFromSurface(ren, surface);
         SDL_FreeSurface(surface);
-    }
-    else {
-        SDL_Surface* surface = SDL_CreateRGBSurfaceFrom(pixels, ATLAS_W, ATLAS_H,
-            32, 4*ATLAS_W, 0xff000000, 0x00ff0000, 0x0000ff00, 0x000000ff);
+    } else {
+        SDL_Surface* surface = SDL_CreateRGBSurfaceFrom(pixels, width, height,
+            32, 4*width, 0xff000000, 0x00ff0000, 0x0000ff00, 0x000000ff);
         atlas = SDL_CreateTextureFromSurface(ren, surface);
+        stbi_image_free(pixels);
         SDL_FreeSurface(surface);
     }
+    printf("Here!\n");
 }
 
 void free_resources()
@@ -1572,8 +1528,10 @@ int main(int argc, char** args)
     // INITIALIZATION //
 
     SDL_Init(SDL_INIT_EVERYTHING);
-    Mix_Init(MIX_INIT_MP3);
+    // Mix_Init(MIX_INIT_MP3);
     srand(time(NULL));
+
+    
 
     SDL_ShowCursor(SDL_FALSE); // retro games don't have a cursor showing up
     // they don't grab any sort of mouse events as well.
