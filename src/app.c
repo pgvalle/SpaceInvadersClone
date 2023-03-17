@@ -74,7 +74,7 @@ void process_app_events(const SDL_Event* event)
     if (event->type == SDL_QUIT) {
         screen = SCREEN_EXIT;
     } else {
-        process_credit_coin_events(&event);
+        process_credit_coin_events(event);
         switch (screen) {
         case SCREEN_MENU:
             // process_menu_events(event);

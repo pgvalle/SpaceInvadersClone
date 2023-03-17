@@ -3,15 +3,16 @@
 
 void process_credit_coin_events(const SDL_Event* event)
 {
-    if (event->type != SDL_KEYDOWN)
+    if (event->type != SDL_KEYDOWN) {
         return;
+    }
 
     const SDL_Keysym keysym = event->key.keysym;
     if (keysym.sym == SDLK_c) {
-        if (keysym.mod == KMOD_LCTRL) {
-            add_credit_coin();
-        } else if (keysym.mod == KMOD_NONE) {
+        if (keysym.mod & KMOD_SHIFT) {
             remove_credit_coin();
+        } else {
+            add_credit_coin();
         }
     }
 }
