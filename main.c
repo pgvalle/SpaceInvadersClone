@@ -1,16 +1,19 @@
-#include <SDL.h>
-#include <SDL_mixer.h>
-#include <SDL_image.h>
-
-#define STB_DS_IMPLEMENTATION
-#include "stb_ds.h"
-#undef  STB_DS_IMPLEMENTATION
-
 #include <math.h>
 #include <stdio.h>
 #include <stdbool.h>
 #include <ctype.h>
 #include <time.h>
+
+#include <SDL.h>
+#include <SDL_mixer.h>
+
+#define STB_DS_IMPLEMENTATION
+#include "stb_ds.h"
+#undef  STB_DS_IMPLEMENTATION
+
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+#undef  STB_IMAGE_IMPLEMENTATION
 
 ///////////////////////////////////////////////////////////////////////////////
 // IMPORTANT MACROS //
@@ -25,40 +28,35 @@
 // APP STATE //
 ///////////////////////////////////////////////////////////////////////////////
 
-enum {
+static enum {
     SCREEN_EXIT = 0,
     SCREEN_MENU,
     SCREEN_PLAY,
     SCREEN_PAUSE,
     SCREEN_GAMEOVER,
 } screen;
-SDL_Window* win;
-SDL_Renderer* ren;
+static SDL_Window* win;
+static SDL_Renderer* ren;
 
-SDL_Texture* atlas;
+static SDL_Texture* atlas;
 
 ///////////////////////////////////////////////////////////////////////////////
 // UTILS //
 ///////////////////////////////////////////////////////////////////////////////
 
 static inline
-void render_clip(const SDL_Rect* clip, int x, int y)
-{
+void render_clip(const SDL_Rect* clip, int x, int y) {
     const SDL_Rect scale = { x, y, clip->w, clip->h };
     SDL_RenderCopy(ren, atlas, clip, &scale);
 }
 
-void render_text(const char* text, int length, int x, int y)
-{
-    const char CHARS[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789*?-<>=";
-    const int CHARS_LEN_WRAP = 6;
-    for (int i = 0; i < length; i++)
-    {
+void render_text(const char* text, int length, int x, int y) {
+    const static char CHARS[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789*?-<>=";
+    const static int CHARS_LEN_WRAP = 6;
+    for (int i = 0; i < length; i++) {
         const char c = toupper(text[i]);
-        for (int j = 0; j < sizeof(CHARS) - 1; j++)
-        {
-            if (c == CHARS[j])
-            {
+        for (int j = 0; j < sizeof(CHARS) - 1; j++) {
+            if (c == CHARS[j]) {
                 const SDL_Rect clip = { TILE * (j % CHARS_LEN_WRAP),
                     40 + TILE * (j / CHARS_LEN_WRAP), TILE, TILE };
                 render_clip(&clip, x, y);
@@ -70,8 +68,7 @@ void render_text(const char* text, int length, int x, int y)
 }
 
 static inline
-int point_in_rect(const SDL_Point* point, const SDL_Rect* rect)
-{
+int point_in_rect(const SDL_Point* point, const SDL_Rect* rect) {
     return !(point->x < rect->x || point->x >= rect->x + rect->w ||
         point->y < rect->y || point->y >= rect->y + rect->h);
 }
@@ -80,15 +77,13 @@ int point_in_rect(const SDL_Point* point, const SDL_Rect* rect)
 // CREDITS //
 ///////////////////////////////////////////////////////////////////////////////
 
-int credits;
+static int credits;
 
-void process_credit_events(const SDL_Event* event)
-{
+void process_credit_events(const SDL_Event* event) {
     if (event->type != SDL_KEYDOWN)
         return;
     
-    switch (event->key.keysym.sym)
-    {
+    switch (event->key.keysym.sym) {
     case SDLK_PLUS:
     case SDLK_KP_PLUS:
         if (credits < 99)
@@ -102,9 +97,8 @@ void process_credit_events(const SDL_Event* event)
     }
 }
 
-void render_credits()
-{
-    char credit_text[10];
+void render_credits() {
+    static char credit_text[10];
     sprintf(credit_text, "CREDIT %02d", credits);
     render_text(credit_text, 9, WIDTH - 80, HEIGHT - 16);
 }
@@ -113,11 +107,10 @@ void render_credits()
 // SCORES //
 ///////////////////////////////////////////////////////////////////////////////
 
-int score, hi_score;
+static int score, hi_score;
 
-void render_scores()
-{
-    char score_text[7];
+void render_scores() {
+    static char score_text[7];
     // score
     render_text("YOUR SCORE", 10, 8, 8);
     sprintf(score_text, "%06d", score);
@@ -128,8 +121,7 @@ void render_scores()
     render_text(score_text, 6, WIDTH - 72, 24);
 }
 
-void render_score_advances_table()
-{
+void render_score_advances_table() {
     render_text("*SCORE ADVANCES TABLE*", 22, 24, 128);
 
     const SDL_Rect tourist_clip = { 0,  0, 24,  8 };
@@ -166,34 +158,29 @@ struct {
     Uint32 timer;
 } menu;
 
-void reset_menu()
-{
+void reset_menu() {
     menu.state = MENU_DISPLAYING;
     menu.display_i = 0;
     menu.timer = 0;
 }
 
 void reset_play();
-void process_menu_events(const SDL_Event* event)
-{
+void process_menu_events(const SDL_Event* event) {
     if (event->type != SDL_KEYDOWN || event->key.repeat)
         return;
     
-    SDL_Keycode key = event->key.keysym.sym;
-    switch (menu.state)
-    {
+    const SDL_Keycode key = event->key.keysym.sym;
+    switch (menu.state) {
     case MENU_DISPLAYING:
     case MENU_WAITING:
-        if (key == SDLK_RETURN)
-        {
+        if (key == SDLK_RETURN) {
             menu.state = MENU_BLINKING_ON;
             menu.timer = 0;
         }
         break;
     case MENU_BLINKING_ON:
     case MENU_BLINKING_OFF:
-        if (key == SDLK_p)
-        {
+        if (key == SDLK_p) {
             screen = SCREEN_PLAY;
             if (credits > 0)
                 credits--;
@@ -205,14 +192,11 @@ void process_menu_events(const SDL_Event* event)
     }
 }
 
-void update_menu(Uint32 delta)
-{
-    switch (menu.state)
-    {
+void update_menu(Uint32 delta) {
+    switch (menu.state) {
     case MENU_DISPLAYING:
         menu.timer += delta;
-        if (menu.timer >= 160)
-        {
+        if (menu.timer >= 160) {
             if (++menu.display_i == 14)
                 menu.state = MENU_WAITING;
             menu.timer = 0;
@@ -220,8 +204,7 @@ void update_menu(Uint32 delta)
         break;
     case MENU_WAITING:
         menu.timer += delta;
-        if (menu.timer >= 1008)
-        {
+        if (menu.timer >= 1008) {
             menu.state = MENU_BLINKING_ON;
             menu.timer = 0;
         }
@@ -229,8 +212,7 @@ void update_menu(Uint32 delta)
     case MENU_BLINKING_ON:
     case MENU_BLINKING_OFF:
         menu.timer += delta;
-        if (menu.timer >= 498)
-        {
+        if (menu.timer >= 498) {
             menu.state = (menu.state == MENU_BLINKING_ON ?
                 MENU_BLINKING_OFF : MENU_BLINKING_ON);
             menu.timer = 0;
@@ -239,10 +221,8 @@ void update_menu(Uint32 delta)
     }
 }
 
-void render_menu()
-{
-    switch (menu.state)
-    {
+void render_menu() {
+    switch (menu.state) {
     case MENU_BLINKING_ON:
         render_text("<P> PLAY", 8, 80, 80);
         render_text("<Q> QUIT", 8, 80, 96);
@@ -271,22 +251,19 @@ struct {
     Uint32 timer;
 } pause;
 
-void reset_pause()
-{
+void reset_pause() {
     pause.state = PAUSE_BLINKING_ON;
     pause.timer = 0;
 }
 
 void reset_menu();
 void reset_over();
-void process_pause_events(const SDL_Event* event)
-{
+void process_pause_events(const SDL_Event* event) {
     if (event->type != SDL_KEYDOWN || event->key.repeat ||
         pause.state == PAUSE_RESUMING)
         return;
     
-    switch (event->key.keysym.sym)
-    {
+    switch (event->key.keysym.sym) {
     case SDLK_m:
         screen = SCREEN_MENU;
         score = 0;
@@ -303,15 +280,12 @@ void process_pause_events(const SDL_Event* event)
     }
 }
 
-void update_pause(Uint32 delta)
-{
-    switch (pause.state)
-    {
+void update_pause(Uint32 delta) {
+    switch (pause.state) {
     case PAUSE_BLINKING_ON:
     case PAUSE_BLINKING_OFF:
         pause.timer += delta;
-        if (pause.timer >= 498) // 16 * 32 (half second)
-        {
+        if (pause.timer >= 498) {
             pause.state = (pause.state == PAUSE_BLINKING_ON ?
                 PAUSE_BLINKING_OFF : PAUSE_BLINKING_ON);
             pause.timer = 0;
@@ -325,8 +299,7 @@ void update_pause(Uint32 delta)
     }
 }
 
-void render_pause()
-{
+void render_pause() {
     // make background darker. It feels like game is really paused
     SDL_SetRenderDrawBlendMode(ren, SDL_BLENDMODE_BLEND);
     SDL_SetRenderDrawColor(ren, 0, 0, 0, 225);
@@ -334,8 +307,7 @@ void render_pause()
     SDL_RenderFillRect(ren, &overlay_rect);
     SDL_SetRenderDrawBlendMode(ren, SDL_BLENDMODE_NONE);
 
-    switch (pause.state)
-    {
+    switch (pause.state) {
     case PAUSE_BLINKING_ON:
         render_text("<ESC> RESUME", 12, 64, 64);
         render_text("<M> MENU", 8, 80, 80);
@@ -378,33 +350,28 @@ void reset_over()
 }
 
 void reset_play();
-void process_over_events(const SDL_Event* event)
-{
+void process_over_events(const SDL_Event* event) {
     if (event->type != SDL_KEYDOWN || event->key.repeat)
         return;
 
-    SDL_Keycode key = event->key.keysym.sym;
-    switch (over.state)
-    {
+    const SDL_Keycode key = event->key.keysym.sym;
+    switch (over.state) {
     case GAMEOVER_WAITING1:
-        if (key == SDLK_RETURN)
-        {
+        if (key == SDLK_RETURN) {
             over.state = GAMEOVER_DISPLAYING;
             over.timer = 0;
         }
         break;
     case GAMEOVER_WAITING2:
     case GAMEOVER_DISPLAYING:
-        if (key == SDLK_RETURN)
-        {
+        if (key == SDLK_RETURN) {
             over.state = GAMEOVER_BLINKING_ON;
             over.timer = 0;
         }
         break;
     case GAMEOVER_BLINKING_ON:
     case GAMEOVER_BLINKING_OFF:
-        switch (key)
-        {
+        switch (key) {
         case SDLK_RETURN:
         case SDLK_RETURN2:
             screen = SCREEN_PLAY;
@@ -424,10 +391,8 @@ void process_over_events(const SDL_Event* event)
     }
 }
 
-void update_over(Uint32 delta)
-{
-    switch (over.state)
-    {
+void update_over(Uint32 delta) {
+    switch (over.state) {
     case GAMEOVER_WAITING1:
         over.timer += delta;
         if (over.timer >= 2000)
@@ -438,8 +403,7 @@ void update_over(Uint32 delta)
         break;
     case GAMEOVER_DISPLAYING:
         over.timer += delta;
-        if (over.timer >= 160)
-        {
+        if (over.timer >= 160) {
             if (++over.display_i == 8)
                 over.state = GAMEOVER_WAITING2;
             over.timer = 0;
@@ -447,8 +411,7 @@ void update_over(Uint32 delta)
         break;
     case GAMEOVER_WAITING2:
         over.timer += delta;
-        if (over.timer >= 1008)
-        {
+        if (over.timer >= 1008) {
             over.state = GAMEOVER_BLINKING_ON;
             over.timer = 0;
         }
@@ -456,8 +419,7 @@ void update_over(Uint32 delta)
     case GAMEOVER_BLINKING_ON:
     case GAMEOVER_BLINKING_OFF:
         over.timer += delta;
-        if (over.timer >= 498)
-        {
+        if (over.timer >= 498) {
             over.state = (over.state == GAMEOVER_BLINKING_ON ?
                 GAMEOVER_BLINKING_OFF : GAMEOVER_BLINKING_ON);
             over.timer = 0;
@@ -466,10 +428,8 @@ void update_over(Uint32 delta)
     }
 }
 
-void render_over()
-{
-    if (over.state != GAMEOVER_WAITING1)
-    {
+void render_over() {
+    if (over.state != GAMEOVER_WAITING1) {
         SDL_SetRenderDrawBlendMode(ren, SDL_BLENDMODE_BLEND);
         SDL_SetRenderDrawColor(ren, 0, 0, 0, 225);
         const SDL_Rect overlay_rect = { 0, 0, WIDTH, HEIGHT };
@@ -477,8 +437,7 @@ void render_over()
         SDL_SetRenderDrawBlendMode(ren, SDL_BLENDMODE_NONE);
     }
 
-    switch (over.state)
-    {
+    switch (over.state) {
     case GAMEOVER_WAITING2:
     case GAMEOVER_DISPLAYING:
         SDL_SetTextureColorMod(atlas, 216, 32, 32);
@@ -1560,6 +1519,8 @@ void main_loop()
 
 void load_resources()
 {
+    // score info
+
     FILE* hi_score_file = fopen("hi_score.txt", "r");
     if (hi_score_file)
     {
@@ -1569,14 +1530,23 @@ void load_resources()
     else
         fclose(fopen("hi_score.txt", "w"));
 
-    atlas = IMG_LoadTexture(ren, RESOURCES "/atlas.png");
-    if (atlas == NULL)
+    // atlas //
+
+    const int ATLAS_W = 48, ATLAS_H = 46;
+    void* pixels = stbi_load(RESOURCES "/atlas.png", NULL, NULL, NULL, 4);
+    if (pixels == NULL)
     {
-        const SDL_Rect rect = { 0, 0, 48, 96 };
-        SDL_Surface* surface = SDL_CreateRGBSurface(0, rect.w, rect.h, 24,
+        const SDL_Rect rect = { 0, 0, ATLAS_W, ATLAS_H };
+        SDL_Surface* surface = SDL_CreateRGBSurface(0, ATLAS_W, ATLAS_H, 24,
             0xff0000, 0x00ff00, 0x0000ff, 0);
         
         SDL_FillRect(surface, &rect, 0xffffff);
+        atlas = SDL_CreateTextureFromSurface(ren, surface);
+        SDL_FreeSurface(surface);
+    }
+    else {
+        SDL_Surface* surface = SDL_CreateRGBSurfaceFrom(pixels, ATLAS_W, ATLAS_H,
+            32, 4*ATLAS_W, 0xff000000, 0x00ff0000, 0x0000ff00, 0x000000ff);
         atlas = SDL_CreateTextureFromSurface(ren, surface);
         SDL_FreeSurface(surface);
     }
@@ -1602,7 +1572,6 @@ int main(int argc, char** args)
     // INITIALIZATION //
 
     SDL_Init(SDL_INIT_EVERYTHING);
-    IMG_Init(IMG_INIT_PNG);
     Mix_Init(MIX_INIT_MP3);
     srand(time(NULL));
 
@@ -1632,13 +1601,12 @@ int main(int argc, char** args)
     SDL_DestroyRenderer(ren);
     SDL_DestroyWindow(win);
 
-    IMG_Quit();
     SDL_Quit();
 
-    // arrfree(horde.invaders);
-    // arrfree(horde.shots);
-    // arrfree(player.shots);
-    // arrfree(explosions);
+    arrfree(horde.invaders);
+    arrfree(horde.shots);
+    arrfree(player.shots);
+    arrfree(explosions);
 
     return 0;
 }
