@@ -42,47 +42,43 @@ There's a total of 8 state machines that you can find in the code.
 Here's the diagram for each one of them:
 
 ### Screens
-![screens](res/fsm/screens.png "screens")
+![screens](readme/fsm/screens.png "screens")
 ### Menu
-![menu](res/fsm/menu.png "menu")
+![menu](readme/fsm/menu.png "menu")
 ### Play
-![play](res/fsm/play.png "play")
+![play](readme/fsm/play.png "play")
 ### Pause
-![pause](res/fsm/pause.png "pause")
+![pause](readme/fsm/pause.png "pause")
 ### Game Over
-![over](res/fsm/over.png "over")
+![over](readme/fsm/over.png "over")
 
 ## Event Loop
 
 Here's how I have my event loop:
 ```
-void main_loop()
+void run_app_loop()
 {
-    uint32_t frame_start = 0, event_start = 0, event_wait_time = 1000 / FPS;
+    const Uint32 FPS = 60;
+    Uint32 start = 0, delta = 0, event_start = 0, event_wait = 1000 / FPS;
 
-    while (app.screen != APP_QUIT)
-    {
-        // wait for event
-        if (SDL_WaitEventTimeout(&app.event, event_wait_time))
-        {
-            // switch statement for screen event handling ...
+    while (screen != SCREEN_EXIT) {
+        SDL_Event event;
+        if (SDL_WaitEventTimeout(&event, event_wait)) {
+            process_app_events(&event);
 
-            // calculate remaining time to wait next loop.
-            const uint32_t processing_time = SDL_GetTicks() - event_start;
-            event_start += processing_time;
-            // careful not to be value lower than zero. it's an unsigned int.
-            event_wait_time = processing_time < event_wait_time ?
-                (event_wait_time - processing_time) : 0;
-        }
-        else
-        {
-            // switch statement for screen updating and rendering ...
-            
-            app.frame_time = SDL_GetTicks() - frame_start;
-            frame_start += app.frame_time;
-            
-            event_start = frame_start;
-            event_wait_time = 1000 / FPS; // reset event wait time
+            const Uint32 event_delta = SDL_GetTicks() - event_start;
+            event_start += event_delta;
+            // wait less next time
+            event_wait -= event_delta < event_wait ? event_delta : event_wait;
+        } else {
+            update_app(delta);
+            render_app();
+        
+            delta = SDL_GetTicks() - start;
+            start += delta;
+            // reset event timing
+            event_start = start;
+            event_wait = 1000 / FPS;
         }
     }
 }
