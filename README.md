@@ -26,15 +26,17 @@ To be documented...
 # Concepts
 ## Table of Contents
 
-1. [Finite State Machines (at least two)](#finite-state-machines)
-2. [Event Loop](#event-loop)
-3. Animations
-4. Keyboard and/or Mouse events
-5. Timers
-6. Collisions
-7. Text and Images
-8. [Dynamic collections (at least one)](#dynamic-collections)
-9. [Something else...](#something-else)
+1.  [Finite State Machines (at least two)](#finite-state-machines)
+2.  [Event Loop](#event-loop)
+3.  Animations
+4.  Keyboard and/or Mouse events
+5.  Timers
+6.  Collisions
+7.  Text and Images
+8.  [Dynamic collections (at least one)](#dynamic-collections)
+9.  [Something else...](#something-else)
+10. [Problems](#problems)
+11. [The good thing](#the-good-thing)
 
 ## Finite State Machines
 
@@ -87,8 +89,9 @@ void run_app_loop()
 ## Dynamic collections
 
 First of all, a quick shout to [nothings](https://github.com/nothings).
-I used their dynamic structures library [stb_ds.h](https://github.com/nothings/stb/blob/master/stb_ds.h).
-Really good piece of software, btw! Saved me so much hours I can't even count.
+I used two of their libraries: [stb_ds.h](https://github.com/nothings/stb/blob/master/stb_ds.h)
+and [stb_image.h](https://github.com/nothings/stb/blob/master/stb_image.h).
+Really good pieces of software, btw! Saved me so much hours I can't even count.
 There are three dynamic collections in the game: explosions, invaders and shots.
 
 ## Something Else...
@@ -99,3 +102,17 @@ I came up with a technique to render texts which basically consisted in renderin
 using sdl-ttf once and saving the output as a png. Then, as the font picked is ~~almost~~ monospaced,
 it became easier to map a character, say 'A', to a section of the image that contains 'A'.
 It helped me rendering dynamic ui elements like the score counter.
+
+## Problems
+
+1. I couldn't figure out how toorganize my code in a satisfactory way.
+It Probably has something to do with either my "it's not good enough" thing or my lack of knowledge on clean coding.
+2. Audio effects aren't implemented yet and obviously we got some annoying bugs as well.
+
+## The good thing
+
+Even with a lot of defects, this project helped me improve myself as a programmer and as a person.
+I tried so hard in the past to code simple games like pong and snake but failed. Those previous experiences
+made me stop thinking of game programming. However, recently I had classes on event-oriented programming with games.
+Those classes helped me realize I can't just start coding whatever. I need to have a goal and study on how I can
+reach that goal before before kicking the ball. And the bigger the project, the bigger the planning.
