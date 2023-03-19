@@ -21,7 +21,7 @@ extern enum screen_t {
     SCREEN_MENU,
     SCREEN_PLAY,
     SCREEN_PAUSE,
-    SCREEN_GAMEOVER,
+    SCREEN_OVER,
 } screen;
 extern SDL_Window* win;
 extern SDL_Renderer* ren;

@@ -1,7 +1,7 @@
 #include "credit.h"
 #include "app.h"
 
-void process_credit_events(const SDL_Event* event)
+void process_credit_event(const SDL_Event* event)
 {
     if (event->type != SDL_KEYDOWN) {
         return;

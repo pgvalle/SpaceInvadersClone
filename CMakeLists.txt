@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.12)
 
 project(SpaceInvadersClone)
-file(GLOB_RECURSE SOURCE_FILES src/*.h src/*.c)
+file(GLOB_RECURSE SOURCE_FILES src/*.c)
 add_executable(SpaceInvadersClone ${SOURCE_FILES})
 
 set_target_properties(

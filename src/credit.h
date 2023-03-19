@@ -5,7 +5,7 @@
 
 extern int credits;
 
-void process_credit_events(const SDL_Event* event);
+void process_credit_event(const SDL_Event* event);
 void render_credit_counter();
 
 static inline

@@ -75,26 +75,26 @@ void free_app_resources()
 // MAINLOOP STUFF //
 ///////////////////////////////////////////////////////////////////////////////
 
-// #include "screens/menu.h"
+#include "screens/screens.h"
 
-void process_app_events(const SDL_Event* event)
+void process_app_event(const SDL_Event* event)
 {
     if (event->type == SDL_QUIT) {
         screen = SCREEN_EXIT;
     } else {
-        process_credit_events(event);
+        process_credit_event(event);
         switch (screen) {
         case SCREEN_MENU:
-            // process_menu_events(event);
-            break;
-        case SCREEN_PLAY:
-            // process_play_events(event);
+            process_menu_event(event);
             break;
         case SCREEN_PAUSE:
-            // process_pause_events(event);
+            process_pause_event(event);
             break;
-        case SCREEN_GAMEOVER:
-            // process_over_events(event);
+        case SCREEN_PLAY:
+            process_play_event(event);
+            break;
+        case SCREEN_OVER:
+            process_over_event(event);
             break;
         }
     }
@@ -102,23 +102,20 @@ void process_app_events(const SDL_Event* event)
 
 void update_app(Uint32 delta)
 {
-    /*switch (screen) {
-    case SCREEN_PAUSE: {
+    switch (screen) {
+    case SCREEN_PAUSE:
         update_pause(delta);
         break;
-    }
-    case SCREEN_MENU: {
+    case SCREEN_MENU:
         update_menu(delta);
         break;
-    }
-    case SCREEN_PLAY: {
+    case SCREEN_PLAY:
         update_play(delta);
         break;
-    }
-    case SCREEN_GAMEOVER: {
+    case SCREEN_OVER:
         update_over(delta);
         break;
-    }}*/
+    }
 }
 
 void render_app()
@@ -126,27 +123,23 @@ void render_app()
     SDL_SetRenderDrawColor(ren, 0, 0, 0, 255);
     SDL_RenderClear(ren);
             
-    /*switch (screen) {
-        case SCREEN_PAUSE: {
-            render_play();
-            render_pause();
-            break;
-        }
-        case SCREEN_MENU: {
-            render_menu();
-            break;
-        }
-        case SCREEN_PLAY: {
-            render_play();
-            break;
-        }
-        case SCREEN_GAMEOVER: {
-            render_play();
-            render_over();
-            break;
-        }
+    switch (screen) {
+    case SCREEN_MENU:
+        render_menu();
+        break;
+    case SCREEN_PAUSE:
+        render_play();
+        render_pause();
+        break;
+    case SCREEN_PLAY:
+        render_play();
+        break;
+    case SCREEN_OVER:
+        render_play();
+        render_over();
+        break;
     }
-*/
+
     render_score_counters();
     render_credit_counter();
 
@@ -161,7 +154,7 @@ void run_app_loop()
     while (screen != SCREEN_EXIT) {
         SDL_Event event;
         if (SDL_WaitEventTimeout(&event, event_wait)) {
-            process_app_events(&event);
+            process_app_event(&event);
 
             const Uint32 event_delta = SDL_GetTicks() - event_start;
             event_start += event_delta;
@@ -184,6 +177,8 @@ void run_app_loop()
 // ENTRYPOINT //
 ///////////////////////////////////////////////////////////////////////////////
 
+void reset_menu();
+
 int main(int argc, char** args)
 {
     const int INITIAL_SCALE = 2;
@@ -201,6 +196,7 @@ int main(int argc, char** args)
     }
 
     screen = SCREEN_MENU;
+    reset_menu();
     win = SDL_CreateWindow("Space Invaders Clone", SDL_WINDOWPOS_CENTERED,
         SDL_WINDOWPOS_CENTERED, INITIAL_SCALE * WIDTH, INITIAL_SCALE * HEIGHT,
         SDL_WINDOW_INPUT_FOCUS | SDL_WINDOW_MOUSE_FOCUS);
