@@ -6,20 +6,20 @@ Obviously It's not 100% the same as the original one.
 But I guarantee it's good enough to be called Space Invaders Clone.
 
 # Build instructions
-## Linux
+## Linux (without cmake)
 
-To start, you must install sdl2 and sdl2-image. If you don't know what the packages names are,
-here are the commands to install those in debian, arch and fedora based distros with some extra
-stuff you need but might not have installed:
+To start, you must install sdl2 and sdl2-mixer (in the future, when I add audio effects).
+If you don't know how to install those libraries, here are the commands to install them in debian,
+arch and fedora based distros with some extra stuff you need but might not have already installed:
 
-1. `$ sudo apt install make gcc git libsdl2-dev libsdl2-image-dev libsdl2-ttf-dev libsdl2-mixer-dev`
-2. `$ sudo pacman -S make gcc git sdl2 sdl2_image sdl2_ttf sdl2_mixer`
-3. `$ sudo dnf install make gcc git-all SDL2-devel SDL2_image-devel SDL2_ttf-devel SDL2_mixer-devel`
+1. `$ sudo apt install make gcc git libsdl2-dev libsdl2-mixer-dev`
+2. `$ sudo pacman -S make gcc git sdl2 sdl2_ttf sdl2_mixer`
+3. `$ sudo dnf install make gcc git-all SDL2-devel SDL2_mixer-devel`
 
 Using make should produce an executable called space_invaders.out inside the repo root folder
 And you're done. You should be able to execute the game now.
 
-## Windows
+## Windows (linux with cmake too)
 
 To be documented...
 
@@ -105,7 +105,7 @@ It helped me rendering dynamic ui elements like the score counter.
 
 ## Problems
 
-1. I couldn't figure out how toorganize my code in a satisfactory way.
+1. I couldn't figure out how to organize my code in a satisfactory way.
 It Probably has something to do with either my "it's not good enough" thing or my lack of knowledge on clean coding.
 2. Audio effects aren't implemented yet and obviously we got some annoying bugs as well.
 
