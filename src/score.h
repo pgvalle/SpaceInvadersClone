@@ -3,6 +3,9 @@
 
 extern int score, high_score;
 
+void render_score_counters();
+void render_score_advances_table();
+
 static inline
 void increase_score(int amount)
 {
@@ -11,9 +14,6 @@ void increase_score(int amount)
         high_score = score;
     }
 }
-
-void render_score_counters();
-void render_score_advances_table();
 
 
 #endif // SCORE_H

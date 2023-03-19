@@ -1,5 +1,5 @@
 #include "app.h"
-#include "credit_coins.h"
+#include "credit.h"
 #include "score.h"
 
 #include "../stb_image.h"
@@ -82,7 +82,7 @@ void process_app_events(const SDL_Event* event)
     if (event->type == SDL_QUIT) {
         screen = SCREEN_EXIT;
     } else {
-        process_credit_coin_events(event);
+        process_credit_events(event);
         switch (screen) {
         case SCREEN_MENU:
             // process_menu_events(event);
@@ -148,7 +148,7 @@ void render_app()
     }
 */
     render_score_counters();
-    render_credit_coin_counter();
+    render_credit_counter();
 
     SDL_RenderPresent(ren);
 }
@@ -206,7 +206,7 @@ int main(int argc, char** args)
         SDL_WINDOW_INPUT_FOCUS | SDL_WINDOW_MOUSE_FOCUS);
     ren = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED);
     SDL_RenderSetScale(ren, INITIAL_SCALE, INITIAL_SCALE);
-    credit_coins = 1;
+    credits = 1;
     score = high_score = 0;
 
     load_app_resources();

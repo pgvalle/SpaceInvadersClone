@@ -1,7 +1,7 @@
-#include "credit_coins.h"
+#include "credit.h"
 #include "app.h"
 
-void process_credit_coin_events(const SDL_Event* event)
+void process_credit_events(const SDL_Event* event)
 {
     if (event->type != SDL_KEYDOWN) {
         return;
@@ -10,18 +10,18 @@ void process_credit_coin_events(const SDL_Event* event)
     const SDL_Keysym keysym = event->key.keysym;
     if (keysym.sym == SDLK_c) {
         if (keysym.mod & KMOD_SHIFT) {
-            remove_credit_coin();
+            remove_credit();
         } else {
-            add_credit_coin();
+            add_credit();
         }
     }
 }
 
-void render_credit_coin_counter()
+void render_credit_counter()
 {
     static char credits_fmt[10];
-    sprintf(credits_fmt, "CREDIT %02d", credit_coins);
+    sprintf(credits_fmt, "CREDIT %02d", credits);
     render_text(credits_fmt, 9, WIDTH - 80, HEIGHT - 16);
 }
 
-int credit_coins;
+int credits;
