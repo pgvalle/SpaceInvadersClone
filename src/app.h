@@ -48,17 +48,5 @@ int point_in_rect(const SDL_Point* point, const SDL_Rect* rect)
         point->y < rect->y || point->y >= rect->y + rect->h);
 }
 
-///////////////////////////////////////////////////////////////////////////////
-// IMPORTANT APP FUNCTIONS //
-///////////////////////////////////////////////////////////////////////////////
-
-void load_app_resources();
-void free_app_resources();
-
-void process_app_events(const SDL_Event* event);
-void update_app(Uint32 delta);
-void render_app();
-
-void run_app_loop();
 
 #endif // APP_H
