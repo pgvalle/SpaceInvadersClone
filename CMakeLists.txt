@@ -11,10 +11,12 @@ set_target_properties(
 	C_EXTENSIONS        FALSE
 )
 
-if(WIN32)
+find_package(SDL2 QUIET)
+if(SDL2_FOUND)
+
+else()
 	include(FetchContent)
 
-	# downloading SDL2
 	FetchContent_Declare(
 		SDL2
 		GIT_REPOSITORY https://github.com/libsdl-org/SDL
@@ -22,20 +24,14 @@ if(WIN32)
 		SOURCE_DIR ext/SDL2
 	)
 
-	# configuring SDL2 build
-	set(SDL_STATIC_ENABLED_BY_DEFAULT OFF)
+	set(SDL_SHARED_ENABLED_BY_DEFAULT OFF)
 	set(SDL_TEST_ENABLED_BY_DEFAULT   OFF)
-
-	# integrating SDL2 with project
+	
 	FetchContent_MakeAvailable(SDL2)
 	FetchContent_GetProperties(SDL2)
-	add_dependencies(SpaceInvadersClone SDL2)
-	target_include_directories(SpaceInvadersClone PRIVATE ${SDL2_INCLUDE_DIRS})
-	target_link_libraries(SpaceInvadersClone PRIVATE SDL2main SDL2)
 
-	add_custom_command(TARGET SpaceInvadersClone POST_BUILD
-	    COMMAND ${CMAKE_COMMAND} -E copy ${SDL2_BINARY_DIR}/SDL2d.dll ${CMAKE_BINARY_DIR}
-	)
-else()
-	find_package(SDL2 REQUIRED)
+	# integrating SDL2 with project
+	add_dependencies(SpaceInvadersClone SDL2-static)
+	target_include_directories(SpaceInvadersClone PRIVATE ${SDL2_INCLUDE_DIRS})
+	target_link_libraries(SpaceInvadersClone PRIVATE SDL2main SDL2-static)
 endif()
