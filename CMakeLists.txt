@@ -6,7 +6,7 @@ add_executable(SpaceInvadersClone ${SOURCE_FILES})
 
 set_target_properties(
 	SpaceInvadersClone PROPERTIES
-	C_STANDARD          99
+	C_STANDARD          11
 	C_STANDARD_REQUIRED TRUE
 	C_EXTENSIONS        FALSE
 )
@@ -37,3 +37,4 @@ endif()
 
 target_include_directories(SpaceInvadersClone PRIVATE ${SDL2_INCLUDE_DIRS} ext/ src/)
 target_link_libraries(SpaceInvadersClone PRIVATE SDL2main SDL2 m)
+
