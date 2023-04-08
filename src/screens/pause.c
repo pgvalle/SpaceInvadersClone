@@ -1,5 +1,4 @@
 #include "internal.h"
-#include "../score.h"
 
 void process_pause_event(const SDL_Event* event)
 {
@@ -9,8 +8,8 @@ void process_pause_event(const SDL_Event* event)
     
     switch (event->key.keysym.sym) {
     case SDLK_m:
-        screen = SCREEN_MENU;
-        score = 0;
+        ctx.screen = SCREEN_MENU;
+        ctx.score = 0;
         reset_menu();
         break;
     case SDLK_ESCAPE:
@@ -18,7 +17,7 @@ void process_pause_event(const SDL_Event* event)
         pause.timer = 0;
         break;
     case SDLK_q:
-        screen = SCREEN_EXIT;
+        ctx.screen = SCREEN_EXIT;
         reset_over();
         break;
     }
@@ -39,7 +38,7 @@ void update_pause(Uint32 delta)
     case PAUSE_RESUMING:
         pause.timer += delta;
         if (pause.timer >= 3008) // 16 * 188 (3 seconds)
-            screen = SCREEN_PLAY;
+            ctx.screen = SCREEN_PLAY;
         break;
     }
 }
@@ -47,11 +46,11 @@ void update_pause(Uint32 delta)
 void render_pause()
 {
     // make background darker. It feels like game is really paused
-    SDL_SetRenderDrawBlendMode(ren, SDL_BLENDMODE_BLEND);
-    SDL_SetRenderDrawColor(ren, 0, 0, 0, 225);
+    SDL_SetRenderDrawBlendMode(ctx.ren, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderDrawColor(ctx.ren, 0, 0, 0, 225);
     const SDL_Rect overlay_rect = { 0, 0, WIDTH, HEIGHT };
-    SDL_RenderFillRect(ren, &overlay_rect);
-    SDL_SetRenderDrawBlendMode(ren, SDL_BLENDMODE_NONE);
+    SDL_RenderFillRect(ctx.ren, &overlay_rect);
+    SDL_SetRenderDrawBlendMode(ctx.ren, SDL_BLENDMODE_NONE);
 
     switch (pause.state) {
     case PAUSE_BLINKING_ON:

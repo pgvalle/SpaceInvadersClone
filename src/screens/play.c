@@ -1,5 +1,4 @@
 #include "internal.h"
-#include "../score.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // EXPLOSIONS //
@@ -78,7 +77,7 @@ void update_player(Uint32 delta)
 		if (player.timer >= 2000) {
             // horde reached player. game over
             if (horde.invaders[0].y == 216) {
-                screen = SCREEN_OVER;
+                ctx.screen = SCREEN_OVER;
                 reset_over();
             } else {
                 player.state = PLAYER_ALIVE;
@@ -110,31 +109,31 @@ void render_player()
 
 void update_player_shots()
 {
-    for (int i = 0; i < arrlen(player.shots); i++) {
-        // reached top of screen
-		player.shots[i].y -= 4;
-		if (player.shots[i].y <= 32) {
-            // add explosion
-            const struct explosion_t explosion = {
-                .x = player.shots[i].x - 3,
-                .y = 34,
-                .clip = { 36, 24,  8,  8 },
-                .lifetime = 256
-            };
-            arrput(explosions, explosion);
-            arrdel(player.shots, i);
-            i--;
-        }
+  for (int i = 0; i < arrlen(player.shots); i++) {
+    // reached top of screen
+    player.shots[i].y -= 4;
+    if (player.shots[i].y <= 32) {
+      // add explosion
+      const struct explosion_t explosion = {
+        .x = player.shots[i].x - 3,
+        .y = 34,
+        .clip = { 36, 24,  8,  8 },
+        .lifetime = 256
+      };
+      arrput(explosions, explosion);
+      arrdel(player.shots, i);
+      i--;
+    }
 	}
 }
 
 void render_player_shots()
 {
-    SDL_SetRenderDrawColor(ren, 255, 255, 255, 255);
-    for (int i = 0; i < arrlen(player.shots); i++) {
-		const SDL_Rect shot_rect = {player.shots[i].x, player.shots[i].y, 1, 4 };
-		SDL_RenderFillRect(ren, &shot_rect);
-	}
+  SDL_SetRenderDrawColor(ctx.ren, 255, 255, 255, 255);
+  for (int i = 0; i < arrlen(player.shots); i++) {
+    const SDL_Rect shot_rect = {player.shots[i].x, player.shots[i].y, 1, 4 };
+    SDL_RenderFillRect(ctx.ren, &shot_rect);
+  }
 }
 
 struct player_t player;
@@ -404,9 +403,9 @@ void render_tourist()
         char tourist_score[4];
         sprintf(tourist_score, "%3d", tourist.score_inc);
 
-        SDL_SetTextureColorMod(atlas, 216, 32, 32);
+        SDL_SetTextureColorMod(ctx.atlas, 216, 32, 32);
         render_text(tourist_score, 3, tourist.x, 40);
-        SDL_SetTextureColorMod(atlas, 255, 255, 255);
+        SDL_SetTextureColorMod(ctx.atlas, 255, 255, 255);
         break; }
     }
 }
@@ -445,12 +444,12 @@ void desintegrate_bunker_from_point(int b, int p)
 
 void render_bunkers()
 {
-    SDL_SetRenderDrawColor(ren, 32, 255, 32, 255);
+    SDL_SetRenderDrawColor(ctx.ren, 32, 255, 32, 255);
 
-    SDL_RenderDrawPoints(ren, bunkers[0].points, 352);
-    SDL_RenderDrawPoints(ren, bunkers[1].points, 352);
-    SDL_RenderDrawPoints(ren, bunkers[2].points, 352);
-    SDL_RenderDrawPoints(ren, bunkers[3].points, 352);
+    SDL_RenderDrawPoints(ctx.ren, bunkers[0].points, 352);
+    SDL_RenderDrawPoints(ctx.ren, bunkers[1].points, 352);
+    SDL_RenderDrawPoints(ctx.ren, bunkers[2].points, 352);
+    SDL_RenderDrawPoints(ctx.ren, bunkers[3].points, 352);
 }
 
 struct bunker_t bunkers[4];
@@ -534,7 +533,7 @@ void process_shot_collision_with_horde()
                 arrdel(player.shots, i);
                 i--;
                 arrdel(horde.invaders, j);
-                score += score_inc;
+                increase_score(score_inc);
 
                 // prevent updating twice the same invader (corner case)
                 if (j < horde.invaders_updated)
@@ -680,7 +679,7 @@ void process_horde_shot_collision_with_bunker(int b)
 
 void reset_play()
 {
-    score = 0;
+    ctx.score = 0;
 
     play.timer = 0;
     play.state = PLAY_PLAYING;
@@ -751,7 +750,7 @@ void process_play_event(const SDL_Event* event)
     if (event->type == SDL_KEYDOWN && !event->key.repeat &&
         event->key.keysym.sym == SDLK_ESCAPE)
     {
-        screen = SCREEN_PAUSE;
+        ctx.screen = SCREEN_PAUSE;
         reset_pause();
     }
 }
@@ -794,7 +793,7 @@ void update_play(Uint32 delta)
 
         if (player.lives == 0 && player.state == PLAYER_DEAD)
         {
-            screen = SCREEN_OVER;
+            ctx.screen = SCREEN_OVER;
             reset_over();
         }
         break;
@@ -805,10 +804,10 @@ void update_play(Uint32 delta)
         if (play.timer >= 1504)
         {
             // keep score and life counter
-            const int score_backup = score;
+            const int score_backup = ctx.score;
             const int lives_backup = player.lives;
             reset_play();
-            score = score_backup;
+            ctx.score = score_backup;
             player.lives = lives_backup;
         }
         break;
@@ -818,8 +817,8 @@ void update_play(Uint32 delta)
 void render_play()
 {
     // Just to resemble the original game
-    SDL_SetRenderDrawColor(ren, 32, 255, 32, 255);
-    SDL_RenderDrawPoints(ren, useless_bar, WIDTH);
+    SDL_SetRenderDrawColor(ctx.ren, 32, 255, 32, 255);
+    SDL_RenderDrawPoints(ctx.ren, useless_bar, WIDTH);
 
     // all gameplay elements
     render_player_shots();
@@ -841,3 +840,4 @@ void render_play()
 }
 
 struct play_screen_t play;
+SDL_Point useless_bar[WIDTH];

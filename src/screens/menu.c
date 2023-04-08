@@ -1,6 +1,4 @@
 #include "internal.h"
-#include "../score.h"
-#include "../credit.h"
 
 void reset_menu()
 {
@@ -27,12 +25,12 @@ void process_menu_event(const SDL_Event* event)
     case MENU_BLINKING_ON:
     case MENU_BLINKING_OFF:
         if (key == SDLK_p) {
-            screen = SCREEN_PLAY;
+            ctx.screen = SCREEN_PLAY;
             remove_credit();
             reset_play();
         }
         else if (key == SDLK_q)
-            screen = SCREEN_EXIT;
+            ctx.screen = SCREEN_EXIT;
         break;
     }
 }

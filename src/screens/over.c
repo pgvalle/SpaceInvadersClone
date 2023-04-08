@@ -1,5 +1,4 @@
 #include "internal.h"
-#include "../credit.h"
 
 void process_over_event(const SDL_Event* event)
 {
@@ -26,16 +25,15 @@ void process_over_event(const SDL_Event* event)
         switch (key) {
         case SDLK_RETURN:
         case SDLK_RETURN2:
-            screen = SCREEN_PLAY;
-            if (credits > 0)
-                credits--;
+            ctx.screen = SCREEN_PLAY;
+            remove_credit();
             reset_play();
             break;
         case SDLK_q:
-            screen = SCREEN_EXIT;
+            ctx.screen = SCREEN_EXIT;
             break;
         case SDLK_m:
-            screen = SCREEN_MENU;
+            ctx.screen = SCREEN_MENU;
             reset_menu();
             break;
         }
@@ -84,28 +82,28 @@ void update_over(Uint32 delta)
 void render_over()
 {
     if (over.state != GAMEOVER_WAITING1) {
-        SDL_SetRenderDrawBlendMode(ren, SDL_BLENDMODE_BLEND);
-        SDL_SetRenderDrawColor(ren, 0, 0, 0, 225);
+        SDL_SetRenderDrawBlendMode(ctx.ren, SDL_BLENDMODE_BLEND);
+        SDL_SetRenderDrawColor(ctx.ren, 0, 0, 0, 225);
         const SDL_Rect overlay_rect = { 0, 0, WIDTH, HEIGHT };
-        SDL_RenderFillRect(ren, &overlay_rect);
-        SDL_SetRenderDrawBlendMode(ren, SDL_BLENDMODE_NONE);
+        SDL_RenderFillRect(ctx.ren, &overlay_rect);
+        SDL_SetRenderDrawBlendMode(ctx.ren, SDL_BLENDMODE_NONE);
     }
 
     switch (over.state) {
     case GAMEOVER_WAITING2:
     case GAMEOVER_DISPLAYING:
-        SDL_SetTextureColorMod(atlas, 216, 32, 32);
+        SDL_SetTextureColorMod(ctx.atlas, 216, 32, 32);
         render_text("YOU LOST", over.display_i, 80, 56);
-        SDL_SetTextureColorMod(atlas, 255, 255, 255);
+        SDL_SetTextureColorMod(ctx.atlas, 255, 255, 255);
         break;
     case GAMEOVER_BLINKING_ON:
         render_text("<ENTER> GO AGAIN", 16, 48, 80);
         render_text("<M> MENU", 8, 80, 96);
         render_text("<Q> QUIT", 8, 80, 112);
     case GAMEOVER_BLINKING_OFF:
-        SDL_SetTextureColorMod(atlas, 216, 32, 32);
+        SDL_SetTextureColorMod(ctx.atlas, 216, 32, 32);
         render_text("YOU LOST", 8, 80, 56);
-        SDL_SetTextureColorMod(atlas, 255, 255, 255);
+        SDL_SetTextureColorMod(ctx.atlas, 255, 255, 255);
         break;
     }
 }

@@ -1,12 +1,20 @@
 #ifndef SCREENS_INTERNAL_H
 #define SCREENS_INTERNAL_H
 
+#include "screens.h"
+#include "app.h"
+#include "defs.h"
+#include "stb_ds.h"
+
 #include <SDL_types.h>
 #include <SDL_rect.h>
 
-#include "screens.h"
-#include "../app.h"
-#include "../../stb_ds.h"
+static inline
+int point_in_rect(const SDL_Point* point, const SDL_Rect* rect)
+{
+    return !(point->x < rect->x || point->x >= rect->x + rect->w ||
+        point->y < rect->y || point->y >= rect->y + rect->h);
+}
 
 extern struct menu_screen_t {
     enum {
@@ -147,7 +155,7 @@ extern struct bunker_t {
     SDL_Point points[352];
 } bunkers[4];
 
-SDL_Point useless_bar[WIDTH];
+extern SDL_Point useless_bar[WIDTH];
 
 
 #endif // SCREENS_INTERNAL_H
