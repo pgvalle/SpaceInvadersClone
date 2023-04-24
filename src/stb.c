@@ -1,5 +1,5 @@
 #define STB_DS_IMPLEMENTATION
-#include "../ext/stb_ds.h"
+#include <stb_ds.h>
 
 #define STB_IMAGE_IMPLEMENTATION
-#include "../ext/stb_image.h"
+#include <stb_image.h>
