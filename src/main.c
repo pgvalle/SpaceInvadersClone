@@ -64,7 +64,7 @@ void load_resources()
     SDL_FreeSurface(surface);
   } else {
     SDL_Surface* surface = SDL_CreateRGBSurfaceFrom(pixels, width, height, 32,
-      4*width, 0xff000000, 0x00ff0000, 0x0000ff00, 0x000000ff);
+      4*width, 0x000000ff, 0x0000ff00, 0x00ff0000, 0xff000000);
     ctx.atlas = SDL_CreateTextureFromSurface(ctx.ren, surface);
     stbi_image_free(pixels);
     SDL_FreeSurface(surface);
