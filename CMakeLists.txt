@@ -5,17 +5,16 @@ file(GLOB_RECURSE SOURCE_FILES src/*.c)
 add_executable(SpaceInvadersClone ${SOURCE_FILES})
 
 set_target_properties(
-	SpaceInvadersClone PROPERTIES
+	SpaceInvadersClone  PROPERTIES
 	C_STANDARD          11
 	C_STANDARD_REQUIRED TRUE
 	C_EXTENSIONS        FALSE
 )
 
 find_package(SDL2 QUIET)
-if (NOT SDL2_FOUND)
+if(NOT SDL2_FOUND)
 	include(FetchContent)
 
-	# downloading SDL2
 	FetchContent_Declare(
 		SDL2
 		GIT_REPOSITORY https://github.com/libsdl-org/SDL

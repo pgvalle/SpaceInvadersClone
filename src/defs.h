@@ -8,5 +8,4 @@
 
 #define DEBUG
 
-
 #endif // DEFS_H

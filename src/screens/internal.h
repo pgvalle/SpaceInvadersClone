@@ -12,62 +12,62 @@
 static inline
 int point_in_rect(const SDL_Point* point, const SDL_Rect* rect)
 {
-    return !(point->x < rect->x || point->x >= rect->x + rect->w ||
-        point->y < rect->y || point->y >= rect->y + rect->h);
+  return !(point->x < rect->x || point->x >= rect->x + rect->w ||
+    point->y < rect->y || point->y >= rect->y + rect->h);
 }
 
 extern struct menu_screen_t {
-    enum {
-        MENU_DISPLAYING,
-        MENU_WAITING,
-        MENU_BLINKING_ON,
-        MENU_BLINKING_OFF
-    } state;
+  enum {
+    MENU_DISPLAYING,
+    MENU_WAITING,
+    MENU_BLINKING_ON,
+    MENU_BLINKING_OFF
+  } state;
 
-    int display_i;
+  int display_i;
 
-    Uint32 timer;
+  Uint32 timer;
 } menu;
 
 void reset_menu();
 
 extern struct pause_screen_t {
-    enum {
-        PAUSE_BLINKING_ON,
-        PAUSE_BLINKING_OFF,
-        PAUSE_RESUMING
-    } state;
+  enum {
+    PAUSE_BLINKING_ON,
+    PAUSE_BLINKING_OFF,
+    PAUSE_RESUMING
+  } state;
 
-    Uint32 timer;
+  Uint32 timer;
 } pause;
 
 static inline
 void reset_pause()
 {
-    pause.state = PAUSE_BLINKING_ON;
-    pause.timer = 0;
+  pause.state = PAUSE_BLINKING_ON;
+  pause.timer = 0;
 }
 
 extern struct over_screen_t {
-    enum {
-        GAMEOVER_WAITING1,
-        GAMEOVER_DISPLAYING,
-        GAMEOVER_WAITING2,
-        GAMEOVER_BLINKING_ON,
-        GAMEOVER_BLINKING_OFF
-    } state;
+  enum {
+    GAMEOVER_WAITING1,
+    GAMEOVER_DISPLAYING,
+    GAMEOVER_WAITING2,
+    GAMEOVER_BLINKING_ON,
+    GAMEOVER_BLINKING_OFF
+  } state;
 
-    int display_i;
+  int display_i;
 
-    Uint32 timer;
+  Uint32 timer;
 } over;
 
 static inline
 void reset_over()
 {
-    over.state = GAMEOVER_WAITING1;
-    over.display_i = 0;
-    over.timer = 0;
+  over.state = GAMEOVER_WAITING1;
+  over.display_i = 0;
+  over.timer = 0;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -75,20 +75,20 @@ void reset_over()
 ///////////////////////////////////////////////////////////////////////////////
 
 extern struct play_screen_t {
-    enum {
-        PLAY_PLAYING,
-        PLAY_RESTARTING
-    } state;
+  enum {
+    PLAY_PLAYING,
+    PLAY_RESTARTING
+  } state;
 
-    uint32_t timer;
+  uint32_t timer;
 } play;
 
 void reset_play();
 
 extern struct explosion_t {
-    int x, y;
-    SDL_Rect clip;
-    int32_t lifetime;
+  int x, y;
+  SDL_Rect clip;
+  int32_t lifetime;
 }* explosions;
 
 extern struct player_t {
@@ -156,6 +156,5 @@ extern struct bunker_t {
 } bunkers[4];
 
 extern SDL_Point useless_bar[WIDTH];
-
 
 #endif // SCREENS_INTERNAL_H

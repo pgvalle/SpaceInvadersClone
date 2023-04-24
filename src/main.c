@@ -1,7 +1,8 @@
 #include "defs.h"
 #include "app.h"
 #include "screens/screens.h"
-#include "stb_image.h"
+
+#include <stb_image.h>
 #include <time.h>
 
 void reset_menu();
@@ -40,7 +41,6 @@ int main(int argc, char** args)
 
   SDL_DestroyRenderer(ctx.ren);
   SDL_DestroyWindow(ctx.win);
-
   SDL_Quit();
 
   return 0;
@@ -64,7 +64,7 @@ void load_resources()
     SDL_FreeSurface(surface);
   } else {
     SDL_Surface* surface = SDL_CreateRGBSurfaceFrom(pixels, width, height, 32,
-      4*width, 0x000000ff, 0x0000ff00, 0x00ff0000, 0xff000000);
+      4 * width, 0x000000ff, 0x0000ff00, 0x00ff0000, 0xff000000); // abgr format
     ctx.atlas = SDL_CreateTextureFromSurface(ctx.ren, surface);
     stbi_image_free(pixels);
     SDL_FreeSurface(surface);
@@ -155,21 +155,21 @@ void render()
 
   // SCORES //
 
-  static char scores_fmt[7];
-  // score
+  static char scores_str[7];
+  // player score
   render_text("YOUR SCORE", 10, 8, 8);
-  sprintf(scores_fmt, "%06d", ctx.score);
-  render_text(scores_fmt, 6, 24, 24);
+  sprintf(scores_str, "%06d", ctx.score);
+  render_text(scores_str, 6, 24, 24);
   // high-score
   render_text("HIGH-SCORE", 10, WIDTH - 88, 8);
-  sprintf(scores_fmt, "%06d", ctx.high_score);
-  render_text(scores_fmt, 6, WIDTH - 72, 24);
+  sprintf(scores_str, "%06d", ctx.high_score);
+  render_text(scores_str, 6, WIDTH - 72, 24);
 
   // COIN COUNTER //
 
-  static char credits_fmt[10];
-  sprintf(credits_fmt, "CREDIT %02d", ctx.credits);
-  render_text(credits_fmt, 9, WIDTH - 80, HEIGHT - 16);
+  static char credits_str[10];
+  sprintf(credits_str, "CREDIT %02d", ctx.credits);
+  render_text(credits_str, 9, WIDTH - 80, HEIGHT - 16);
 
   SDL_RenderPresent(ctx.ren);
 }
