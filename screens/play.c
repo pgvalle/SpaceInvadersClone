@@ -4,8 +4,7 @@
 // EXPLOSIONS //
 ///////////////////////////////////////////////////////////////////////////////
 
-void update_explosions(Uint32 delta)
-{
+void update_explosions() {
     for (int i = 0; i < arrlen(explosions); i++) {
         explosions[i].lifetime -= delta;
         if (explosions[i].lifetime <= 0) {
@@ -104,7 +103,7 @@ void render_player()
         render_clip(&clip, player.x, 216);
         break;
     }
-    }	    
+    }
 }
 
 void update_player_shots()
