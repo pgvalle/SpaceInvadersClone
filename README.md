@@ -6,7 +6,7 @@ Obviously It's not 100% the same as the original one.
 But I guarantee it's good enough to be called Space Invaders Clone.
 
 # Build instructions
-## Linux (without cmake)
+## Linux
 
 To start, you must install sdl2 and sdl2-mixer (in the future, when I add audio effects).
 If you don't know how to install those libraries, here are the commands to install them in debian,
@@ -19,7 +19,7 @@ arch and fedora based distros with some extra stuff you need but might not have 
 Using make should produce an executable called space_invaders.out inside the repo root folder
 And you're done. You should be able to execute the game now.
 
-## Windows (linux with cmake too)
+## Windows
 
 To be documented...
 
