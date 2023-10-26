@@ -2,39 +2,38 @@
 
 #include "utils.h"
 
-class InvaderShot {
-private:
-  int m_x, m_y;
-  SDL_Rect m_clip;
+struct InvaderShot {
+  int x, y;
+  SDL_Rect clip;
 
-  Timer m_motion_timer;
-  Timer m_animation_timer;
+  Timer motion_timer;
+  Timer animation_timer;
 
 public:
-  InvaderShot(int x, int y, const SDL_Rect& clip) {
-    m_x = x;
-    m_y = y;
-    m_clip = clip;
-    m_motion_timer = Timer(0);
-    m_animation_timer = Timer(96);
+  InvaderShot(int x_, int y_, const SDL_Rect& clip_) {
+    x = x_;
+    y = y_;
+    clip = clip_;
+    motion_timer = Timer(0);
+    animation_timer = Timer(96);
   }
 
   void update(Uint64 delta) {
     // animate it
-    m_animation_timer.update(delta);
-    if (m_animation_timer.has_timed_out()) {
-      m_clip.x = 24 + (m_clip.x - 21) % 12;
-      m_animation_timer.reset();
+    animation_timer.update(delta);
+    if (animation_timer.has_timed_out()) {
+      clip.x = 24 + (clip.x - 21) % 12;
+      animation_timer.reset();
     }
     // move it
-    m_motion_timer.update(delta);
-    if (m_motion_timer.has_timed_out()) {
-      m_y += 2;
-      m_motion_timer.reset();
+    motion_timer.update(delta);
+    if (motion_timer.has_timed_out()) {
+      y += 2;
+      motion_timer.reset();
     }
   }
 
   void render(SDL_Renderer* renderer, SDL_Texture* atlas) {
-    render_clip(m_x, m_y, m_clip, renderer, atlas);
+    render_clip(x, y, clip, renderer, atlas);
   }
 };

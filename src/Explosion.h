@@ -3,31 +3,29 @@
 
 #include "utils.h"
 
-class Explosion {
-private:
-  int m_x, m_y;
-  SDL_Rect m_clip;
+struct Explosion {
+  int x, y;
+  SDL_Rect clip;
 
-  Timer m_lifespan;
+  Timer lifespan;
 
-public:
-  Explosion(int x, int y, Uint64 lifespan, const SDL_Rect& clip) {
-    m_x = x;
-    m_y = y;
-    m_clip = clip;
-    m_lifespan = Timer(lifespan);
+  Explosion(int x_, int y_, Uint64 lifespan_, const SDL_Rect& clip_) {
+    x = x_;
+    y = y_;
+    clip = clip_;
+    lifespan = Timer(lifespan_);
   }
 
   bool has_finished() {
-    return m_lifespan.has_timed_out();
+    return lifespan.has_timed_out();
   }
 
   void update(Uint64 delta) {
-    m_lifespan.update(delta);
+    lifespan.update(delta);
   }
 
   void render(SDL_Renderer* renderer, SDL_Texture* atlas) {
-    render_clip(m_x, m_y, m_clip, renderer, atlas);
+    render_clip(x, y, clip, renderer, atlas);
   }
 };
 

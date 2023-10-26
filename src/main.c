@@ -25,13 +25,8 @@ SDL_Texture* atlas;
 SDL_Event event;
 Uint32 delta;
 
-enum {
-  SCREEN_MENU = 0,
-  SCREEN_PLAY,
-  SCREEN_PAUSE,
-  SCREEN_OVER,
-  SCREEN_EXIT
-} screen;
+Screen screen;
+
 int score, high_score;
 int credits;
 
@@ -44,8 +39,13 @@ void increase_score(int value) {
   }
 }
 
-void add_credit() { credits += credits < 99; }
-void remove_credit() { credits -= credits > 0; }
+void add_credit() {
+  credits += credits < 99;
+}
+
+void remove_credit() {
+  credits -= credits > 0;
+}
 
 void render_clip(const SDL_Rect* clip, int x, int y);
 void render_text(const char* text, int len, int x, int y);

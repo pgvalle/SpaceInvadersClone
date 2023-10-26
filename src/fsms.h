@@ -33,8 +33,8 @@ enum PlayerState {
 enum TouristState {
   VISIBLE,
   HIDDEN,
-  DYING, // death explosion
-  DEAD // showing score earned
+  DYING, // showing death animation
+  DEAD // show its score value
 };
 
 enum HordeState {

@@ -1,29 +1,45 @@
 #pragma once
 
 #include "utils.h"
+#include "fsms.h"
 
-class Tourist {
-private:
-  int m_x;
-  Timer m_motion_timer, m_spawn_timer;
+struct Tourist {
+  TouristState state;
+  int x, xvel;
+  Timer timer; // for spawn, motion and death
 
-  int m_score_earned;
+  int score_value;
 
-public:
   Tourist() {
-    m_x = -10000;
-    m_motion_timer = Timer(60);
-    m_spawn_timer = Timer();
+    state = TouristState::HIDDEN;
+    x = -10000;
+    xvel = 0;
+    timer = Timer(15000); // spawn
+    score_value = 100;
   }
 
-  void despawn() {
-    m_x = -10000;
-    const Uint64 new_timeout = 1008 * (rand() % (30 - 20 + 1) + 20);
-    m_spawn_timer.reset(new_timeout);
-  }
-
-  void update() {
-
+  void update(Uint64 delta) {
+    switch (state) {
+    case TouristState::HIDDEN:
+      timer.update(delta);
+      if (timer.has_timed_out()) {
+        state = TouristState::VISIBLE;
+        x = 0;
+        xvel = 1;
+        // will be used as motion timer
+        timer.reset(60);
+      }
+      break;
+    case TouristState::VISIBLE:
+      timer.update(delta);
+      if (timer.has_timed_out()) {
+        x += xvel;
+      }
+      break;
+    case TouristState::DYING:
+      
+      break;
+    }
   }
 
   void render() {
