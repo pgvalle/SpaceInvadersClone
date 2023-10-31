@@ -1,5 +1,11 @@
-1. Add sound effects
-2. Fix shot animation
-3. Fix performance issue in windows
-4. Implement high-score persistence
-5. update readme
+Now
+1. Implement screen state machine
+2. Implement rendering tourist score value
+3. Refactor all entities
+
+Later
+#1. Add sound effects
+#2. Fix shot animation
+#3. Fix performance issue in windows
+#4. Implement high-score persistence
+#5. update readme

@@ -1,8 +1,8 @@
 #include "Horde.h"
 
 Horde::Horde() {
-  state = State::STARTING;
   motion_timer = Timer(55 * 16);
+  state = State::STARTING;
 }
 
 void Horde::freeze_temporarily() {

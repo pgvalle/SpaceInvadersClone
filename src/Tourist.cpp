@@ -40,7 +40,7 @@ void Tourist::update_dying(Uint64 delta) {
   timer.update(delta);
   if (timer.has_timed_out()) {
     state = State::DEAD; // now we show it's score value
-    timer.reset(1000);
+    timer.reset(2000);
   }
 }
 
@@ -52,7 +52,7 @@ void Tourist::update_dead(Uint64 delta) {
 }
 
 void Tourist::render_dead(SDL_Renderer* renderer, SDL_Texture* atlas) {
-  
+  // TODO: implement rendering score
 }
 
 void Tourist::update(Uint64 delta) {
