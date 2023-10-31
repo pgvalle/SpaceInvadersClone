@@ -34,7 +34,8 @@ enum TouristState {
   VISIBLE,
   HIDDEN,
   DYING, // showing death animation
-  DEAD // show its score value
+  DEAD, // show its score value
+  AFTERLIFE // they are in a better place
 };
 
 enum HordeState {

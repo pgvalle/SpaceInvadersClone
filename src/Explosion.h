@@ -6,7 +6,6 @@
 struct Explosion {
   int x, y;
   SDL_Rect clip;
-
   Timer lifespan;
 
   Explosion(int x_, int y_, Uint64 lifespan_, const SDL_Rect& clip_) {

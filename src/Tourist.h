@@ -1,48 +1,35 @@
 #pragma once
 
 #include "utils.h"
-#include "fsms.h"
 
 struct Tourist {
-  TouristState state;
-  int x, xvel;
+private:
   Timer timer; // for spawn, motion and death
 
+  void update_hidden(Uint64 delta);
+
+  void update_visible(Uint64 delta);
+
+  void update_dying(Uint64 delta);
+
+  void update_dead(Uint64 delta);
+  void render_dead(SDL_Renderer* renderer, SDL_Texture* atlas);
+
+public:
+  enum State {
+    VISIBLE,
+    HIDDEN,
+    DYING, // showing death animation
+    DEAD, // show its score value
+    AFTERLIFE // they are in a better place
+  } state;
+  int x, xvel;
   int score_value;
 
-  Tourist() {
-    state = TouristState::HIDDEN;
-    x = -10000;
-    xvel = 0;
-    timer = Timer(15000); // spawn
-    score_value = 100;
-  }
+  Tourist();
 
-  void update(Uint64 delta) {
-    switch (state) {
-    case TouristState::HIDDEN:
-      timer.update(delta);
-      if (timer.has_timed_out()) {
-        state = TouristState::VISIBLE;
-        x = 0;
-        xvel = 1;
-        // will be used as motion timer
-        timer.reset(60);
-      }
-      break;
-    case TouristState::VISIBLE:
-      timer.update(delta);
-      if (timer.has_timed_out()) {
-        x += xvel;
-      }
-      break;
-    case TouristState::DYING:
-      
-      break;
-    }
-  }
+  void process_strike();
 
-  void render() {
-
-  }
+  void update(Uint64 delta);
+  void render(SDL_Renderer* renderer, SDL_Texture* atlas);
 };
