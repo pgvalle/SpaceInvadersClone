@@ -4,7 +4,7 @@
 #include "../utils/Timer.h"
 
 
-class MenuScene : Scene
+class MenuScene : public Scene
 {
 private:
   enum State
