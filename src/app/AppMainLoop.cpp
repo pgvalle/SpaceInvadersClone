@@ -11,24 +11,6 @@ bool waitEventTimeout(int timeout)
 }
 
 
-void App::processEvent()
-{
-  if (event.type == SDL_QUIT) screen = Screen::EXIT;
-  else
-  {
-    // propagate to screens
-  }
-}
-
-void App::update()
-{
-}
-
-void App::render()
-{
-}
-
-
 void App::mainLoop()
 {
   // time measurement
@@ -57,4 +39,21 @@ void App::mainLoop()
       timeout = FRAMERATE;
     }
   }
+}
+
+void App::processEvent()
+{
+  if (event.type == SDL_QUIT) screen = Screen::EXIT;
+  else
+  {
+    // propagate to screens
+  }
+}
+
+void App::update()
+{
+}
+
+void App::render()
+{
 }
