@@ -18,6 +18,7 @@ private:
 
 public:
   MenuScene();
+  ~MenuScene();
 
   void processEvent();
   void update();

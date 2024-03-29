@@ -6,6 +6,11 @@ MenuScene::MenuScene()
 
 }
 
+MenuScene::~MenuScene()
+{
+  
+}
+
 void MenuScene::processEvent()
 {
 
