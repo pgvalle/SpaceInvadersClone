@@ -32,6 +32,8 @@ namespace ctx
 
   void init();
   void destroy();
+
+  void main_loop();
 }
 
 #ifdef CTX_IMPL
