@@ -2,16 +2,17 @@
 
 #include <SDL.h>
 
-class Timer {
+
+class Timer
+{
 private:
   Uint32 dt, timeout;
 
 public:
-  Timer() {} // default constructor
-  Timer(Uint32 timeout);
+  Timer(); // default constructor
 
-  bool has_timed_out() const;
+  bool hasTimedOut() const;
 
   void update();
-  void reset(Uint32 new_timeout = 0);
+  void reset(Uint32 newTimeout = 0);
 };

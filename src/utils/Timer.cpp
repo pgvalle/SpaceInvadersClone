@@ -1,23 +1,29 @@
 #include "../core.h"
 
-Timer::Timer(Uint32 timeout) {
+Timer::Timer()
+{
   dt = 0;
-  timeout = timeout;
+  timeout = 0;
 }
 
-bool Timer::has_timed_out() const {
+bool Timer::hasTimedOut() const
+{
   return timeout <= dt;
 }
 
-void Timer::update() {
-  if (dt < timeout) {
+void Timer::update()
+{
+  if (dt < timeout)
+  {
     dt += app->dt;
   }
 }
 
-void Timer::reset(Uint32 new_timeout) {
+void Timer::reset(Uint32 newTimeout)
+{
   dt = 0;
-  if (new_timeout != 0) {
-    timeout = new_timeout;
+  if (newTimeout != 0)
+  {
+    timeout = newTimeout;
   }
 }
