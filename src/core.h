@@ -10,3 +10,5 @@
 #include "app/App.h"
 
 #include "utils/Timer.h"
+
+#include "scenes/MenuScene.h"

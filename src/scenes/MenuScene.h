@@ -14,6 +14,7 @@ private:
   } state;
 
   Timer clock;
+  int charI, textI; // iterators
 
 public:
   MenuScene();

@@ -16,7 +16,7 @@ void App::mainLoop()
   // time measurement
   int64_t before = 0, before_event = 0, timeout = FRAMERATE;
 
-  while (screen != Screen::EXIT)
+  while (scene)
   {
     if (waitEventTimeout(timeout))
     {
@@ -43,17 +43,20 @@ void App::mainLoop()
 
 void App::processEvent()
 {
-  if (event.type == SDL_QUIT) screen = Screen::EXIT;
-  else
+  if (event.type == SDL_QUIT)
   {
-    // propagate to screens
+    delete scene;
+    scene = nullptr;
   }
+  else scene->processEvent();
 }
 
 void App::update()
 {
+  scene->update();
 }
 
 void App::render()
 {
+  
 }

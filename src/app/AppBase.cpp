@@ -16,7 +16,7 @@ void App::start()
 
 App::App()
 {
-  screen = Screen::MENU;
+  scene = new MenuScene();
   score = 0;
   hiScore = 0; // load from file
   coins = 0; // load from file

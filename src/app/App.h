@@ -12,7 +12,7 @@ public:
 
   // globals
 
-  Screen screen;
+  Scene *scene;
   int score, hiScore, coins;
   Uint32 dt;
 
