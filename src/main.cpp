@@ -11,9 +11,7 @@ int main()
 
   srand(time(NULL));
 
-  ctx::init();
-  ctx::main_loop();
-  ctx::destroy();
+  App::start();
 
   IMG_Quit();
   TTF_Quit();

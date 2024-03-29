@@ -11,7 +11,7 @@ bool Timer::has_timed_out() const {
 
 void Timer::update() {
   if (dt < timeout) {
-    dt += ctx::dt;
+    dt += app->dt;
   }
 }
 

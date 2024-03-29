@@ -6,5 +6,7 @@
 
 #include "defines.h"
 #include "fsms.h"
-#include "context.h"
+
+#include "app/App.h"
+
 #include "utils/Timer.h"
