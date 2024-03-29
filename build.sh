@@ -34,4 +34,4 @@ for src in $src_files; do
 done
 
 # Create a single executable from all compiled files
-g++ $obj_files -o sic $FLAGS
+g++ $obj_files -o sic.out $FLAGS
