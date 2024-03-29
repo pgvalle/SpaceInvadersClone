@@ -25,7 +25,7 @@ for src in $src_files; do
     if [ -f $src_file ] && [ $src -ot $src_file ]; then
         echo "Skipping $src (already compiled)"
     else
-        # Compile using g++ and link with SDL2 and SDL2_image
+        # Compile using g++ and link with libraries
         g++ -c $src -o $src_file $FLAGS
         echo "Compiled $src"
     fi
