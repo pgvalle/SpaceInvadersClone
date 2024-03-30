@@ -39,10 +39,10 @@ App::App()
       SDL_WINDOWPOS_CENTERED,
       2 * WIDTH,
       2 * HEIGHT,
-      0);
+      SDL_WINDOW_RESIZABLE);
 
   renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-  SDL_RenderSetScale(renderer, 2, 2); // resolution independent rendering
+  SDL_RenderSetLogicalSize(renderer, WIDTH, HEIGHT); // resolution independent rendering
 
   loadAssets();
 }
