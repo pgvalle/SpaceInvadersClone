@@ -35,7 +35,7 @@ private:
 
   void updatePlayerShooting();
 
-  std::vector<Shot> marcelo;
+  std::vector<Shot> shots;
 
   std::vector<Explosion> explosions;
 

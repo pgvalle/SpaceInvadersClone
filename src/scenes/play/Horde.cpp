@@ -19,7 +19,7 @@ Shot Horde::shoot() const
 
 Explosion Horde::checkAndProcessHit(const SDL_Rect& hitbox)
 {
-  for (int i = 0; i < invaders.size(); i++)
+  for (size_t i = 0; i < invaders.size(); i++)
   {
     const Invader invader = invaders[i];
     const SDL_Rect invaderHB = invader.getHitbox();
