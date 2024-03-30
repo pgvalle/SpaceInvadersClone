@@ -2,6 +2,8 @@
 #include "PlayScene.h"
 #include "defines.h"
 
+#include <stdio.h>
+
 
 void PlayScene::updateUFO()
 {
@@ -31,7 +33,7 @@ void PlayScene::updatePlayerShooting()
   }
   else if (app->isKeyPressed(SDL_SCANCODE_SPACE))
   {
-    marcelo.push_back(cannon->shoot());
+    shots.push_back(cannon->shoot());
     cannonShootingClock.reset();
   }
 }
@@ -80,13 +82,14 @@ void PlayScene::update()
     updateUFO();
 
     horde.update();
+
     cannon->update();
     if (cannon->checkAndProcessHit({WIDTH - 5 * TILE, HEIGHT - 5 * TILE, 20, 8}))
     {
       state = DELAYING;
     }
 
-    for (int i = 0; i < explosions.size(); i++)
+    for (size_t i = 0; i < explosions.size(); i++)
     {
       explosions[i].update();
       if (explosions[i].hasFinished())
@@ -97,9 +100,9 @@ void PlayScene::update()
     }
 
     // shots update and collision checks
-    for (int i = 0; i < marcelo.size(); i++)
+    for (size_t i = 0; i < shots.size(); i++)
     {
-      Shot& shot = marcelo[i];
+      Shot& shot = shots[i];
       const SDL_Rect shotRect = { shot.x, shot.y, 1, 8 };
       shot.update();
 
@@ -108,14 +111,14 @@ void PlayScene::update()
       explosions.push_back(explosion);
       if (!explosion.hasFinished()) // valid explosion. Collision occurred
       {
-        marcelo.erase(marcelo.begin() + i--);
+        shots.erase(shots.begin() + i--);
         continue;
       }
 
       // collision with ufo
       if (ufo && ufo->checkAndProcessHit(shotRect))
       {
-        marcelo.erase(marcelo.begin() + i--);
+        shots.erase(shots.begin() + i--);
         continue;
       }
 
@@ -155,32 +158,35 @@ void PlayScene::update()
 
 void PlayScene::render()
 {
-  for (Explosion& explosion : explosions)
-    {
-      explosion.render();
-    }
+  horde.render();
 
-  for (const Shot& shot : marcelo)
+  if (ufo) ufo->render();
+  if (cannon) cannon->render();
+
+  for (const Shot& shot : shots)
   {
     shot.render();
   }
 
-  //ufo->render();
-  horde.render();
-
-  if (cannon)
+  for (const Explosion& explosion : explosions)
   {
-    cannon->render();
+    explosion.render();
   }
 
-  if (ufo)
+  switch (state)
   {
-    ufo->render();
-  }
+  char livesFmt[2];
 
-  // render life counter
-  char livesFmt[] = {'0' + cannonLives, '\0'};
-  app->renderText(TILE, HEIGHT - 2 * TILE, livesFmt);
+  case STARTING:
+    // rendered here so that we don't actually start displaying 4
+    livesFmt[0] = (char)(cannonLives - 1) + '0';
+    app->renderText(TILE, HEIGHT - 2 * TILE, livesFmt);
+
+    break;
+  default:
+    livesFmt[0] = (char)cannonLives + '0';
+    app->renderText(TILE, HEIGHT - 2 * TILE, livesFmt);
+  }
 
   // render cannons
   const int cannonsY = HEIGHT - 2 * TILE;
