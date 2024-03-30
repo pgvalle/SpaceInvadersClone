@@ -1,6 +1,7 @@
 #pragma once
 
 #include "utils/Timer.h"
+#include "Shot.h"
 
 
 class Cannon
@@ -19,11 +20,11 @@ private:
 public:
   Cannon();
 
+  Shot shoot();
+
   bool isDead();
 
   bool checkAndProcessHit(const SDL_Rect &hitbox);
-
-  // Shot shoot();
 
   void update();
   void render();

@@ -11,6 +11,11 @@ Cannon::Cannon()
   x = 14;
 }
 
+Shot Cannon::shoot()
+{
+  return {x + 9, Y, -2};
+}
+
 bool Cannon::isDead()
 {
   return state == DEAD;

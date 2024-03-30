@@ -8,6 +8,14 @@ Horde::Horde()
   delayer.reset(16);
 }
 
+Shot Horde::shoot()
+{
+  const int ri = rand() % invaders.size();
+  const Invader& invader = invaders[ri];
+
+  return {invader.x + 5, invader.y + 8, 2};
+}
+
 bool Horde::isDestroyed()
 {
   return invaders.empty();

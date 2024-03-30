@@ -4,6 +4,7 @@
 
 #include "utils/Timer.h"
 #include "Explosion.h"
+#include "Shot.h"
 
 
 struct Horde {
@@ -34,7 +35,7 @@ private:
 public:
   Horde();
 
-  // Shot shoot();
+  Shot shoot();
 
   bool isDestroyed();
 
