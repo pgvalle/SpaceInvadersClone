@@ -27,12 +27,12 @@ public:
                   SDL_Color color = {255, 255, 255, 255});
   void renderClip(int x, int y, const SDL_Rect &clip);
 
+  SDL_Renderer *renderer;
 private:
   // internals
 
   Scene *scene, *nextScene; // to change scene inside a scene
   SDL_Window *window;
-  SDL_Renderer *renderer;
 
   // assets
 
