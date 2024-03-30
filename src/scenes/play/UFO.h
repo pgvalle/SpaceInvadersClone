@@ -20,6 +20,11 @@ private:
 public:
   UFO();
 
+  bool isDead()
+  {
+    return state == DEAD;
+  }
+
   bool checkAndProcessHit(const SDL_Rect &hitbox);
 
   void update();

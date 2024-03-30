@@ -8,33 +8,33 @@ Horde::Horde()
   delayer.reset(16);
 }
 
-Shot Horde::shoot()
+Shot Horde::shoot() const
 {
   const int ri = rand() % invaders.size();
   const Invader& invader = invaders[ri];
 
-  return {invader.x + 5, invader.y + 8, 2};
+  return {invader.x + 5, invader.y + 8, 3};
 }
 
-bool Horde::isDestroyed()
+Explosion Horde::checkAndProcessHit(const SDL_Rect& hitbox)
 {
-  return invaders.empty();
-}
-
-Explosion Horde::checkAndProcessInvaderHit(const SDL_Rect& hitbox)
-{
-  for (Invader &invader : invaders)
+  for (int i = 0; i < invaders.size(); i++)
   {
-    const SDL_Rect invaderHitbox = invader.getHitbox();
-    if (SDL_HasIntersection(&hitbox, &invaderHitbox))
+    const Invader invader = invaders[i];
+    const SDL_Rect invaderHB = invader.getHitbox();
+    if (SDL_HasIntersection(&hitbox, &invaderHB))
     {
-      // set delay on hit
-      const Uint32 newTimeout = invaders.size() * 16;
-      delayer.reset(newTimeout);
+      // delete invader from list
+      invaders.erase(invaders.begin() + i--);
+      // update horde movement delay
+      const Uint32 newDelay = invaders.size() * 16;
+      delayer.reset(newDelay);
+      // return explosion to be processed
       return Explosion(invader.x, invader.y, 100, {32, 24, 13, 8});
     }
   }
 
+  // invalid explosion. No collision happened
   return Explosion(0, 0, 0, {0, 0, 0, 0});
 }
 
@@ -45,11 +45,11 @@ void Horde::update()
   case STARTING:
     delayer.update();
     if (!delayer.hasTimedOut()) break;
-
-    if (invaders.size() == 55) // done. Now start moving
+    // Done. Now start moving
+    if (invaders.size() == 55)
     {
       state = MOVING;
-      xVel = 2;
+      xVel = 2; // going right
       delayer.reset(invaders.size() * 16);
     }
     else
@@ -62,9 +62,10 @@ void Horde::update()
 
     break;
   case MOVING:
+    // update delayer
     delayer.update();
     if (!delayer.hasTimedOut()) break;
-
+    delayer.reset();
     // check if it's time to change direction
     int yVel = 0;
     for (const Invader &invader : invaders)
@@ -76,21 +77,19 @@ void Horde::update()
         break;
       }
     }
-
+    // move invaders now
     for (Invader &invader : invaders)
     {
       invader.move(xVel, yVel);
     }
 
-    delayer.reset();
-
     break;
   }
 }
 
-void Horde::render()
+void Horde::render() const
 {
-  for (Invader &invader : invaders)
+  for (const Invader &invader : invaders)
   {
     invader.render();
   }

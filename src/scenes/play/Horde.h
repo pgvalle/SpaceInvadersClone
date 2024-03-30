@@ -16,10 +16,10 @@ private:
 
     Invader(int col, int row);
 
-    SDL_Rect getHitbox();
+    SDL_Rect getHitbox() const;
 
     void move(int xOff, int yOff);
-    void render();
+    void render() const;
   };
 
   enum State {
@@ -35,13 +35,16 @@ private:
 public:
   Horde();
 
-  Shot shoot();
+  Shot shoot() const;
 
-  bool isDestroyed();
+  bool isDestroyed() const
+  {
+    return invaders.empty();
+  }
 
-  Explosion checkAndProcessInvaderHit(const SDL_Rect& hitbox);
+  Explosion checkAndProcessHit(const SDL_Rect& hitbox);
 
 
   void update();
-  void render();
+  void render() const;
 };

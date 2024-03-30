@@ -4,6 +4,7 @@
 #include "./play/Horde.h"
 #include "./play/UFO.h"
 #include "./play/Cannon.h"
+#include "./play/Shot.h"
 
 
 class PlayScene : public Scene
@@ -23,12 +24,18 @@ private:
   UFO* ufo;
   Timer ufoClock;
 
+  void updateUFO();
+
   Horde horde;
   Timer hordeShootingClock;
 
   Cannon* cannon;
   int cannonLives;
   Timer cannonShootingClock;
+
+  void updatePlayerShooting();
+
+  std::vector<Shot> marcelo;
 
 public:
   PlayScene();

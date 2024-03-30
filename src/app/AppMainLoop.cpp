@@ -63,8 +63,8 @@ void App::update()
   beforeEvent = before;
   timeout = FRAMERATE;
 
-  printf("\r\x1b[2KFPS: %.2f", 1000.0f / dt);
-  fflush(stdout);
+  //printf("\r\x1b[2KFPS: %.2f", 1000.0f / dt);
+  //fflush(stdout);
 }
 
 void App::render()

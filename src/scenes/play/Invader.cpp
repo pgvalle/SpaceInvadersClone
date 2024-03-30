@@ -16,7 +16,7 @@ Horde::Invader::Invader(int col, int row)
   y = (8 + 2 * row) * TILE;
 }
 
-SDL_Rect Horde::Invader::getHitbox()
+SDL_Rect Horde::Invader::getHitbox() const
 {
   SDL_Rect hitbox = {x + 2, y, 8, 8};
   if (type == 2) hitbox = {x + 1, y, 11, 8};
@@ -33,7 +33,7 @@ void Horde::Invader::move(int xOff, int yOff)
   frame = (frame + 1) % 2;
 }
 
-void Horde::Invader::render()
+void Horde::Invader::render() const
 {
   SDL_Rect clip = {12 * frame, 16, 12, 8};
   if (type == 2) clip.y = 32;

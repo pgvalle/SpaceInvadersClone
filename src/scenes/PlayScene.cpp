@@ -3,16 +3,50 @@
 #include "defines.h"
 
 
+void PlayScene::updateUFO()
+{
+  if (ufo)
+  {
+    ufo->update();
+    if (!ufo->isDead()) return;
+
+    delete ufo;
+    ufo = nullptr;
+    ufoClock.reset(5000);
+  }
+  else
+  {
+    ufoClock.update();
+    if (!ufoClock.hasTimedOut()) return;
+
+    ufo = new UFO();
+  }
+}
+
+void PlayScene::updatePlayerShooting()
+{
+  if (!cannonShootingClock.hasTimedOut())
+  {
+    cannonShootingClock.update();
+  }
+  else if (app->isKeyPressed(SDL_SCANCODE_SPACE))
+  {
+    marcelo.push_back(cannon->shoot());
+    cannonShootingClock.reset();
+  }
+}
+
 PlayScene::PlayScene()
 {
   state = STARTING;
-  delayer.reset(3000);
+  delayer.reset(2500);
 
   ufo = nullptr;
   ufoClock.reset(5000);
 
   cannon = nullptr;
   cannonLives = 4;
+  cannonShootingClock.reset(1500);
 }
 
 PlayScene::~PlayScene()
@@ -41,46 +75,58 @@ void PlayScene::update()
     }
 
     break; 
-  case PLAYING: {
-    ufoClock.update();
-    if (ufoClock.hasTimedOut())
-    {
-      ufo = new UFO();
-      ufoClock.reset(10000);
-    }
-
-    if (ufo)
-    {
-      ufo->update();
-    }
+  case PLAYING:
+    updatePlayerShooting();
+    updateUFO();
 
     horde.update();
     cannon->update();
-    const bool hit = cannon->checkAndProcessHit({WIDTH - 5 * TILE, HEIGHT - 5 * TILE, 20, 8});
-    if (hit)
+    if (cannon->checkAndProcessHit({WIDTH - 5 * TILE, HEIGHT - 5 * TILE, 20, 8}))
     {
       state = DELAYING;
     }
 
-    break; }
-  case DELAYING:
-    if (!cannon)
+    // shots update and collision checks
+    for (int i = 0; i < marcelo.size(); i++)
     {
-      delayer.update();
-      if (delayer.hasTimedOut())
+      Shot& shot = marcelo[i];
+      shot.update();
+
+      // collision with horde
+      SDL_Rect shotRect = { shot.x, shot.y, 1, 8 };
+      Explosion e = horde.checkAndProcessHit(shotRect);
+      if (!e.hasFinished()) // valid explosion. Collision occurred
       {
-        state = PLAYING;
-        cannon = new Cannon();
+        marcelo.erase(marcelo.begin() + i--);
+        // handle
       }
+
+      // collision with player
+
+
+      // collision with other shot
+
     }
-    else
+
+    break;
+  case DELAYING:
+    if (cannon)
     {
       cannon->update();
       if (cannon->isDead())
       {
         delete cannon;
         cannon = nullptr;
-        delayer.reset(5000);
+        delayer.reset(3000); // wait 3 seconds after cannon death
+      }
+    }
+    else
+    {
+      delayer.update();
+      if (delayer.hasTimedOut())
+      {
+        state = PLAYING;
+        cannon = new Cannon();
         cannonLives--;
       }
     }
@@ -91,6 +137,11 @@ void PlayScene::update()
 
 void PlayScene::render()
 {
+  for (Shot& shot : marcelo)
+  {
+    shot.render();
+  }
+
   //ufo->render();
   horde.render();
 

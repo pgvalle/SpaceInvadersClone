@@ -13,7 +13,7 @@ Cannon::Cannon()
 
 Shot Cannon::shoot()
 {
-  return {x + 9, Y, -2};
+  return {x + 9, Y, -3};
 }
 
 bool Cannon::isDead()
