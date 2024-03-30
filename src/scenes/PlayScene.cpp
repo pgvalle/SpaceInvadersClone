@@ -109,14 +109,14 @@ void PlayScene::update()
       if (!explosion.hasFinished()) // valid explosion. Collision occurred
       {
         marcelo.erase(marcelo.begin() + i--);
-
         continue;
       }
 
       // collision with ufo
-      if (ufo)
+      if (ufo && ufo->checkAndProcessHit(shotRect))
       {
-        ufo->checkAndProcessHit(shotRect);
+        marcelo.erase(marcelo.begin() + i--);
+        continue;
       }
 
       // collision with player
