@@ -14,7 +14,7 @@ UFO::UFO()
 
   // randomly choose a corner
   const bool left = rand() % 2;
-  x = left ? 8 : 200;
+  x = left ? TILE : (24 * TILE);
   xVel = left ? 1 : -1;
   // randomly choose a score value
   scoreValue = 100;
@@ -43,7 +43,7 @@ void UFO::update()
     if (clock.hasTimedOut())
     {
       x += xVel;
-      if (x < 8 || x > 200)
+      if (x < TILE || x > 24 * TILE)
       {
         state = DEAD;
       }
