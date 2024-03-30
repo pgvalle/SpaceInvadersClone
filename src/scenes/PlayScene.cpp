@@ -1,5 +1,6 @@
 #include "app/App.h"
 #include "PlayScene.h"
+#include "defines.h"
 
 
 PlayScene::PlayScene()
@@ -36,16 +37,40 @@ void PlayScene::update()
     }
 
     break; 
-  case PLAYING:
+  case PLAYING: {
+    ufo.update();
     horde.update();
     cannon->update();
+    const bool hit = cannon->checkAndProcessHit({WIDTH - 5 * TILE, HEIGHT - 5 * TILE, 20, 8});
+    if (hit)
+    {
+      state = DELAYING;
+    }
+
+    break; }
+  case DELAYING:
+    if (!cannon)
+    {
+      delayer.update();
+      if (delayer.hasTimedOut())
+      {
+        state = PLAYING;
+        cannon = new Cannon();
+      }
+    }
+    else
+    {
+      cannon->update();
+      if (cannon->isDead())
+      {
+        delete cannon;
+        cannon = nullptr;
+        delayer.reset(2000);
+      }
+    }
 
     break;
-  default:
-    break;
   }
-  ufo.update();
-  horde.update();
 }
 
 void PlayScene::render()
