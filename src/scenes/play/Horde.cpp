@@ -12,11 +12,21 @@ bool Horde::isDestroyed()
   return invaders.empty();
 }
 
-void Horde::forceDelayOnHit()
+Explosion Horde::checkAndProcessInvaderHit(const SDL_Rect& hitbox)
 {
-  // timeout will decrease with invader amount decreasing
-  const Uint32 newTimeout = invaders.size() * 16;
-  delayer.reset(newTimeout);
+  for (Invader &invader : invaders)
+  {
+    const SDL_Rect invaderHitbox = invader.getHitbox();
+    if (SDL_HasIntersection(&hitbox, &invaderHitbox))
+    {
+      // set delay on hit
+      const Uint32 newTimeout = invaders.size() * 16;
+      delayer.reset(newTimeout);
+      return Explosion(invader.x, invader.y, 100, {32, 24, 13, 8});
+    }
+  }
+
+  return Explosion(0, 0, 0, {0, 0, 0, 0});
 }
 
 void Horde::update()

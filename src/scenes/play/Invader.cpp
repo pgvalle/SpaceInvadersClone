@@ -1,9 +1,9 @@
+#include "Horde.h"
 #include "app/App.h"
-#include "Invader.h"
 #include "defines.h"
 
 
-Invader::Invader(int col, int row)
+Horde::Invader::Invader(int col, int row)
 {
   // invaders have different shapes depending on their starting row
   type = 0;
@@ -16,7 +16,16 @@ Invader::Invader(int col, int row)
   y = (8 + 2 * row) * TILE;
 }
 
-void Invader::move(int xOff, int yOff)
+SDL_Rect Horde::Invader::getHitbox()
+{
+  SDL_Rect hitbox = {x + 2, y, 8, 8};
+  if (type == 2) hitbox = {x + 1, y, 11, 8};
+  else if (type == 1) hitbox = {x, y, 12, 8};
+
+  return hitbox;
+}
+
+void Horde::Invader::move(int xOff, int yOff)
 {
   x += xOff;
   y += yOff;
@@ -24,7 +33,7 @@ void Invader::move(int xOff, int yOff)
   frame = (frame + 1) % 2;
 }
 
-void Invader::render()
+void Horde::Invader::render()
 {
   SDL_Rect clip = {12 * frame, 16, 12, 8};
   if (type == 2) clip.y = 32;

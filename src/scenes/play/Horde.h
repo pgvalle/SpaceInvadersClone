@@ -3,10 +3,24 @@
 #include <vector>
 
 #include "utils/Timer.h"
-#include "Invader.h"
+#include "Explosion.h"
+
 
 struct Horde {
 private:
+  struct Invader
+  {
+    int type, frame;
+    int x, y;
+
+    Invader(int col, int row);
+
+    SDL_Rect getHitbox();
+
+    void move(int xOff, int yOff);
+    void render();
+  };
+
   Timer delayer;
   int xVel, xStepCount;
 
@@ -24,7 +38,7 @@ public:
 
   // external influences
 
-  void forceDelayOnHit(); // when an invader is shot
+  Explosion checkAndProcessInvaderHit(const SDL_Rect& hitbox);
 
 
   void update();
