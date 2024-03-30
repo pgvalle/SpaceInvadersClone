@@ -3,16 +3,16 @@
 
 #include "utils/Timer.h"
 
-class Explosion {
-private:
+
+struct Explosion
+{
   int x, y;
   SDL_Rect clip;
-  Timer lifespan;
+  Timer clock;
 
-public:
   Explosion(int x, int y, Uint32 lifespan, const SDL_Rect& clip);
 
-  bool has_finished();
+  bool hasFinished();
 
   void update();
   void render();
