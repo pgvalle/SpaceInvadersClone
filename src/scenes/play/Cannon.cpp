@@ -39,11 +39,11 @@ void Cannon::update()
   case ALIVE:
     if (app->isKeyPressed(SDL_SCANCODE_LEFT))
     {
-      x -= (x > 14 ? 1 : 0);
+      x -= (x > 14 ? 2 : 0);
     }
     if (app->isKeyPressed(SDL_SCANCODE_RIGHT))
     {
-      x += (x < WIDTH - 31 ? 1 : 0);
+      x += (x < WIDTH - 31 ? 2 : 0);
     }
 
     break;

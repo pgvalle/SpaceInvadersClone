@@ -33,7 +33,7 @@ Explosion Horde::checkAndProcessHit(const SDL_Rect& hitbox)
       // sum score value
       app->score += invader.getScoreValue();
       // return explosion to be processed
-      return Explosion(invader.x, invader.y, 100, {24, 32, 13, 8});
+      return Explosion(invader.x, invader.y, 200, {24, 32, 13, 8});
     }
   }
 
