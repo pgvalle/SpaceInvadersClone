@@ -20,7 +20,8 @@ private:
 
   Timer delayer; // delay after player death.
 
-  UFO ufo;
+  UFO* ufo;
+  Timer ufoClock;
 
   Horde horde;
   Timer hordeShootingClock;

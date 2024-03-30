@@ -8,6 +8,9 @@ PlayScene::PlayScene()
   state = STARTING;
   delayer.reset(3000);
 
+  ufo = nullptr;
+  ufoClock.reset(5000);
+
   cannon = nullptr;
   cannonLives = 3;
 }
@@ -38,7 +41,18 @@ void PlayScene::update()
 
     break; 
   case PLAYING: {
-    ufo.update();
+    ufoClock.update();
+    if (ufoClock.hasTimedOut())
+    {
+      ufo = new UFO();
+      ufoClock.reset(10000);
+    }
+
+    if (ufo)
+    {
+      ufo->update();
+    }
+
     horde.update();
     cannon->update();
     const bool hit = cannon->checkAndProcessHit({WIDTH - 5 * TILE, HEIGHT - 5 * TILE, 20, 8});
@@ -65,7 +79,8 @@ void PlayScene::update()
       {
         delete cannon;
         cannon = nullptr;
-        delayer.reset(2000);
+        delayer.reset(5000);
+        cannonLives--;
       }
     }
 
@@ -75,11 +90,20 @@ void PlayScene::update()
 
 void PlayScene::render()
 {
-  ufo.render();
+  //ufo->render();
   horde.render();
 
   if (cannon)
   {
     cannon->render();
   }
+
+  if (ufo)
+  {
+    ufo->render();
+  }
+
+  // render lifes
+  char livesFmt[] = {'0' + cannonLives, '\0'};
+  app->renderText(TILE, HEIGHT - 2 * TILE, livesFmt);
 }
