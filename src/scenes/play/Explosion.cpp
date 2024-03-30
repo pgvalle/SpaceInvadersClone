@@ -6,11 +6,11 @@ Explosion::Explosion(int x_, int y_, Uint32 lifespan, const SDL_Rect &clip_)
 {
   x = x_;
   y = y_;
-  clip = clip;
+  clip = clip_;
   clock.reset(lifespan);
 }
 
-bool Explosion::hasFinished()
+bool Explosion::hasFinished() const
 {
   return clock.hasTimedOut();
 }

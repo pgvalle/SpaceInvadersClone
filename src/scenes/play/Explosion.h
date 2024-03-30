@@ -12,7 +12,7 @@ struct Explosion
 
   Explosion(int x, int y, Uint32 lifespan, const SDL_Rect& clip);
 
-  bool hasFinished();
+  bool hasFinished() const;
 
   void update();
   void render() const;
