@@ -7,11 +7,6 @@ Timer::Timer()
   timeout = 0;
 }
 
-bool Timer::hasTimedOut() const
-{
-  return timeout <= dt;
-}
-
 void Timer::update()
 {
   if (dt < timeout)

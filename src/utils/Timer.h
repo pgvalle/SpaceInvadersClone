@@ -11,7 +11,10 @@ private:
 public:
   Timer(); // default constructor
 
-  bool hasTimedOut() const;
+  bool hasTimedOut() const
+  {
+    return timeout <= dt;
+  }
 
   void update();
   void reset(Uint32 newTimeout = 0);
