@@ -30,7 +30,7 @@ public:
 private:
   // internals
 
-  Scene *scene, nextScene; // to change scene inside a scene
+  Scene *scene, *nextScene; // to change scene inside a scene
   SDL_Window *window;
   SDL_Renderer *renderer;
 

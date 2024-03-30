@@ -12,3 +12,4 @@
 #include "utils/Timer.h"
 
 #include "scenes/MenuScene.h"
+#include "scenes/PlayScene.h"

@@ -33,6 +33,7 @@ void App::mainLoop()
     {
       delete scene;
       scene = nextScene;
+      nextScene = nullptr;
     }
   }
 }
