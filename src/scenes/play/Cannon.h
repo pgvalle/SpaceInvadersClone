@@ -20,12 +20,15 @@ private:
 public:
   Cannon();
 
-  Shot shoot();
+  Shot shoot() const;
 
-  bool isDead();
+  bool isDead() const
+  {
+    return state == DEAD;
+  }
 
   bool checkAndProcessHit(const SDL_Rect &hitbox);
 
   void update();
-  void render();
+  void render() const;
 };

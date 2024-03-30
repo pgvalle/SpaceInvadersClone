@@ -75,7 +75,7 @@ void UFO::update()
   }
 }
 
-void UFO::render()
+void UFO::render() const
 {
   switch (state)
   {

@@ -20,7 +20,7 @@ void Explosion::update()
   clock.update();
 }
 
-void Explosion::render()
+void Explosion::render() const
 {
   app->renderClip(x, y, clip);
 }

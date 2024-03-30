@@ -20,7 +20,7 @@ private:
 public:
   UFO();
 
-  bool isDead()
+  bool isDead() const
   {
     return state == DEAD;
   }
@@ -28,5 +28,5 @@ public:
   bool checkAndProcessHit(const SDL_Rect &hitbox);
 
   void update();
-  void render();
+  void render() const;
 };

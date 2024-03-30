@@ -11,14 +11,9 @@ Cannon::Cannon()
   x = 14;
 }
 
-Shot Cannon::shoot()
+Shot Cannon::shoot() const
 {
   return {x + 9, Y, -3};
-}
-
-bool Cannon::isDead()
-{
-  return state == DEAD;
 }
 
 bool Cannon::checkAndProcessHit(const SDL_Rect &hitbox)
@@ -73,7 +68,7 @@ void Cannon::update()
   }
 }
 
-void Cannon::render()
+void Cannon::render() const
 {
   switch (state)
   {
