@@ -62,6 +62,8 @@ void App::update()
   // reset event timing
   beforeEvent = before;
   timeout = FRAMERATE;
+
+  printf("%.2f\n", 1000.0f / dt);
 }
 
 void App::render()
@@ -69,26 +71,17 @@ void App::render()
   SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
   SDL_RenderClear(renderer);
 
-  // Jesus easteregg
-  renderText(19 * TILE, TILE, "JESUS LU");
-  renderText(19 * TILE, 3 * TILE, " S2S2S2");
+  static char valueFmt[27];
 
-  static char valueFmt[7];
+  // TODO: Optimize. Store all static texts in a packed texture once.
 
-  // score
-  renderText(TILE, TILE, "SCORE<1>");
-  sprintf(valueFmt, "%06d", score);
+  renderText(TILE, TILE, "SCORE<1> HI-SCORE JESUS LU");
+  sprintf(valueFmt, "%06d   %06d   S2S2S2", score, hiScore);
   renderText(2 * TILE, 3 * TILE, valueFmt);
 
-  // high-score
-  renderText(10 * TILE, TILE, "HI-SCORE");
-  sprintf(valueFmt, "%06d", hiScore);
-  renderText(11 * TILE, 3 * TILE, valueFmt);
-
   // credits
-  renderText(17 * TILE, HEIGHT - 2 * TILE, "CREDIT");
-  sprintf(valueFmt, "%02d", coins);
-  renderText(WIDTH - 4 * TILE, HEIGHT - 2 * TILE, valueFmt);
+  sprintf(valueFmt, "CREDIT %02d", coins);
+  renderText(17 * TILE, HEIGHT - 2 * TILE, valueFmt);
 
   scene->render();
 

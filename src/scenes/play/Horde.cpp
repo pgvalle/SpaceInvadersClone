@@ -28,7 +28,7 @@ void Horde::update()
     {
       state = MOVING;
       xVel = 2;
-      xStepCount = 8;
+      xStepCount = 9;
     }
     else
     {
@@ -43,7 +43,7 @@ void Horde::update()
     if (delayer.hasTimedOut())
     {
       int yVel = 0;
-      if (++xStepCount == 17) // move down and to the other direction
+      if (xStepCount == 17) // move down and to the other direction
       {
         xVel = -xVel;
         yVel = 8;
@@ -55,6 +55,7 @@ void Horde::update()
         invader.move(xVel, yVel);
       }
 
+      xStepCount++;
       delayer.reset();
     }
 
