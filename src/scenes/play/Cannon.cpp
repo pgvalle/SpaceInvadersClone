@@ -13,7 +13,7 @@ Cannon::Cannon()
 
 Shot Cannon::shoot() const
 {
-  return {x + 9, Y, -3};
+  return {x + 9, Y, -4};
 }
 
 bool Cannon::checkAndProcessHit(const SDL_Rect &hitbox)
