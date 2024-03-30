@@ -2,18 +2,9 @@
 
 #include "utils/Timer.h"
 
-struct Tourist {
+struct UFO {
 private:
-  Timer timer; // for spawn, motion and death
-
-  void update_hidden();
-
-  void update_visible();
-
-  void update_dying();
-
-  void update_dead();
-  void render_dead();
+  Timer clock; // for spawn, motion and death
 
 public:
   enum State {
@@ -23,10 +14,12 @@ public:
     DEAD, // show its score value
     AFTERLIFE // they are in a better place
   } state;
-  int x, xvel;
-  int score_value;
+  int x, xVel;
+  int scoreValue;
 
-  Tourist();
+  UFO();
+
+  // external influences
 
   void process_strike();
 

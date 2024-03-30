@@ -1,12 +1,14 @@
 #pragma once
 
 #include "Scene.h"
-#include "scenes/play/Horde.h"
+#include "./play/Horde.h"
+#include "./play/UFO.h"
 
 
 class PlayScene : public Scene
 {
 private:
+  UFO ufo;
   Horde horde;
 
 public:
