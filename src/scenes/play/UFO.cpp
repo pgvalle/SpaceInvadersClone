@@ -2,72 +2,73 @@
 #include "app/App.h"
 #include "defines.h"
 
+#include <stdio.h>
+
+
+#define Y (5 * TILE)
+
 UFO::UFO()
 {
-  state = HIDDEN;
+  state = ALIVE;
+  clock.reset(60); // spawn
 
-  clock.reset(5000); // spawn
-  x = -10000;
-  xVel = 0;
+  // randomly choose a corner
+  const bool left = rand() % 2;
+  x = left ? 8 : 200;
+  xVel = left ? 1 : -1;
+  // randomly choose a score value
   scoreValue = 100;
 }
 
-void UFO::process_strike()
+bool UFO::checkAndProcessHit(const SDL_Rect &hitbox)
 {
-  state = DYING;
-  clock.reset(120);
+  const SDL_Rect ufo = {x + 4, Y, 16, 8};
+
+  const bool hit = SDL_HasIntersection(&hitbox, &ufo);
+  if (hit)
+  {
+    state = DYING1;
+    clock.reset(120);
+  }
+
+  return hit;
 }
 
 void UFO::update()
 {
   switch (state)
   {
-  case HIDDEN:
-    clock.update();
-    if (clock.hasTimedOut())
-    {
-      state = VISIBLE;
-      // pick a random side to appear
-      const bool left = rand() % 2;
-      x = left ? 8 : 200;
-      xVel = left ? 1 : -1;
-      // will be used as motion clock
-      clock.reset(60);
-    }
-
-    break;
-  case VISIBLE:
+  case ALIVE:
     clock.update();
     if (clock.hasTimedOut())
     {
       x += xVel;
       if (x < 8 || x > 200)
       {
-        state = HIDDEN;
-        clock.reset(5000);
+        state = DEAD;
       }
     }
 
     break;
-  case DYING:
+  case DYING1:
     // animation frame should change
     clock.update();
     if (clock.hasTimedOut())
     {
-      state = DEAD; // now we show it's score value
+      state = DYING2; // now we show it's score value
       clock.reset(2000);
     }
 
     break;
-  case DEAD:
+  case DYING2:
     clock.update();
     if (clock.hasTimedOut())
     {
-      state = AFTERLIFE;
+      state = DEAD;
     }
 
     break;
-  case AFTERLIFE:
+  case DEAD:
     break;
   }
 }
@@ -76,18 +77,19 @@ void UFO::render()
 {
   switch (state)
   {
-  case HIDDEN:
+  case ALIVE:
+    app->renderClip(x, Y, {0, 0, 24, 8});
     break;
-  case VISIBLE:
-    app->renderClip(x, 5 * TILE, {4, 0, 16, 8});
+  case DYING1:
+    app->renderClip(x, Y, {24, 0, 24, 8});
     break;
-  case DYING:
-    app->renderClip(x - 4, 5 * TILE, {24, 0, 24, 8});
-    break;
+  case DYING2: {
+    char scoreFmt[7];
+    sprintf(scoreFmt, "%3d", scoreValue);
+    app->renderText(x, Y, scoreFmt);
+
+    break; }
   case DEAD:
-    
-    break;
-  case AFTERLIFE:
     break;
   }
 }

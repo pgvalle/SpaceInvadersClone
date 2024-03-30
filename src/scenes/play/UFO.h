@@ -8,11 +8,10 @@ private:
 
 public:
   enum State {
-    VISIBLE,
-    HIDDEN,
-    DYING, // showing death animation
-    DEAD, // show its score value
-    AFTERLIFE // they are in a better place
+    ALIVE,
+    DYING1, // showing death animation
+    DYING2, // show its score value
+    DEAD // they are in a better place
   } state;
   int x, xVel;
   int scoreValue;
@@ -21,7 +20,7 @@ public:
 
   // external influences
 
-  void process_strike();
+  bool checkAndProcessHit(const SDL_Rect &hitbox);
 
   void update();
   void render();
