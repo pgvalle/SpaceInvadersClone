@@ -34,9 +34,9 @@ private:
 public:
   Horde();
 
-  bool isDestroyed();
+  // Shot shoot();
 
-  // external influences
+  bool isDestroyed();
 
   Explosion checkAndProcessInvaderHit(const SDL_Rect& hitbox);
 
