@@ -27,7 +27,7 @@ private:
   } state;
 
   Timer delayer;
-  int xVel, xStepCount;
+  int xVel;
 
   std::vector<Invader> invaders;
 

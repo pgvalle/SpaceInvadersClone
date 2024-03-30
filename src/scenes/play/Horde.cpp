@@ -1,10 +1,11 @@
 #include "Horde.h"
+#include "defines.h"
 
 
 Horde::Horde()
 {
   state = STARTING;
-  delayer.reset(100);
+  delayer.reset(16);
 }
 
 bool Horde::isDestroyed()
@@ -20,7 +21,7 @@ Explosion Horde::checkAndProcessInvaderHit(const SDL_Rect& hitbox)
     if (SDL_HasIntersection(&hitbox, &invaderHitbox))
     {
       // set delay on hit
-      const Uint32 newTimeout = invaders.size() * 33;
+      const Uint32 newTimeout = invaders.size() * 16;
       delayer.reset(newTimeout);
       return Explosion(invader.x, invader.y, 100, {32, 24, 13, 8});
     }
@@ -40,9 +41,8 @@ void Horde::update()
     if (invaders.size() == 55) // done. Now start moving
     {
       state = MOVING;
-      delayer.reset(invaders.size() * 33);
+      delayer.reset(invaders.size() * 16);
       xVel = 2;
-      xStepCount = 9;
     }
     else
     {
@@ -57,12 +57,16 @@ void Horde::update()
     delayer.update();
     if (delayer.hasTimedOut())
     {
+      // check if it's time to change direction
       int yVel = 0;
-      if (xStepCount == 17) // move down and to the other direction
+      for (const Invader &invader : invaders)
       {
-        xVel = -xVel;
-        yVel = 8;
-        xStepCount = 0;
+        if (12 > invader.x || invader.x > WIDTH - 24)
+        {
+          xVel = -xVel;
+          yVel = 8;
+          break;
+        }
       }
 
       for (Invader &invader : invaders)
@@ -70,7 +74,6 @@ void Horde::update()
         invader.move(xVel, yVel);
       }
 
-      xStepCount++;
       delayer.reset();
     }
 
