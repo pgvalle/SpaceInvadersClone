@@ -1,4 +1,12 @@
-#include "../core.h"
+#include "app/App.h"
+#include "defines.h"
+
+#include "scenes/Scene.h"
+#include "scenes/MenuScene.h"
+
+#include <SDL.h>
+#include <SDL_ttf.h>
+#include <SDL_image.h>
 
 
 App *app = nullptr;

@@ -1,5 +1,5 @@
-#include "../core.h"
-#include <stdio.h>
+#include "app/App.h"
+#include "defines.h"
 
 
 // for time measurement inside mainLoop

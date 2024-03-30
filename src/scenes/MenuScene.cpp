@@ -1,4 +1,6 @@
-#include "../core.h"
+#include "app/App.h"
+#include "MenuScene.h"
+#include "PlayScene.h"
 
 #include <string.h>
 

@@ -1,4 +1,8 @@
-#include "core.h"
+#include "app/App.h"
+
+#include <SDL.h>
+#include <SDL_ttf.h>
+#include <SDL_image.h>
 
 #include <time.h>
 

@@ -1,5 +1,6 @@
+#include "app/App.h"
 #include "Invader.h"
-#include "App.h"
+
 
 Invader::Invader(int row, int col) {
   x = 64 + 16 * row;
@@ -10,13 +11,13 @@ Invader::Invader(int row, int col) {
   if (row > 0) clip.y = 24;
 }
 
-void Invader::move(int xoff, int yoff) {
-  x += xoff;
-  y += yoff;
+void Invader::move(int xOff, int yOff) {
+  x += xOff;
+  y += yOff;
   // each movement should change animation frame
   clip.x = (clip.x == 0 ? 12 : 0);
 }
 
 void Invader::render() {
-  App::render_clip(x, y, clip);
+  app->renderClip(x, y, clip);
 }

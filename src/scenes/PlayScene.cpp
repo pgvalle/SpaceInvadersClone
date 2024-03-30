@@ -1,6 +1,5 @@
-#include "../core.h"
-
-#include <string.h>
+#include "app/App.h"
+#include "PlayScene.h"
 
 
 PlayScene::PlayScene()

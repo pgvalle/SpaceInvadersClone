@@ -1,4 +1,5 @@
-#include "../core.h"
+#include "app/App.h"
+#include "Timer.h"
 
 Timer::Timer()
 {

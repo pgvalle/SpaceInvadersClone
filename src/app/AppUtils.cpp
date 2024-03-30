@@ -1,4 +1,4 @@
-#include "../core.h"
+#include "app/App.h"
 
 
 void App::changeScene(Scene* newScene)

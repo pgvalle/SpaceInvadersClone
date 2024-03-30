@@ -2,12 +2,14 @@
 
 #include <SDL.h>
 
-struct Invader {
+
+struct Invader
+{
   int x, y;
   SDL_Rect clip;
 
   Invader(int row, int col);
 
-  void move(int xoff, int yoff);
+  void move(int xOff, int yOff);
   void render();
 };
