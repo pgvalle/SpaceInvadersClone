@@ -8,7 +8,7 @@ struct Invader
   int x, y;
   SDL_Rect clip;
 
-  Invader(int row, int col);
+  Invader(int col, int row);
 
   void move(int xOff, int yOff);
   void render();

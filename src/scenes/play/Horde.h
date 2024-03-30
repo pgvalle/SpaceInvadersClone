@@ -7,12 +7,8 @@
 
 struct Horde {
 private:
-  Timer frozen_timer;
-  int xrel, xrelCount;
-
-  void updateStarting();
-
-  void updateMoving();
+  Timer delayer;
+  int xVel, xStepCount;
 
 public:
   enum State {
@@ -24,9 +20,9 @@ public:
 
   Horde();
 
-  void freezeTemporarily(); // when an invader is shot
+  void forceDelayOnHit(); // when an invader is shot
   
-  bool isFinished();
+  bool isDestroyed();
 
   void update();
   void render();

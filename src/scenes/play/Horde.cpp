@@ -3,59 +3,21 @@
 
 Horde::Horde()
 {
-  frozen_timer.reset(55 * 16);
   state = STARTING;
+  delayer.reset(55 * 16);
 }
 
-void Horde::freezeTemporarily()
+
+void Horde::forceDelayOnHit()
 {
   // timeout will decrease with invader amount decreasing
   const Uint32 newTimeout = invaders.size() * 16;
-  frozen_timer.reset(newTimeout);
+  delayer.reset(newTimeout);
 }
 
-bool Horde::isFinished()
+bool Horde::isDestroyed()
 {
   return invaders.empty();
-}
-
-void Horde::updateStarting()
-{
-  if (invaders.size() == 55)
-  {
-    // done. Now start moving
-    state = State::MOVING;
-    xrel = 2;
-    xrelCount = 8;
-  }
-  else
-  {
-    const int row = 4 - invaders.size() / 11;
-    const int col = invaders.size() % 11;
-    invaders.push_back(Invader(col, row));
-  }
-}
-
-void Horde::updateMoving()
-{
-  frozen_timer.update();
-  if (frozen_timer.hasTimedOut())
-  {
-    int yrel = 0;
-    if (++xrelCount == 17)
-    {
-      xrel = -xrel;
-      yrel = 8;
-      xrelCount = 0;
-    }
-
-    for (Invader &invader : invaders)
-    {
-      invader.move(xrel, yrel);
-    }
-
-    frozen_timer.reset();
-  }
 }
 
 void Horde::update()
@@ -63,10 +25,38 @@ void Horde::update()
   switch (state)
   {
   case STARTING:
-    updateStarting();
+    if (invaders.size() == 55) // done. Now start moving
+    {
+      state = State::MOVING;
+      xVel = 2;
+      xStepCount = 8;
+    }
+    else
+    {
+      const int col = invaders.size() % 11;
+      const int row = 4 - invaders.size() / 11;
+      invaders.push_back(Invader(col, row));
+    }
+
     break;
   case MOVING:
-    updateMoving();
+    delayer.update();
+    if (delayer.hasTimedOut())
+    {
+      int yVel = 0;
+      if (++xStepCount == 17) // move down and to the other direction
+      {
+        xVel = -xVel;
+        yVel = 8;
+        xStepCount = 0;
+      }
+
+      for (Invader &invader : invaders)
+        invader.move(xVel, yVel);
+
+      delayer.reset();
+    }
+
     break;
   }
 }
@@ -74,7 +64,5 @@ void Horde::update()
 void Horde::render()
 {
   for (Invader &invader : invaders)
-  {
     invader.render();
-  }
 }
