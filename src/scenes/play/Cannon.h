@@ -2,10 +2,12 @@
 
 #include "utils/Timer.h"
 
-class Cannon {
+
+class Cannon
+{
 private:
-public:
-  enum State {
+  enum State
+  {
     ALIVE,
     DYING, // animation appears here
     DEAD
@@ -14,11 +16,12 @@ public:
   int deathFrame;
   Timer clock1, clock2;
 
+public:
   Cannon();
 
   bool isDead();
 
-  void checkAndProcessHit(const SDL_Rect &hitbox);
+  bool checkAndProcessHit(const SDL_Rect &hitbox);
 
   // Shot shoot();
 

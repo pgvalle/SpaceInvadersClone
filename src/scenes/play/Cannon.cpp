@@ -16,16 +16,20 @@ bool Cannon::isDead()
   return state == DEAD;
 }
 
-void Cannon::checkAndProcessHit(const SDL_Rect &hitbox)
+bool Cannon::checkAndProcessHit(const SDL_Rect &hitbox)
 {
-  const SDL_Rect cannonHitbox = {x, Y, 16, 8};
-  if (SDL_HasIntersection(&hitbox, &cannonHitbox))
+  const SDL_Rect cannon = {x, Y, 16, 8};
+
+  const bool collided = SDL_HasIntersection(&hitbox, &cannon);
+  if (collided)
   {
     state = DYING;
     deathFrame = 0;
-    clock1.reset(100); // animation frame
-    clock2.reset(2000); // duration of dying state
+    clock1.reset(100); // animation frame time
+    clock2.reset(2000); // dying state time
   }
+
+  return collided;
 }
 
 void Cannon::update()
@@ -71,9 +75,10 @@ void Cannon::render()
   case ALIVE:
     app->renderClip(x, Y, {0, 8, 16, 8});
     break;
-  
   case DYING:
     app->renderClip(x, Y, {16 + 16 * deathFrame, 8, 16, 8});
+    break;
+  case DEAD:
     break;
   }
 }
