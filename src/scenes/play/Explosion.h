@@ -12,16 +12,6 @@ struct Explosion
 
   Explosion(int x, int y, Uint32 lifespan, const SDL_Rect& clip);
 
-  Explosion &operator=(const Explosion &other)
-  {
-    x = other.x;
-    y = other.y;
-    clip = other.clip;
-    clock = other.clock;
-
-    return *this;
-  }
-
   bool hasFinished() const;
 
   void update();
