@@ -26,9 +26,7 @@ void App::renderText(int x, int y, const char *text, SDL_Color color)
   SDL_Surface *surface = TTF_RenderUTF8_Solid(font, text, color);
   SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
 
-  const SDL_Rect textureRect = {
-      x, y, surface->w, surface->h};
-
+  const SDL_Rect textureRect = {x, y, surface->w, surface->h};
   SDL_RenderCopy(renderer, texture, nullptr, &textureRect);
 
   SDL_FreeSurface(surface);
