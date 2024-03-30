@@ -9,6 +9,12 @@ void App::changeScene(Scene* newScene)
   nextScene = newScene;
 }
 
+bool App::isKeyPressed(int key)
+{
+  const Uint8 *keys = SDL_GetKeyboardState(nullptr);
+  return keys[key];
+}
+
 void App::renderClip(int x, int y, const SDL_Rect &clip)
 {
   const SDL_Rect scale = {x, y, clip.w, clip.h};

@@ -21,7 +21,7 @@ public:
 
   void changeScene(Scene *newScene);
 
-  // key functions
+  bool isKeyPressed(int key);
 
   void renderText(int x, int y, const char *text,
                   SDL_Color color = {255, 255, 255, 255});
