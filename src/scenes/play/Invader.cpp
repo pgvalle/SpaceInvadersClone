@@ -4,8 +4,8 @@
 
 
 Invader::Invader(int col, int row) {
-  x = 3 * TILE + 2 * TILE * col;
-  y = 8 * TILE + 2 * TILE * row;
+  x = 2 + (3 + 2 * col) * TILE;
+  y = (8 + 2 * row) * TILE;
   // invaders have different shapes depending on their starting row
   clip = { 12, 16, 12, 8 };
   if (row > 2) clip.y = 32;

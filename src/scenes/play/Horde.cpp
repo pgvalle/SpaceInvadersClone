@@ -26,7 +26,7 @@ void Horde::updateStarting()
     // done. Now start moving
     state = State::MOVING;
     xrel = 2;
-    xrelCount = 7;
+    xrelCount = 8;
   }
   else
   {
@@ -42,7 +42,7 @@ void Horde::updateMoving()
   if (frozen_timer.hasTimedOut())
   {
     int yrel = 0;
-    if (++xrelCount == 16)
+    if (++xrelCount == 17)
     {
       xrel = -xrel;
       yrel = 8;
