@@ -15,7 +15,7 @@ struct Explosion
   bool hasFinished();
 
   void update();
-  void render();
+  void render() const;
 };
 
 #endif // EXPLOSION_H

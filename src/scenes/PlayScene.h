@@ -19,7 +19,7 @@ private:
     UNPAUSING
   } state;
 
-  Timer delayer; // delay after player death.
+  Timer delayer;
 
   UFO* ufo;
   Timer ufoClock;

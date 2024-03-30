@@ -28,7 +28,7 @@ bool UFO::checkAndProcessHit(const SDL_Rect &hitbox)
   if (hit)
   {
     state = DYING1;
-    clock.reset(120);
+    clock.reset(500);
   }
 
   return hit;
@@ -85,12 +85,12 @@ void UFO::render() const
   case DYING1:
     app->renderClip(x, Y, {24, 0, 24, 8});
     break;
-  case DYING2: {
+  case DYING2:
     char scoreFmt[7];
     sprintf(scoreFmt, "%3d", scoreValue);
-    app->renderText(x, Y, scoreFmt);
+    app->renderText(x, Y, scoreFmt, {0xD8, 0x20, 0x20});
 
-    break; }
+    break;
   case DEAD:
     break;
   }

@@ -90,15 +90,23 @@ void PlayScene::update()
     for (int i = 0; i < marcelo.size(); i++)
     {
       Shot& shot = marcelo[i];
+      const SDL_Rect shotRect = { shot.x, shot.y, 1, 8 };
       shot.update();
 
       // collision with horde
-      SDL_Rect shotRect = { shot.x, shot.y, 1, 8 };
       Explosion e = horde.checkAndProcessHit(shotRect);
       if (!e.hasFinished()) // valid explosion. Collision occurred
       {
         marcelo.erase(marcelo.begin() + i--);
         // handle
+
+        continue;
+      }
+
+      // collision with ufo
+      if (ufo)
+      {
+        ufo->checkAndProcessHit(shotRect);
       }
 
       // collision with player
