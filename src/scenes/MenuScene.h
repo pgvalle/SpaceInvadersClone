@@ -9,12 +9,15 @@ class MenuScene : public Scene
 private:
   enum State
   {
-    WAITING,
-    DISPLAYING_TEXTS
+    WAITING = -1,
+    DISPLAYING_PLAY = 0,
+    DISPLAYING_SPACE_INVADERS,
+    DISPLAYING_SCORE_INFO,
+    IDLE,
   } state;
 
   Timer clock;
-  int charI, textI; // iterators
+  int charI; // iterator in text
 
 public:
   MenuScene();
