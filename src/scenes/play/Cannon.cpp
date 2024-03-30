@@ -16,7 +16,7 @@ bool Cannon::isDead()
 
 void Cannon::checkAndProcessHit(const SDL_Rect &hitbox)
 {
-  const SDL_Rect cannonHitbox = {x, HEIGHT - 2 * TILE, 16, 8};
+  const SDL_Rect cannonHitbox = {x, HEIGHT - 5 * TILE, 16, 8};
   if (SDL_HasIntersection(&hitbox, &cannonHitbox))
   {
     state = DYING;
@@ -33,11 +33,11 @@ void Cannon::update()
   case ALIVE:
     if (app->isKeyPressed(SDL_SCANCODE_LEFT))
     {
-      x -= (x > 14 ? 1 : 0);
+      x -= (x > 14 ? 2 : 0);
     }
     if (app->isKeyPressed(SDL_SCANCODE_RIGHT))
     {
-      x += (x < WIDTH - 31 ? 1 : 0);
+      x += (x < WIDTH - 31 ? 2 : 0);
     }
 
     break;
@@ -64,4 +64,13 @@ void Cannon::update()
 
 void Cannon::render()
 {
+  switch (state)
+  {
+  case ALIVE:
+    app->renderClip(x, HEIGHT - 5 * TILE, {0, 8, 16, 8});
+    break;
+  
+  default:
+    break;
+  }
 }

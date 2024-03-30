@@ -4,7 +4,6 @@
 Horde::Horde()
 {
   state = STARTING;
-  delayer.reset(55 * 16);
 }
 
 bool Horde::isDestroyed()
@@ -37,6 +36,7 @@ void Horde::update()
     if (invaders.size() == 55) // done. Now start moving
     {
       state = MOVING;
+      delayer.reset(invaders.size() * 16);
       xVel = 2;
       xStepCount = 9;
     }

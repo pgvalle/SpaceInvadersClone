@@ -7,6 +7,7 @@ PlayScene::PlayScene()
   state = STARTING;
   delayer.reset(3000);
 
+  cannon = nullptr;
   cannonLives = 3;
 }
 
@@ -51,4 +52,9 @@ void PlayScene::render()
 {
   ufo.render();
   horde.render();
+
+  if (cannon)
+  {
+    cannon->render();
+  }
 }
