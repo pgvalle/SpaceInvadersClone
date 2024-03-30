@@ -20,8 +20,8 @@ bool Cannon::checkAndProcessHit(const SDL_Rect &hitbox)
 {
   const SDL_Rect cannon = {x, Y, 16, 8};
 
-  const bool collided = SDL_HasIntersection(&hitbox, &cannon);
-  if (collided)
+  const bool hit = SDL_HasIntersection(&hitbox, &cannon);
+  if (hit)
   {
     state = DYING;
     deathFrame = 0;
@@ -29,7 +29,7 @@ bool Cannon::checkAndProcessHit(const SDL_Rect &hitbox)
     clock2.reset(2000); // dying state time
   }
 
-  return collided;
+  return hit;
 }
 
 void Cannon::update()
