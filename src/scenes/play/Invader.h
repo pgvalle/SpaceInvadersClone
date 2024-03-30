@@ -5,8 +5,8 @@
 
 struct Invader
 {
+  int type, frame;
   int x, y;
-  SDL_Rect clip;
 
   Invader(int col, int row);
 
