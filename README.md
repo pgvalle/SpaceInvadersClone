@@ -1,5 +1,7 @@
 # Space Invaders Clone
 
+This readme is dated. :v
+
 This game, as the name suggests, is yet another
 [SpaceInvaders](https://en.wikipedia.org/wiki/Space_Invaders)' clone.
 Obviously It's not 100% the same as the original one.
