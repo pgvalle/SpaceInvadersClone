@@ -28,7 +28,7 @@ bool UFO::checkAndProcessHit(const SDL_Rect &hitbox)
   if (hit)
   {
     state = DYING1;
-    clock.reset(500);
+    clock.reset(300);
   }
 
   return hit;
@@ -40,26 +40,24 @@ void UFO::update()
   {
   case ALIVE:
     clock.update();
-    if (clock.hasTimedOut())
+    if (!clock.hasTimedOut()) break;
+
+    x += xVel;
+    if (x < TILE || x > 24 * TILE)
     {
-      x += xVel;
-      if (x < TILE || x > 24 * TILE)
-      {
-        state = DEAD;
-      }
+      state = DEAD;
     }
 
     break;
   case DYING1:
     // animation frame should change
     clock.update();
-    if (clock.hasTimedOut())
-    {
-      state = DYING2; // now we show it's score value
-      clock.reset(2000);
-      
-      app->score += scoreValue;
-    }
+    if (!clock.hasTimedOut()) break;
+
+    state = DYING2; // now we show it's score value
+    clock.reset(2000);
+    // sum score value
+    app->score += scoreValue;
 
     break;
   case DYING2:
@@ -86,7 +84,7 @@ void UFO::render() const
     app->renderClip(x, Y, {24, 0, 24, 8});
     break;
   case DYING2:
-    char scoreFmt[7];
+    char scoreFmt[4];
     sprintf(scoreFmt, "%3d", scoreValue);
     app->renderText(x, Y, scoreFmt, {0xD8, 0x20, 0x20});
 

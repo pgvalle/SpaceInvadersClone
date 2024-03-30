@@ -7,7 +7,7 @@
 
 MenuScene::MenuScene()
 {
-  clock.reset(5000);
+  clock.reset(2000);
 }
 
 MenuScene::~MenuScene()
