@@ -73,9 +73,8 @@ void App::render()
 
   static char valueFmt[27];
 
-  // TODO: Optimize. Store all static texts in a packed texture once.
-
   renderText(TILE, TILE, "SCORE<1> HI-SCORE JESUS LU");
+
   sprintf(valueFmt, "%06d   %06d   S2S2S2", score, hiScore);
   renderText(2 * TILE, 3 * TILE, valueFmt);
 
