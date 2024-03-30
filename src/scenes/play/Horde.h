@@ -21,17 +21,17 @@ private:
     void render();
   };
 
-  Timer delayer;
-  int xVel, xStepCount;
-
-public:
   enum State {
     STARTING,
     MOVING
   } state;
 
+  Timer delayer;
+  int xVel, xStepCount;
+
   std::vector<Invader> invaders;
 
+public:
   Horde();
 
   bool isDestroyed();
