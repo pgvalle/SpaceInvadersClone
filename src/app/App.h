@@ -24,7 +24,7 @@ public:
   // key functions
 
   void renderText(int x, int y, const char *text,
-                  SDL_Color color = {255, 255, 255});
+                  SDL_Color color = {255, 255, 255, 255});
   void renderClip(int x, int y, const SDL_Rect &clip);
 
 private:
