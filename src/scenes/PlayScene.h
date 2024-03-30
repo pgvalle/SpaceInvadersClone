@@ -37,6 +37,8 @@ private:
 
   std::vector<Shot> marcelo;
 
+  std::vector<Explosion> explosions;
+
 public:
   PlayScene();
   ~PlayScene();

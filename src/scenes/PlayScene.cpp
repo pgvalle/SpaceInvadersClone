@@ -86,6 +86,15 @@ void PlayScene::update()
       state = DELAYING;
     }
 
+    for (int i = 0; i < explosions.size(); i++)
+    {
+      if (explosions[i].hasFinished())
+      {
+        explosions.erase(explosions.begin() + i--);
+        continue;
+      }
+    }
+
     // shots update and collision checks
     for (int i = 0; i < marcelo.size(); i++)
     {
@@ -94,11 +103,11 @@ void PlayScene::update()
       shot.update();
 
       // collision with horde
-      Explosion e = horde.checkAndProcessHit(shotRect);
-      if (!e.hasFinished()) // valid explosion. Collision occurred
+      Explosion explosion = horde.checkAndProcessHit(shotRect);
+      if (!explosion.hasFinished()) // valid explosion. Collision occurred
       {
         marcelo.erase(marcelo.begin() + i--);
-        // handle
+        explosions.push_back(explosion);
 
         continue;
       }
@@ -145,7 +154,12 @@ void PlayScene::update()
 
 void PlayScene::render()
 {
-  for (Shot& shot : marcelo)
+  for (Explosion& explosion : explosions)
+    {
+      explosion.render();
+    }
+
+  for (const Shot& shot : marcelo)
   {
     shot.render();
   }
