@@ -12,13 +12,14 @@ public:
 
   // globals
 
-  Scene *scene;
   int score, hiScore, coins;
   Uint32 dt;
 
   SDL_Event event;
 
   // utils
+
+  void changeScene(Scene *newScene);
 
   // key functions
 
@@ -29,6 +30,7 @@ public:
 private:
   // internals
 
+  Scene *scene, nextScene; // to change scene inside a scene
   SDL_Window *window;
   SDL_Renderer *renderer;
 

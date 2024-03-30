@@ -1,6 +1,14 @@
 #include "../core.h"
 
 
+void App::changeScene(Scene* newScene)
+{
+  // overwrite if already wanted to change scene
+  if (nextScene) delete nextScene;
+
+  nextScene = newScene;
+}
+
 void App::renderClip(int x, int y, const SDL_Rect &clip)
 {
   const SDL_Rect scale = {x, y, clip.w, clip.h};

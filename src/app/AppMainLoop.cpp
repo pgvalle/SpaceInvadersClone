@@ -27,6 +27,13 @@ void App::mainLoop()
       update();
     }
     else processEvent();
+
+    // process scene change, if any
+    if (nextScene)
+    {
+      delete scene;
+      scene = nextScene;
+    }
   }
 }
 
