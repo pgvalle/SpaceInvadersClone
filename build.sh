@@ -3,7 +3,8 @@
 # Specify the directory containing your .cpp files
 SOURCE_DIR="src"
 BUILD_DIR="build"
-FLAGS="-O3 -Wall -DNDEBUG $(pkg-config --cflags --libs sdl2 SDL2_image SDL2_ttf)"
+FLAGS="-O3 -Wall -DNDEBUG -I$SOURCE_DIR $(pkg-config --cflags sdl2 SDL2_image SDL2_ttf)"
+LIBS="$(pkg-config --libs sdl2 SDL2_image SDL2_ttf)"
 
 find_src_files() {
     find $SOURCE_DIR -type f -name '*.cpp'
@@ -34,4 +35,4 @@ for src in $src_files; do
 done
 
 # Create a single executable from all compiled files
-g++ $obj_files -o sic.out $FLAGS
+g++ $obj_files -o sic.out $LIBS
