@@ -20,9 +20,12 @@ public:
 
   Horde();
 
-  void forceDelayOnHit(); // when an invader is shot
-  
   bool isDestroyed();
+
+  // external influences
+
+  void forceDelayOnHit(); // when an invader is shot
+
 
   void update();
   void render();

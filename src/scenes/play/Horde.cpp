@@ -7,17 +7,16 @@ Horde::Horde()
   delayer.reset(55 * 16);
 }
 
+bool Horde::isDestroyed()
+{
+  return invaders.empty();
+}
 
 void Horde::forceDelayOnHit()
 {
   // timeout will decrease with invader amount decreasing
   const Uint32 newTimeout = invaders.size() * 16;
   delayer.reset(newTimeout);
-}
-
-bool Horde::isDestroyed()
-{
-  return invaders.empty();
 }
 
 void Horde::update()
@@ -27,7 +26,7 @@ void Horde::update()
   case STARTING:
     if (invaders.size() == 55) // done. Now start moving
     {
-      state = State::MOVING;
+      state = MOVING;
       xVel = 2;
       xStepCount = 8;
     }
@@ -52,7 +51,9 @@ void Horde::update()
       }
 
       for (Invader &invader : invaders)
+      {
         invader.move(xVel, yVel);
+      }
 
       delayer.reset();
     }
@@ -64,5 +65,7 @@ void Horde::update()
 void Horde::render()
 {
   for (Invader &invader : invaders)
+  {
     invader.render();
+  }
 }
