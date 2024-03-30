@@ -12,7 +12,7 @@ PlayScene::PlayScene()
   ufoClock.reset(5000);
 
   cannon = nullptr;
-  cannonLives = 3;
+  cannonLives = 4;
 }
 
 PlayScene::~PlayScene()
@@ -37,6 +37,7 @@ void PlayScene::update()
     {
       state = PLAYING;
       cannon = new Cannon();
+      cannonLives--;
     }
 
     break; 
@@ -103,7 +104,14 @@ void PlayScene::render()
     ufo->render();
   }
 
-  // render lifes
+  // render life counter
   char livesFmt[] = {'0' + cannonLives, '\0'};
   app->renderText(TILE, HEIGHT - 2 * TILE, livesFmt);
+
+  // render cannons
+  const int cannonsY = HEIGHT - 2 * TILE;
+  for (int i = 0; i < cannonLives - 1; i++)
+  {
+    app->renderClip(3 * TILE + 16 * i, cannonsY, {0, 8, 16, 8});
+  }
 }
