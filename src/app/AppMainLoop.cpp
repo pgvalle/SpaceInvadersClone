@@ -71,7 +71,7 @@ void App::render()
 
   // Jesus easteregg
   renderText(19 * TILE, TILE, "JESUS LU");
-  renderText(19 * TILE, 3 * TILE, "   S2");
+  renderText(19 * TILE, 3 * TILE, " S2S2S2");
 
   static char valueFmt[7];
 
