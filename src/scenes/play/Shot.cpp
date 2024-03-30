@@ -8,7 +8,7 @@ void Shot::update()
   y += yVel;
 }
 
-void Shot::render()
+void Shot::render() const
 {
   const SDL_Rect rect = { x, y, 1, 8 };
   SDL_SetRenderDrawColor(app->renderer, 255, 255, 255, 255);

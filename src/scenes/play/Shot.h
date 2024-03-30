@@ -6,5 +6,5 @@ struct Shot
   int x, y, yVel;
 
   void update();
-  void render();
+  void render() const;
 };

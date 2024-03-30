@@ -41,7 +41,7 @@ void UFO::update()
   case ALIVE:
     clock.update();
     if (!clock.hasTimedOut()) break;
-
+    // check if out of bounds
     x += xVel;
     if (x < TILE || x > 24 * TILE)
     {
