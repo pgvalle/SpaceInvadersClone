@@ -4,6 +4,7 @@
 Horde::Horde()
 {
   state = STARTING;
+  delayer.reset(100);
 }
 
 bool Horde::isDestroyed()
@@ -19,7 +20,7 @@ Explosion Horde::checkAndProcessInvaderHit(const SDL_Rect& hitbox)
     if (SDL_HasIntersection(&hitbox, &invaderHitbox))
     {
       // set delay on hit
-      const Uint32 newTimeout = invaders.size() * 16;
+      const Uint32 newTimeout = invaders.size() * 33;
       delayer.reset(newTimeout);
       return Explosion(invader.x, invader.y, 100, {32, 24, 13, 8});
     }
@@ -33,10 +34,13 @@ void Horde::update()
   switch (state)
   {
   case STARTING:
+    delayer.update();
+    if (!delayer.hasTimedOut()) break;
+
     if (invaders.size() == 55) // done. Now start moving
     {
       state = MOVING;
-      delayer.reset(invaders.size() * 16);
+      delayer.reset(invaders.size() * 33);
       xVel = 2;
       xStepCount = 9;
     }
@@ -45,6 +49,7 @@ void Horde::update()
       const int col = invaders.size() % 11;
       const int row = 4 - invaders.size() / 11;
       invaders.push_back(Invader(col, row));
+      delayer.reset();
     }
 
     break;
