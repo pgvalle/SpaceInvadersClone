@@ -1,55 +1,67 @@
 #include "Cannon.h"
-#include "App.h"
+#include "app/App.h"
+#include "defines.h"
 
-Cannon::Cannon() {
-  death_anim = Animation({ 0, 8, 16, 8 }, 112, 2);
 
-  state = State::STARTING;
-  x = 16;
-  lives = 3;
-  timer = Timer(2000); // 2 seconds
+Cannon::Cannon()
+{
+  state = ALIVE;
+  x = 14;
 }
 
+bool Cannon::isDead()
+{
+  return state == DEAD;
+}
 
-void Cannon::update() {
-  switch (state) {
-  case State::STARTING:
-    timer.update();
-    if (timer.has_timed_out()) {
-      state = State::ALIVE;
-      timer.reset(768); // for shooting mechanic
-    }
-    break;
-  case State::ALIVE:
-    // movement
-    if (App::key_pressed(SDL_SCANCODE_LEFT)) {
+void Cannon::checkAndProcessHit(const SDL_Rect &hitbox)
+{
+  const SDL_Rect cannonHitbox = {x, HEIGHT - 2 * TILE, 16, 8};
+  if (SDL_HasIntersection(&hitbox, &cannonHitbox))
+  {
+    state = DYING;
+    deathFrame = 0;
+    clock1.reset(100); // animation frame
+    clock2.reset(2000); // duration of dying state
+  }
+}
+
+void Cannon::update()
+{
+  switch (state)
+  {
+  case ALIVE:
+    if (app->isKeyPressed(SDL_SCANCODE_LEFT))
+    {
       x -= (x > 14 ? 1 : 0);
     }
-    if (App::key_pressed(SDL_SCANCODE_RIGHT)) {
-      x += (x < App::world_width() - 31 ? 1 : 0);
+    if (app->isKeyPressed(SDL_SCANCODE_RIGHT))
+    {
+      x += (x < WIDTH - 31 ? 1 : 0);
     }
-    // shooting mechanic (actual shooting handled outside)
-    timer.update();
+
     break;
-  case State::DYING:
-    timer.update();
-    if (timer.has_timed_out()) {
-      state = State::DEAD;
-      timer.reset(2000); // dead for 2 seconds
-    } else {
-      death_anim.update();
+  case DYING:
+    // animation frame update
+    clock1.update();
+    if (clock1.hasTimedOut())
+    {
+      deathFrame = !deathFrame;
+      clock1.reset();
     }
+    // state duration timeout update
+    clock2.update();
+    if (clock2.hasTimedOut())
+    {
+      state = DEAD;
+    }
+
     break;
-  case State::DEAD:
-    timer.update();
-    if (timer.has_timed_out()) {
-      // set state variables
-      lives--;
-    }
+  case DEAD:
     break;
   }
 }
 
-void Cannon::render() {
-
+void Cannon::render()
+{
 }

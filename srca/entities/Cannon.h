@@ -1,24 +1,26 @@
 #pragma once
 
 #include "utils/Timer.h"
-#include "utils/Animation.h"
 
 class Cannon {
 private:
-  Animation death_anim;
-
 public:
   enum State {
-    STARTING,
     ALIVE,
     DYING, // animation appears here
     DEAD
   } state;
   int x;
-  int lives;
-  Timer timer;
+  int deathFrame;
+  Timer clock1, clock2;
 
   Cannon();
+
+  bool isDead();
+
+  void checkAndProcessHit(const SDL_Rect &hitbox);
+
+  // Shot shoot();
 
   void update();
   void render();
