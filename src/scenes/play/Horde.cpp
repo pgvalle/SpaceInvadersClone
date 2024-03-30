@@ -41,8 +41,8 @@ void Horde::update()
     if (invaders.size() == 55) // done. Now start moving
     {
       state = MOVING;
-      delayer.reset(invaders.size() * 16);
       xVel = 2;
+      delayer.reset(invaders.size() * 16);
     }
     else
     {
@@ -55,27 +55,26 @@ void Horde::update()
     break;
   case MOVING:
     delayer.update();
-    if (delayer.hasTimedOut())
+    if (!delayer.hasTimedOut()) break;
+
+    // check if it's time to change direction
+    int yVel = 0;
+    for (const Invader &invader : invaders)
     {
-      // check if it's time to change direction
-      int yVel = 0;
-      for (const Invader &invader : invaders)
+      if (12 > invader.x || invader.x > WIDTH - 24)
       {
-        if (12 > invader.x || invader.x > WIDTH - 24)
-        {
-          xVel = -xVel;
-          yVel = 8;
-          break;
-        }
+        xVel = -xVel;
+        yVel = 8;
+        break;
       }
-
-      for (Invader &invader : invaders)
-      {
-        invader.move(xVel, yVel);
-      }
-
-      delayer.reset();
     }
+
+    for (Invader &invader : invaders)
+    {
+      invader.move(xVel, yVel);
+    }
+
+    delayer.reset();
 
     break;
   }

@@ -26,8 +26,8 @@ private:
     MOVING
   } state;
 
-  Timer delayer;
   int xVel;
+  Timer delayer;
 
   std::vector<Invader> invaders;
 
