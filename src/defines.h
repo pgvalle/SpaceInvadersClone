@@ -12,5 +12,5 @@
 
 #define TILE 8
 // These are the dimensions of the canvas. NOT of the window.
-#define WIDTH  (28 * TILE) // 240
-#define HEIGHT (32 * TILE) // 224
+#define WIDTH  (28 * TILE) // 224
+#define HEIGHT (32 * TILE) // 240
