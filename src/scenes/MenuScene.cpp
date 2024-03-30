@@ -3,9 +3,6 @@
 #include <string.h>
 
 
-static const char* TEXT = "PLAY\nSPACE INVADERS\n=? MYSTERY\n=30 POINTS\n=20 POINTS\n=10 POINTS";
-
-
 MenuScene::MenuScene()
 {
   clock.reset(5000);
