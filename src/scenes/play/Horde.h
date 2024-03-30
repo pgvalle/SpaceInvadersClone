@@ -16,6 +16,11 @@ private:
 
     Invader(int col, int row);
 
+    int getScoreValue() const
+    {
+      return 10 * (3 - type);
+    }
+
     SDL_Rect getHitbox() const;
 
     void move(int xOff, int yOff);

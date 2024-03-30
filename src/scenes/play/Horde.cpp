@@ -1,4 +1,5 @@
 #include "Horde.h"
+#include "app/App.h"
 #include "defines.h"
 
 
@@ -29,6 +30,8 @@ Explosion Horde::checkAndProcessHit(const SDL_Rect& hitbox)
       // update horde movement delay
       const Uint32 newDelay = invaders.size() * 16;
       delayer.reset(newDelay);
+      // sum score value
+      app->score += invader.getScoreValue();
       // return explosion to be processed
       return Explosion(invader.x, invader.y, 100, {32, 24, 13, 8});
     }
