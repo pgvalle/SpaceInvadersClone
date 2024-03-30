@@ -88,6 +88,7 @@ void PlayScene::update()
 
     for (int i = 0; i < explosions.size(); i++)
     {
+      explosions[i].update();
       if (explosions[i].hasFinished())
       {
         explosions.erase(explosions.begin() + i--);
@@ -104,10 +105,10 @@ void PlayScene::update()
 
       // collision with horde
       Explosion explosion = horde.checkAndProcessHit(shotRect);
+      explosions.push_back(explosion);
       if (!explosion.hasFinished()) // valid explosion. Collision occurred
       {
         marcelo.erase(marcelo.begin() + i--);
-        explosions.push_back(explosion);
 
         continue;
       }

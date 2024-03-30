@@ -11,6 +11,13 @@ private:
 public:
   Timer(); // default constructor
 
+  Timer &operator=(const Timer &other)
+  {
+    dt = other.dt;
+    timeout = other.timeout;
+    return *this;
+  }
+
   bool hasTimedOut() const
   {
     return timeout <= dt;
