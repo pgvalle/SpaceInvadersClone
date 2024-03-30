@@ -70,7 +70,7 @@ void MenuScene::render()
     break;
 
   case IDLE:
-  
+    
     break;
 
   default:
