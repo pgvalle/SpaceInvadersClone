@@ -57,6 +57,8 @@ void UFO::update()
     {
       state = DYING2; // now we show it's score value
       clock.reset(2000);
+      
+      app->score += scoreValue;
     }
 
     break;
