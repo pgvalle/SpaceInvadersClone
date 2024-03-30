@@ -8,24 +8,25 @@
 struct Horde {
 private:
   Timer frozen_timer;
-  int xrel, xrel_count;
+  int xrel, xrelCount;
 
-  void update_starting();
+  void updateStarting();
 
-  void update_moving();
+  void updateMoving();
 
 public:
   enum State {
     STARTING,
     MOVING
   } state;
+
   std::vector<Invader> invaders;
 
   Horde();
 
-  void freeze_temporarily(); // when an invader is shot
+  void freezeTemporarily(); // when an invader is shot
   
-  bool is_finished();
+  bool isFinished();
 
   void update();
   void render();
