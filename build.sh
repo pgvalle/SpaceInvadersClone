@@ -3,7 +3,7 @@
 # Specify the directory containing your .cpp files
 SOURCE_DIR="src"
 BUILD_DIR="build"
-FLAGS="-O3 -Wall -DNDEBUG -I$SOURCE_DIR $(pkg-config --cflags sdl2 SDL2_image SDL2_ttf)"
+FLAGS="-O3 -Wall -DNDEBUG -std=c++17 -I$SOURCE_DIR $(pkg-config --cflags sdl2 SDL2_image SDL2_ttf)"
 LIBS="$(pkg-config --libs sdl2 SDL2_image SDL2_ttf)"
 
 find_src_files() {
