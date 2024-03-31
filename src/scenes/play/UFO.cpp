@@ -22,8 +22,9 @@ UFO::UFO()
 
 bool UFO::checkAndProcessHit(const SDL_Rect &hitbox)
 {
-  const SDL_Rect ufo = {x + 4, Y, 16, 8};
+  if (state != ALIVE) return false;
 
+  const SDL_Rect ufo = {x + 4, Y, 16, 8};
   const bool hit = SDL_HasIntersection(&hitbox, &ufo);
   if (hit)
   {
