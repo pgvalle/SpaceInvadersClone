@@ -47,7 +47,7 @@ PlayScene::PlayScene()
   ufoClock.reset(5000);
 
   cannon = nullptr;
-  cannonLives = 4;
+  cannonLives = 3;
   cannonShootingClock.reset(1500);
 }
 
@@ -73,7 +73,6 @@ void PlayScene::update()
     {
       state = PLAYING;
       cannon = new Cannon();
-      cannonLives--;
     }
 
     break; 
@@ -102,12 +101,11 @@ void PlayScene::update()
     // shots update and collision checks
     for (size_t i = 0; i < shots.size(); i++)
     {
-      Shot& shot = shots[i];
-      const SDL_Rect shotRect = { shot.x, shot.y, 1, 8 };
-      shot.update();
+      shots[i].update();
+      const SDL_Rect shotRectA = {shots[i].x, shots[i].y, 1, 8};
 
       // collision with horde
-      Explosion explosion = horde.checkAndProcessHit(shotRect);
+      Explosion explosion = horde.checkAndProcessHit(shotRectA);
       explosions.push_back(explosion);
       if (!explosion.hasFinished()) // valid explosion. Collision occurred
       {
@@ -116,7 +114,7 @@ void PlayScene::update()
       }
 
       // collision with ufo
-      if (ufo && ufo->checkAndProcessHit(shotRect))
+      if (ufo && ufo->checkAndProcessHit(shotRectA))
       {
         shots.erase(shots.begin() + i--);
         continue;
@@ -124,32 +122,41 @@ void PlayScene::update()
 
       // collision with player
 
+      // collision with top or bottom of world
 
-      // collision with other shot
 
+      // collision with other shots
+      for (size_t j = i + 1; j < shots.size(); j++)
+      {
+        const SDL_Rect shotRectB = { shots[j].x, shots[j].y, 1, 8 };
+        if (SDL_HasIntersection(&shotRectA, &shotRectB))
+        {
+          explosions.erase(explosions.begin() + i--);
+          explosions.erase(explosions.begin() + j - 1);
+          break;
+        }
+      }
     }
 
     break;
   case DELAYING:
-    if (cannon)
+    if (cannon->isDead())
     {
-      cannon->update();
-      if (cannon->isDead())
-      {
-        delete cannon;
-        cannon = nullptr;
-        delayer.reset(3000); // wait 3 seconds after cannon death
-      }
+      delayer.update();
+      if (!delayer.hasTimedOut()) break;
+      
+      state = PLAYING;
+      delete cannon;
+      cannon = new Cannon();      
     }
     else
     {
-      delayer.update();
-      if (delayer.hasTimedOut())
-      {
-        state = PLAYING;
-        cannon = new Cannon();
-        cannonLives--;
-      }
+      // not dead but may be dead after update
+      cannon->update();
+      if (!cannon->isDead()) break;
+
+      delayer.reset(2000); // wait 3 seconds after cannon death
+      cannonLives--;
     }
 
     break;
@@ -173,25 +180,13 @@ void PlayScene::render()
     explosion.render();
   }
 
-  switch (state)
-  {
-  char livesFmt[2];
-
-  case STARTING:
-    // rendered here so that we don't actually start displaying 4
-    livesFmt[0] = (char)(cannonLives - 1) + '0';
-    app->renderText(TILE, HEIGHT - 2 * TILE, livesFmt);
-
-    break;
-  default:
-    livesFmt[0] = (char)cannonLives + '0';
-    app->renderText(TILE, HEIGHT - 2 * TILE, livesFmt);
-  }
-
-  // render cannons
   const int cannonsY = HEIGHT - 2 * TILE;
   for (int i = 0; i < cannonLives - 1; i++)
   {
     app->renderClip(3 * TILE + 16 * i, cannonsY, {0, 8, 16, 8});
   }
+
+  char livesFmt[2];
+  livesFmt[0] = (char)cannonLives + '0';
+  app->renderText(TILE, HEIGHT - 2 * TILE, livesFmt);
 }
