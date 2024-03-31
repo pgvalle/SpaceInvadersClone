@@ -121,9 +121,21 @@ void PlayScene::update()
       }
 
       // collision with player
+      // if (cannon && cannon->checkAndProcessHit(shotRectA))
+      // {
+      //   shots.erase(shots.begin() + i--);
+      //   // explosion here as well
+      //   continue;
+      // }
 
       // collision with top or bottom of world
-
+      if (shotRectA.y <= 4 * TILE)
+      {
+        shots.erase(shots.begin() + i--);
+        Explosion e(shotRectA.x - 3, 4 * TILE, 200, {36, 24, 8, 8});
+        explosions.push_back(e);
+        continue;
+      }
 
       // collision with other shots
       for (size_t j = i + 1; j < shots.size(); j++)
@@ -131,8 +143,9 @@ void PlayScene::update()
         const SDL_Rect shotRectB = { shots[j].x, shots[j].y, 1, 8 };
         if (SDL_HasIntersection(&shotRectA, &shotRectB))
         {
-          explosions.erase(explosions.begin() + i--);
-          explosions.erase(explosions.begin() + j - 1);
+          shots.erase(shots.begin() + i--);
+          shots.erase(shots.begin() + j - 1);
+          // explosion for each shot
           break;
         }
       }
