@@ -5,7 +5,6 @@
 // for time measurement inside mainLoop
 static int64_t before = 0, beforeEvent = 0, timeout = FRAMERATE;
 
-
 bool waitEventWithTimeout()
 {
   // only positive time makes sense
@@ -14,7 +13,6 @@ bool waitEventWithTimeout()
   app->event.type = 0;
   return SDL_WaitEventTimeout(&app->event, timeout);
 }
-
 
 void App::mainLoop()
 {
