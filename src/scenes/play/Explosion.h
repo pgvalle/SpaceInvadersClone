@@ -4,12 +4,14 @@
 #include "utils/Timer.h"
 
 
-struct Explosion
+class Explosion
 {
+private:
   int x, y;
   SDL_Rect clip;
   Timer clock;
 
+public:
   Explosion(int x, int y, Uint32 lifespan, const SDL_Rect& clip);
 
   bool hasFinished() const;
