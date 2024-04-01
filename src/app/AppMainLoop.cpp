@@ -1,6 +1,8 @@
 #include "app/App.h"
 #include "defines.h"
 
+#include <stdio.h>
+
 
 // for time measurement inside mainLoop
 static int64_t before = 0, beforeEvent = 0, timeout = FRAMERATE;
