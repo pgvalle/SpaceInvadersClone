@@ -35,9 +35,12 @@ private:
 
   void updatePlayerShooting();
 
-  std::vector<Shot> shots;
+  // dynamic collections
 
+  std::vector<Shot> shots; // collide with stuff and create explosions
   std::vector<Explosion> explosions;
+
+  void updateDynamicCollections();
 
 public:
   PlayScene();

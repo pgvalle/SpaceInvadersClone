@@ -25,18 +25,6 @@ void PlayScene::updateUFO()
   }
 }
 
-void PlayScene::updatePlayerShooting()
-{
-  if (!cannonShootingClock.hasTimedOut())
-  {
-    cannonShootingClock.update();
-  }
-  else if (app->isKeyPressed(SDL_SCANCODE_SPACE))
-  {
-    shots.push_back(cannon->shoot());
-    cannonShootingClock.reset();
-  }
-}
 
 PlayScene::PlayScene()
 {
@@ -88,68 +76,7 @@ void PlayScene::update()
       state = DELAYING;
     }
 
-    for (size_t i = 0; i < explosions.size(); i++)
-    {
-      explosions[i].update();
-      if (explosions[i].hasFinished())
-      {
-        explosions.erase(explosions.begin() + i--);
-        continue;
-      }
-    }
-
-    // shots update and collision checks
-    for (size_t i = 0; i < shots.size(); i++)
-    {
-      shots[i].update();
-      const SDL_Rect shotRectA = {shots[i].x, shots[i].y, 1, 8};
-
-      // collision with horde
-      Explosion explosion = horde.checkAndProcessHit(shotRectA);
-      explosions.push_back(explosion);
-      if (!explosion.hasFinished()) // valid explosion. Collision occurred
-      {
-        shots.erase(shots.begin() + i--);
-        continue;
-      }
-
-      // collision with ufo
-      if (ufo && ufo->checkAndProcessHit(shotRectA))
-      {
-        shots.erase(shots.begin() + i--);
-        continue;
-      }
-
-      // collision with player
-      // if (cannon && cannon->checkAndProcessHit(shotRectA))
-      // {
-      //   shots.erase(shots.begin() + i--);
-      //   // explosion here as well
-      //   continue;
-      // }
-
-      // collision with top or bottom of world
-      if (shotRectA.y <= 4 * TILE)
-      {
-        shots.erase(shots.begin() + i--);
-        Explosion e(shotRectA.x - 3, 4 * TILE, 200, {36, 24, 8, 8});
-        explosions.push_back(e);
-        continue;
-      }
-
-      // collision with other shots
-      for (size_t j = i + 1; j < shots.size(); j++)
-      {
-        const SDL_Rect shotRectB = { shots[j].x, shots[j].y, 1, 8 };
-        if (SDL_HasIntersection(&shotRectA, &shotRectB))
-        {
-          shots.erase(shots.begin() + i--);
-          shots.erase(shots.begin() + j - 1);
-          // explosion for each shot
-          break;
-        }
-      }
-    }
+    updateDynamicCollections();
 
     break;
   case DELAYING:
