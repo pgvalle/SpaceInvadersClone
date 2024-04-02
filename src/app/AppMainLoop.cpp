@@ -67,6 +67,10 @@ void App::update()
   //fflush(stdout);
 }
 
+#include "utils/Timer.h"
+
+static Timer t1, t2;
+static char JesusIs[7] = " LORD"; 
 void App::render()
 {
   SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
@@ -74,9 +78,21 @@ void App::render()
 
   static char valueFmt[27];
 
-  renderText(TILE, TILE, "SCORE<1> HI-SCORE JESUS LU");
+  renderText(TILE, TILE, "SCORE<1> HI-SCORE JESUS IS");
 
-  sprintf(valueFmt, "%06d   %06d   S2S2S2", score, hiScore);
+  sprintf(valueFmt, "%06d   %06d", score, hiScore);
+  t1.update();
+  if (t1.hasTimedOut())
+  {
+    sprintf(valueFmt, "%06d   %06d   %s", score, hiScore, JesusIs);
+    t2.update();
+    if (t2.hasTimedOut())
+    {
+      sprintf(JesusIs, "%s", JesusIs[0] == 'S' ? "SAVIOR" : " LORD");
+      t1.reset(1000);
+      t2.reset(1000);
+    }
+  }
   renderText(2 * TILE, 3 * TILE, valueFmt);
 
   // credits
