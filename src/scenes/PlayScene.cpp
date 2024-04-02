@@ -100,6 +100,8 @@ void PlayScene::update()
     }
 
     break;
+  default:
+    assert(0 && "Not implemented");
   }
 }
 
