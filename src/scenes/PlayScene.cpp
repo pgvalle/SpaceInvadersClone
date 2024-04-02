@@ -105,6 +105,11 @@ void PlayScene::update()
 
 void PlayScene::render()
 {
+  for (Bunker& bunker : bunkers)
+  {
+    bunker.render();
+  }
+
   horde.render();
 
   if (ufo) ufo->render();

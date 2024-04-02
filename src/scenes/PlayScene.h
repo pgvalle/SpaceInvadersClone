@@ -1,10 +1,11 @@
 #pragma once
 
 #include "Scene.h"
-#include "./play/Horde.h"
-#include "./play/UFO.h"
-#include "./play/Cannon.h"
 #include "./play/Shot.h"
+#include "./play/UFO.h"
+#include "./play/Horde.h"
+#include "./play/Bunker.h"
+#include "./play/Cannon.h"
 
 
 class PlayScene : public Scene
@@ -28,6 +29,8 @@ private:
 
   Horde horde;
   Timer hordeShootingClock;
+
+  Bunker bunkers[4];
 
   Cannon* cannon;
   int cannonLives;
