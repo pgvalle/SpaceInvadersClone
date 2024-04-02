@@ -4,7 +4,10 @@
 void App::changeScene(Scene* newScene)
 {
   // overwrite if already wanted to change scene
-  if (nextScene) delete nextScene;
+  if (nextScene)
+  {
+    delete nextScene;
+  }
 
   nextScene = newScene;
 }

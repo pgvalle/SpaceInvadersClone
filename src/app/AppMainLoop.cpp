@@ -45,7 +45,10 @@ void App::processEvent()
     delete scene;
     scene = nullptr;
   }
-  else scene->processEvent();
+  else
+  {
+    scene->processEvent();
+  }
 
   const int64_t eventDt = SDL_GetTicks() - beforeEvent;
   beforeEvent += eventDt;

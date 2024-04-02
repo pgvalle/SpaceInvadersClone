@@ -14,7 +14,10 @@ App *app = nullptr;
 void App::start()
 {
   // only run if not run before
-  if (app) return;
+  if (app)
+  {
+    return;
+  }
 
   app = new App();
   app->mainLoop();
