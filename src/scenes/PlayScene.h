@@ -1,11 +1,11 @@
 #pragma once
 
 #include "Scene.h"
-#include "./play/Shot.h"
-#include "./play/UFO.h"
-#include "./play/Horde.h"
-#include "./play/Bunker.h"
-#include "./play/Cannon.h"
+#include "entities/Shot.h"
+#include "entities/UFO.h"
+#include "entities/Horde.h"
+#include "entities/Bunker.h"
+#include "entities/Cannon.h"
 
 
 class PlayScene : public Scene
