@@ -74,7 +74,15 @@ Bunker::Bunker()
 
 bool Bunker::checkAndProcessHit(const SDL_Rect &hitbox)
 {
-  return false;
+  // pre-clip
+  if (!SDL_HasIntersection(&hitbox, &outerBounds))
+  {
+    return false;
+  }
+
+  // check where
+  // process collision
+  return true;
 }
 
 void Bunker::render() const
