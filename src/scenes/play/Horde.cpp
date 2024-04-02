@@ -17,7 +17,7 @@ Shot Horde::shoot() const
   return {invader.x + 5, invader.y + 8, 3};
 }
 
-bool Horde::checkAndProcessHit(const SDL_Rect& hitbox)
+Explosion Horde::checkAndProcessHit(const SDL_Rect& hitbox)
 {
   for (size_t i = 0; i < invaders.size(); i++)
   {
@@ -32,13 +32,13 @@ bool Horde::checkAndProcessHit(const SDL_Rect& hitbox)
       delayer.reset(newDelay);
       // sum score value
       app->score += invader.getScoreValue();
-
-      return true;
+      // return explosion to be processed
+      return Explosion(invader.x, invader.y, 200, {24, 32, 13, 8});
     }
   }
 
-  // not much going on here
-  return false;
+  // invalid explosion. No collision happened
+  return Explosion(0, 0, 0, {0, 0, 0, 0});
 }
 
 void Horde::update()
