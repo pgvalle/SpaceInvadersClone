@@ -9,10 +9,10 @@ class Bunker
 {
 private:
   SDL_Rect outerBounds;
-  bool points[352];
+  bool bits[352];
 
 public:
-  Bunker(int x, int y);
+  Bunker();
 
   bool checkAndProcessHit(const SDL_Rect &hitbox);
   void render() const;

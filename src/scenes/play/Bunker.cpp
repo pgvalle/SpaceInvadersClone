@@ -4,34 +4,37 @@
 #include <string.h>
 
 
-Bunker::Bunker(int x, int y)
+static int x = 32;
+
+Bunker::Bunker()
 {
-  outerBounds = {x, y, 22, 16};
+  outerBounds = {x, 192, 22, 16};
+  x += 46;
 
   // enable every point
-  memset(points, true, 352);
+  memset(bits, true, 352);
 
-  points[293] = points[300] = false;
+  bits[293] = bits[300] = false;
 
   // top edges
   for (int i = 3; i >= 0; i--)
   {
     for (int j = 0; j < 4 - i; j++)
     {
-      points[22 * i + j] = points[22 * i - j + 21] = false;
+      bits[22 * i + j] = bits[22 * i - j + 21] = false;
     }
   }
 
   // dunno
   for (int i = 8; i < 14; i++)
   {
-    points[264 + i] = points[286 + i] = false;
+    bits[264 + i] = bits[286 + i] = false;
   }
 
   // dunno
   for (int i = 6; i < 16; i++)
   {
-    points[308 + i] = points[330 + i] = false;
+    bits[308 + i] = bits[330 + i] = false;
   }
 
   /*out_rect = (SDL_Rect){ x, y, 22, 16 };
@@ -69,20 +72,22 @@ Bunker::Bunker(int x, int y)
     }*/
 }
 
-bool checkAndProcessHit(const SDL_Rect &hitbox)
+bool Bunker::checkAndProcessHit(const SDL_Rect &hitbox)
 {
   return false;
 }
 
-void render() const
+void Bunker::render() const
 {
   SDL_Point points[352];
-  for (int p = 0; p < 352; p++)
+  for (int i = 0; i < 352; i++)
   {
-    const int xOff = p % 22;
-    const int yOff = p / 22;
-    points[p] = {outerBounds.x + xOff, outerBounds.y + yOff};
+    const int x = outerBounds.x + i % 22;
+    const int y = outerBounds.y + i / 22;
+    if (bits[i]) points[i] = {x, y};
+    else points[i] = {-1, -1};
   }
 
-  SDL_RenderDrawPoints(renderer, points, 352);
+  SDL_SetRenderDrawColor(app->renderer, 32, 255, 32, 255);
+  SDL_RenderDrawPoints(app->renderer, points, 352);
 }
