@@ -47,7 +47,7 @@ public:
     return invaders.empty();
   }
 
-  Explosion checkAndProcessHit(const SDL_Rect& hitbox);
+  bool checkAndProcessHit(const SDL_Rect& hitbox);
 
 
   void update();
