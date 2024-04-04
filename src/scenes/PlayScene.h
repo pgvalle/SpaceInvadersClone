@@ -22,10 +22,7 @@ private:
 
   Timer delayer;
 
-  UFO* ufo;
-  Timer ufoClock;
-
-  void updateUFO();
+  UFO ufo;
 
   Horde horde;
   Timer hordeShootingClock;
@@ -43,7 +40,8 @@ private:
   std::vector<Shot> shots; // collide with stuff and create explosions
   std::vector<Explosion> explosions;
 
-  void updateDynamicCollections();
+  void updateShotsAndCollisions();
+  void updateExplosions();
 
 public:
   PlayScene();

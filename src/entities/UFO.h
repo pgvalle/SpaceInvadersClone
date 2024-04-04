@@ -8,22 +8,19 @@ struct UFO
 private:
   enum State
   {
+    AWAY,
     ALIVE,
     DYING1, // showing death animation
     DYING2, // show its score value
     DEAD    // they are in a better place
   } state;
+  Timer clock;
+
   int x, xVel;
   int scoreValue;
-  Timer clock; // for spawn, motion and death
 
 public:
   UFO();
-
-  bool isDead() const
-  {
-    return state == DEAD;
-  }
 
   bool checkAndProcessHit(const SDL_Rect &hitbox);
 

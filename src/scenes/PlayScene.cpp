@@ -5,27 +5,6 @@
 #include <stdio.h>
 
 
-void PlayScene::updateUFO()
-{
-  if (ufo)
-  {
-    ufo->update();
-    if (!ufo->isDead()) return;
-
-    delete ufo;
-    ufo = nullptr;
-    ufoClock.reset(5000);
-  }
-  else
-  {
-    ufoClock.update();
-    if (!ufoClock.hasTimedOut()) return;
-
-    ufo = new UFO();
-  }
-}
-
-
 PlayScene::PlayScene()
 {
   state = STARTING;
@@ -36,7 +15,7 @@ PlayScene::PlayScene()
 
   cannon = nullptr;
   cannonLives = 3;
-  cannonShootingClock.reset(1500);
+  cannonShootingClock.reset(1000);
 }
 
 PlayScene::~PlayScene()
@@ -66,7 +45,7 @@ void PlayScene::update()
     break; 
   case PLAYING:
     updatePlayerShooting();
-    updateUFO();
+    ufo.update();
 
     horde.update();
 
