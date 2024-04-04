@@ -16,9 +16,8 @@ void PlayScene::updatePlayerShooting()
   }
 }
 
-void PlayScene::updateDynamicCollections()
+void PlayScene::updateExplosions()
 {
-  // explosions
   for (size_t i = 0; i < explosions.size(); i++)
   {
     explosions[i].update();
@@ -27,7 +26,10 @@ void PlayScene::updateDynamicCollections()
       explosions.erase(explosions.begin() + i--);
     }
   }
+}
 
+void PlayScene::updateShotsAndCollisions()
+{
   // shots (they generate explosions)
   for (size_t i = 0; i < shots.size(); i++)
   {

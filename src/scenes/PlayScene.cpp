@@ -55,7 +55,8 @@ void PlayScene::update()
       state = DELAYING;
     }
 
-    updateDynamicCollections();
+    updateExplosions();
+    updateShotsAndCollisions();
 
     break;
   case DELAYING:
