@@ -36,10 +36,10 @@ for /r "%source_dir%" %%f in (*.cpp) do (
             if errorlevel 1 (
                 echo Compilation failed for file: "%%f"
             ) else (
-                echo Compiled: "%%f" -^> "%output_dir%\!filename!.obj"
+                echo Compiled "%%f"
             )
         ) else (
-            echo No changes detected for file: "%%f"
+            echo No changes detected in "%%f"
         )
     ) else (
         rem Compile the file if the object file doesn't exist
@@ -49,7 +49,7 @@ for /r "%source_dir%" %%f in (*.cpp) do (
         if errorlevel 1 (
             echo Compilation failed for file: "%%f"
         ) else (
-            echo Compiled: "%%f" -^> "%output_dir%\!filename!.obj"
+            echo Compiled "%%f"
         )
     )
 )
