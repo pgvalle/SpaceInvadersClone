@@ -49,7 +49,7 @@ void PlayScene::updateShotsAndCollisions()
     }
     
     // collision with ufo
-    if (ufo && ufo->checkAndProcessHit(shotHB))
+    if (ufo.checkAndProcessHit(shotHB))
     {
       shots.erase(shots.begin() + i--);
       continue;

@@ -10,9 +10,6 @@ PlayScene::PlayScene()
   state = STARTING;
   delayer.reset(2500);
 
-  ufo = nullptr;
-  ufoClock.reset(5000);
-
   cannon = nullptr;
   cannonLives = 3;
   cannonShootingClock.reset(1000);
@@ -92,9 +89,8 @@ void PlayScene::render()
     bunker.render();
   }
 
+  ufo.render();
   horde.render();
-
-  if (ufo) ufo->render();
   if (cannon) cannon->render();
 
   for (const Shot& shot : shots)
