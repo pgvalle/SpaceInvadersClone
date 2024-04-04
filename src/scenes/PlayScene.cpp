@@ -41,6 +41,8 @@ void PlayScene::update()
 
     break; 
   case PLAYING:
+    updateExplosions();
+    updateShotsAndCollisions();
     updatePlayerShooting();
     ufo.update();
 
@@ -51,9 +53,6 @@ void PlayScene::update()
     {
       state = DELAYING;
     }
-
-    updateExplosions();
-    updateShotsAndCollisions();
 
     break;
   case DELAYING:
