@@ -41,8 +41,10 @@ void PlayScene::update()
 
     break; 
   case PLAYING:
+    // update these first
     updateExplosions();
     updateShotsAndCollisions();
+
     updatePlayerShooting();
     ufo.update();
 

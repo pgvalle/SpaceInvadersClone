@@ -47,7 +47,7 @@ void PlayScene::updateShotsAndCollisions()
         continue;
       }
     }
-    
+
     // collision with ufo
     if (ufo.checkAndProcessHit(shotHB))
     {
@@ -66,8 +66,7 @@ void PlayScene::updateShotsAndCollisions()
     // collision with top of world
     if (shotHB.y <= 4 * TILE)
     {
-      Explosion e(shotHB.x - 3, 4 * TILE, 200, {36, 24, 8, 8});
-      explosions.push_back(e);
+      explosions.push_back({shotHB.x - 3, 4 * TILE, 200, {36, 24, 8, 8}});
       shots.erase(shots.begin() + i--);
       continue;
     }
@@ -82,10 +81,12 @@ void PlayScene::updateShotsAndCollisions()
       if (SDL_HasIntersection(&shotHB, &shot2HB))
       {
         // erase both shots and create explosion accordingly
+        // shot1
+        explosions.push_back({shotHB.x - 3, shotHB.y, 200, {36, 24, 8, 8}})
         shots.erase(shots.begin() + i--);
-        // explosion for shot  ...
+        // shot2
+        explosions.push_back({shot2HB.x - 3, shot2HB.y, 200, {36, 24, 8, 8}})
         shots.erase(shots.begin() + j - 1);
-        // explosion for shot2 ...
         break;
       }
     }
