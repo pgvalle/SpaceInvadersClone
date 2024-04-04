@@ -22,6 +22,7 @@ void App::start()
   app = new App();
   app->mainLoop();
   delete app;
+  app = nullptr;
 }
 
 
