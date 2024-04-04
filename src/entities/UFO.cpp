@@ -36,6 +36,7 @@ void UFO::update()
     clock.update();
     if (clock.hasTimedOut())
     {
+      state = ALIVE;
       // randomly choose a corner
       const bool left = rand() % 2;
       x = left ? TILE : (24 * TILE);
