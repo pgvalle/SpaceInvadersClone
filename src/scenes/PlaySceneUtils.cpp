@@ -82,10 +82,10 @@ void PlayScene::updateShotsAndCollisions()
       {
         // erase both shots and create explosion accordingly
         // shot1
-        explosions.push_back({shotHB.x - 3, shotHB.y, 200, {36, 24, 8, 8}})
+        explosions.push_back({shotHB.x - 3, shotHB.y, 200, {36, 24, 8, 8}});
         shots.erase(shots.begin() + i--);
         // shot2
-        explosions.push_back({shot2HB.x - 3, shot2HB.y, 200, {36, 24, 8, 8}})
+        explosions.push_back({shot2HB.x - 3, shot2HB.y, 200, {36, 24, 8, 8}});
         shots.erase(shots.begin() + j - 1);
         break;
       }
