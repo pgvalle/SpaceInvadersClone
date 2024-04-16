@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # make sure to run script in rootdir
-cd "$0\.."
+cd $(dirname $0)
 
 # Specify the directory containing your .cpp files
 SOURCE_DIR="src"
