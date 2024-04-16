@@ -8,7 +8,6 @@
 
 void run();
 
-
 // globals
 
 extern SDL_Renderer *renderer;
@@ -17,7 +16,6 @@ extern int score, hiScore, coins;
 
 extern SDL_Event event;
 extern Uint32 dt;
-
 
 // utils
 
