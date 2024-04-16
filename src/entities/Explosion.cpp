@@ -22,5 +22,5 @@ void Explosion::update()
 
 void Explosion::render() const
 {
-  app->renderClip(x, y, clip);
+  renderClip(x, y, clip);
 }

@@ -31,7 +31,7 @@ Explosion Horde::checkAndProcessHit(const SDL_Rect& hitbox)
       const Uint32 newDelay = invaders.size() * 16;
       delayer.reset(newDelay);
       // sum score value
-      app->score += invader.getScoreValue();
+      score += invader.getScoreValue();
       // return explosion to be processed
       return Explosion(invader.x, invader.y, 200, {24, 32, 13, 8});
     }

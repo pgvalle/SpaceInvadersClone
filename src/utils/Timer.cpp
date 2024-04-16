@@ -3,21 +3,21 @@
 
 Timer::Timer()
 {
-  dt = 0;
+  elapsed = 0;
   timeout = 0;
 }
 
 void Timer::update()
 {
-  if (dt < timeout)
+  if (elapsed < timeout)
   {
-    dt += app->dt;
+    elapsed += dt;
   }
 }
 
 void Timer::reset(Uint32 newTimeout)
 {
-  dt = 0;
+  elapsed = 0;
   if (newTimeout != 0)
   {
     timeout = newTimeout;

@@ -15,7 +15,7 @@ int main(int argc, char **argv)
 
   srand(time(NULL));
 
-  App::start();
+  run();
 
   IMG_Quit();
   TTF_Quit();

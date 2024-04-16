@@ -9,7 +9,7 @@ void PlayScene::updatePlayerShooting()
   {
     cannonShootingClock.update();
   }
-  else if (app->isKeyPressed(SDL_SCANCODE_SPACE))
+  else if (isKeyPressed(SDL_SCANCODE_SPACE))
   {
     shots.push_back(cannon->shoot());
     cannonShootingClock.reset();

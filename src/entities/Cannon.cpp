@@ -37,11 +37,11 @@ void Cannon::update()
   switch (state)
   {
   case ALIVE:
-    if (app->isKeyPressed(SDL_SCANCODE_LEFT))
+    if (isKeyPressed(SDL_SCANCODE_LEFT))
     {
       x -= (x > 14 ? 2 : 0);
     }
-    if (app->isKeyPressed(SDL_SCANCODE_RIGHT))
+    if (isKeyPressed(SDL_SCANCODE_RIGHT))
     {
       x += (x < WIDTH - 31 ? 2 : 0);
     }
@@ -73,10 +73,10 @@ void Cannon::render() const
   switch (state)
   {
   case ALIVE:
-    app->renderClip(x, Y, {0, 8, 16, 8});
+    renderClip(x, Y, {0, 8, 16, 8});
     break;
   case DYING:
-    app->renderClip(x, Y, {16 + 16 * deathFrame, 8, 16, 8});
+    renderClip(x, Y, {16 + 16 * deathFrame, 8, 16, 8});
     break;
   case DEAD:
     break;

@@ -26,7 +26,7 @@ void MenuScene::update()
   clock.update();
   if (clock.hasTimedOut())
   {
-    app->changeScene(new PlayScene());
+    changeScene(new PlayScene());
   }
 }
 

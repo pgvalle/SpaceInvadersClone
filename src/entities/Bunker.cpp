@@ -96,6 +96,6 @@ void Bunker::render() const
     else points[i] = {-1, -1};
   }
 
-  SDL_SetRenderDrawColor(app->renderer, 32, 255, 32, 255);
-  SDL_RenderDrawPoints(app->renderer, points, 352);
+  SDL_SetRenderDrawColor(renderer, 32, 255, 32, 255);
+  SDL_RenderDrawPoints(renderer, points, 352);
 }

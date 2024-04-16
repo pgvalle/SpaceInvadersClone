@@ -39,5 +39,5 @@ void Horde::Invader::render() const
   if (type == 2) clip.y = 32;
   else if (type == 1) clip.y = 24;
 
-  app->renderClip(x, y, clip);
+  renderClip(x, y, clip);
 }

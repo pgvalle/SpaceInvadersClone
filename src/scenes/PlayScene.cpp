@@ -107,10 +107,10 @@ void PlayScene::render()
   const int cannonsY = HEIGHT - 2 * TILE;
   for (int i = 0; i < cannonLives - 1; i++)
   {
-    app->renderClip(3 * TILE + 16 * i, cannonsY, {0, 8, 16, 8});
+    renderClip(3 * TILE + 16 * i, cannonsY, {0, 8, 16, 8});
   }
 
   char livesFmt[2];
   livesFmt[0] = (char)cannonLives + '0';
-  app->renderText(TILE, HEIGHT - 2 * TILE, livesFmt);
+  renderText(TILE, HEIGHT - 2 * TILE, livesFmt);
 }

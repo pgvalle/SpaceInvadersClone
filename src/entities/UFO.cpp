@@ -71,7 +71,7 @@ void UFO::update()
       state = DYING2; // now we show it's score value
       clock.reset(2000);
       // sum score value
-      app->score += scoreValue;
+      score += scoreValue;
     }
     break;
   case DYING2:
@@ -93,15 +93,15 @@ void UFO::render() const
   switch (state)
   {
   case ALIVE:
-    app->renderClip(x, Y, {0, 0, 24, 8});
+    renderClip(x, Y, {0, 0, 24, 8});
     break;
   case DYING1:
-    app->renderClip(x, Y, {24, 0, 24, 8});
+    renderClip(x, Y, {24, 0, 24, 8});
     break;
   case DYING2:
     char scoreFmt[4];
     sprintf(scoreFmt, "%3d", scoreValue);
-    app->renderText(x, Y, scoreFmt, {0xD8, 0x20, 0x20});
+    renderText(x, Y, scoreFmt, {0xD8, 0x20, 0x20});
     break;
   default:
     break;

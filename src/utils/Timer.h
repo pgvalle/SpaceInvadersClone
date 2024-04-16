@@ -6,14 +6,14 @@
 class Timer
 {
 private:
-  Uint32 dt, timeout;
+  Uint32 elapsed, timeout;
 
 public:
   Timer(); // default constructor
 
   bool hasTimedOut() const
   {
-    return timeout <= dt;
+    return timeout <= elapsed;
   }
 
   void update();
