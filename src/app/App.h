@@ -1,58 +1,48 @@
 #pragma once
 
 #include "scenes/Scene.h"
+
 #include <SDL.h>
 #include <SDL_ttf.h>
 
 
-class App
-{
-public:
-  static void start();
+void run();
 
-  // globals
 
-  int score, hiScore, coins;
-  Uint32 dt;
+// globals
 
-  SDL_Event event;
+extern SDL_Renderer *renderer;
 
-  // utils
+extern int score, hiScore, coins;
 
-  void changeScene(Scene *newScene);
+extern SDL_Event event;
+extern Uint32 dt;
 
-  bool isKeyPressed(int key);
 
-  void renderText(int x, int y, const char *text,
-                  SDL_Color color = {255, 255, 255, 255});
-  void renderClip(int x, int y, const SDL_Rect &clip);
+// utils
 
-  SDL_Renderer *renderer;
-private:
-  // internals
+void changeScene(Scene* newScene);
 
-  Scene *scene, *nextScene; // to change scene inside a scene
-  SDL_Window *window;
+bool isKeyPressed(int key);
 
-  // assets
+void renderText(int x, int y, const char *text,
+                SDL_Color color = {255, 255, 255, 255});
+void renderClip(int x, int y, const SDL_Rect &clip);
 
-  SDL_Texture *atlas;
-  TTF_Font *font;
 
-  // not alowed to directly instantiate or destroy
+// module internals
+#ifdef APP_INTERNALS
 
-  App();
-  ~App();
+extern SDL_Window* window;
 
-  void loadAssets();
-  void freeAssets();
+// assets
+extern SDL_Texture *atlas;
+extern TTF_Font *font;
 
-  void mainLoop();
+// to change scene inside a scene
+extern Scene *scene, *nextScene;
+extern bool sceneChange;
 
-  void processEvent();
-  void update();
-  void render();
-};
+void mainLoop();
 
-// singleton
-extern App *app;
+#endif

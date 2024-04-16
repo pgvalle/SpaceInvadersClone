@@ -1,3 +1,4 @@
+#define APP_INTERNALS
 #include "app/App.h"
 #include "defines.h"
 
@@ -9,34 +10,26 @@
 #include <SDL_image.h>
 
 
-App *app = nullptr;
+// in header
 
-void App::start()
+SDL_Renderer *renderer;
+
+int score, hiScore, coins;
+
+SDL_Event event;
+Uint32 dt;
+
+SDL_Window* window;
+
+SDL_Texture *atlas;
+TTF_Font *font;
+
+Scene *scene, *nextScene;
+bool sceneChange;
+
+
+void loadAssets()
 {
-  // only run if not run before
-  if (app)
-  {
-    return;
-  }
-
-  app = new App();
-  app->mainLoop();
-  delete app;
-  app = nullptr;
-}
-
-
-App::App()
-{
-  scene = new MenuScene();
-  nextScene = nullptr;
-  score = 0;
-  hiScore = 0; // load from file
-  coins = 0; // load from file
-  dt = 0;
-
-  event.type = 0;
-
   window = SDL_CreateWindow(
       "Space Invaders Clone",
       SDL_WINDOWPOS_CENTERED,
@@ -48,22 +41,6 @@ App::App()
   renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
   SDL_RenderSetLogicalSize(renderer, WIDTH, HEIGHT); // resolution independent rendering
 
-  loadAssets();
-}
-
-App::~App()
-{
-  freeAssets();
-
-  SDL_DestroyRenderer(renderer);
-  SDL_DestroyWindow(window);
-
-  // save hiScore and coins in a file
-}
-
-
-void App::loadAssets()
-{
   font = TTF_OpenFont(ASSETS_DIR "ps2p.ttf", 8);
 
   // image assets
@@ -79,14 +56,43 @@ void App::loadAssets()
     SDL_FreeSurface(surface);
   }
 
-  // audio assets
+  score = 0;
+  hiScore = 0; // load from file
+  coins = 0; // load from file
+
+  dt = 0;
+  event.type = 0;
+
+  scene = new MenuScene();
+  nextScene = nullptr;
+  sceneChange = false;
+
+  // load audio assets
 }
 
-void App::freeAssets()
+void freeAssets()
 {
-  // audio assets
+  // free audio assets
 
   SDL_DestroyTexture(atlas);
 
   TTF_CloseFont(font);
+
+  SDL_DestroyRenderer(renderer);
+  SDL_DestroyWindow(window);
+}
+
+
+bool running = false;
+
+void run()
+{
+  // only run once
+  if (!running)
+  {
+    running = true;
+    loadAssets();
+    mainLoop();
+    freeAssets();
+  }
 }

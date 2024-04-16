@@ -1,7 +1,8 @@
+#define APP_INTERNALS
 #include "app/App.h"
 
 
-void App::changeScene(Scene* newScene)
+void changeScene(Scene* newScene)
 {
   // overwrite if already wanted to change scene
   if (nextScene)
@@ -10,21 +11,22 @@ void App::changeScene(Scene* newScene)
   }
 
   nextScene = newScene;
+  sceneChange = true;
 }
 
-bool App::isKeyPressed(int key)
+bool isKeyPressed(int key)
 {
   const Uint8 *keys = SDL_GetKeyboardState(nullptr);
   return keys[key];
 }
 
-void App::renderClip(int x, int y, const SDL_Rect &clip)
+void renderClip(int x, int y, const SDL_Rect &clip)
 {
   const SDL_Rect scale = {x, y, clip.w, clip.h};
   SDL_RenderCopy(renderer, atlas, &clip, &scale);
 }
 
-void App::renderText(int x, int y, const char *text, SDL_Color color)
+void renderText(int x, int y, const char *text, SDL_Color color)
 {
   SDL_Surface *surface = TTF_RenderUTF8_Solid(font, text, color);
   SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
