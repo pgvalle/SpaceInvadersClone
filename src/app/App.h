@@ -19,6 +19,8 @@ extern Uint32 dt;
 
 // utils
 
+// passing nullptr will close game
+// calling twice in same frame is safe. Ignore previous calls.
 void changeScene(Scene* newScene);
 
 bool isKeyPressed(int key);
@@ -28,7 +30,6 @@ void renderText(int x, int y, const char *text,
 void renderClip(int x, int y, const SDL_Rect &clip);
 
 
-// module internals
 #ifdef APP_INTERNALS
 
 extern SDL_Window* window;
