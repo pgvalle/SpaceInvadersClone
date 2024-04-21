@@ -1,4 +1,5 @@
 #define APP_INTERNALS
+
 #include "app/App.h"
 #include "defines.h"
 
@@ -12,32 +13,28 @@ void render();
 // for time measurement inside mainLoop
 static int64_t before = 0, beforeEvent = 0, timeout = FRAMERATE;
 
-bool gotEventWithinTimeout()
-{
+bool gotEventWithinTimeout() {
   // only positive time makes sense
-  if (timeout < 0) timeout = 0;
+  if (timeout < 0) {
+    timeout = 0;
+  }
 
   event.type = 0;
   return SDL_WaitEventTimeout(&event, timeout);
 }
 
-void mainLoop()
-{
-  while (scene)
-  {
-    if (gotEventWithinTimeout())
-    {
+void mainLoop() {
+  while (scene) {
+    if (gotEventWithinTimeout()) {
       processEvent();
     }
-    else
-    {
+    else {
       update();
       render();
     }
 
     // process scene change, if any
-    if (sceneChange)
-    {
+    if (sceneChange) {
       delete scene;
       scene = nextScene;
       nextScene = nullptr;
@@ -46,15 +43,12 @@ void mainLoop()
   }
 }
 
-void processEvent()
-{
-  if (event.type == SDL_QUIT)
-  {
+void processEvent() {
+  if (event.type == SDL_QUIT) {
     delete scene;
     scene = nullptr;
   }
-  else
-  {
+  else {
     scene->processEvent();
   }
 
@@ -64,8 +58,7 @@ void processEvent()
   timeout -= eventDt;
 }
 
-void update()
-{
+void update() {
   scene->update();
 
   dt = SDL_GetTicks() - before;

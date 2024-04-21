@@ -1,4 +1,7 @@
 #define APP_INTERNALS
+// no need to redeclare app fields here!
+#define EXT
+
 #include "app/App.h"
 #include "defines.h"
 
@@ -10,26 +13,7 @@
 #include <SDL_image.h>
 
 
-// in header
-
-SDL_Renderer *renderer;
-
-int score, hiScore, coins;
-
-SDL_Event event;
-Uint32 dt;
-
-SDL_Window* window;
-
-SDL_Texture *atlas;
-TTF_Font *font;
-
-Scene *scene, *nextScene;
-bool sceneChange;
-
-
-void loadAssets()
-{
+void loadAssets() {
   window = SDL_CreateWindow(
       "Space Invaders Clone",
       SDL_WINDOWPOS_CENTERED,
@@ -70,8 +54,7 @@ void loadAssets()
   // load audio assets
 }
 
-void freeAssets()
-{
+void freeAssets() {
   // free audio assets
 
   SDL_DestroyTexture(atlas);
@@ -85,11 +68,8 @@ void freeAssets()
 
 bool running = false;
 
-void run()
-{
-  // only run once
-  if (!running)
-  {
+void run() {
+  if (!running) {
     running = true;
     loadAssets();
     mainLoop();
