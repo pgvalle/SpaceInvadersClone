@@ -13,7 +13,7 @@ public:
   MenuScene();
   ~MenuScene();
 
-  void processEvent();
-  void update();
-  void render();
+  void processEvent(const SDL_Event &event);
+  void update(Uint32 delta);
+  void render(SDL_Renderer *renderer);
 };
