@@ -1,25 +1,20 @@
 #pragma once
 
-// no need to declare everything in a cpp file again
-#ifndef EXT
-#define EXT extern
-#endif
-
 #include "scenes/Scene.h"
 
 #include <SDL.h>
 #include <SDL_ttf.h>
 
+// no need to declare everything in a cpp file again
+#ifndef EXT
+#define EXT extern
+#endif
+
 void run();
 
 // globals
 
-EXT SDL_Renderer *renderer;
-
 EXT int score, hiScore, coins;
-
-EXT SDL_Event event;
-EXT Uint32 dt;
 
 // utils
 
@@ -37,6 +32,7 @@ void renderClip(int x, int y, const SDL_Rect &clip);
 #ifdef APP_INTERNALS
 
 EXT SDL_Window* window;
+EXT SDL_Renderer *renderer;
 
 // assets
 EXT SDL_Texture *atlas;

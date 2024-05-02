@@ -12,7 +12,6 @@
 #include <SDL_ttf.h>
 #include <SDL_image.h>
 
-
 void loadAssets() {
   window = SDL_CreateWindow(
       "Space Invaders Clone",
@@ -44,9 +43,6 @@ void loadAssets() {
   hiScore = 0; // load from file
   coins = 0; // load from file
 
-  dt = 0;
-  event.type = 0;
-
   scene = new MenuScene();
   nextScene = nullptr;
   sceneChange = false;
@@ -65,10 +61,57 @@ void freeAssets() {
   SDL_DestroyWindow(window);
 }
 
+void mainLoop() {
+  int64_t before = 0, beforeEvent = 0, timeout = FRAMERATE;
 
-bool running = false;
+  while (scene) {
+    SDL_Event event;
+    if (SDL_WaitEventTimeout(&event, timeout)) {
+      scene->processEvent(event);
+
+      const int64_t eventDt = SDL_GetTicks() - beforeEvent;
+      beforeEvent = SDL_GetTicks();
+      // wait less next time
+      timeout -= eventDt;
+    }
+    else {
+      const int64_t dt = SDL_GetTicks() - before;
+      before = SDL_GetTicks();
+      // reset event timing
+      beforeEvent = before;
+      timeout += FRAMERATE;
+
+      SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+      SDL_RenderClear(renderer);
+
+      renderText(TILE, TILE, "SCORE<1>          HI-SCORE");
+
+      char valueFmt[27];
+      // score and high-score
+      sprintf(valueFmt, "%06d            %06d", score, hiScore);
+      renderText(2 * TILE, 3 * TILE, valueFmt);
+      // credits
+      sprintf(valueFmt, "CREDIT %02d", coins);
+      renderText(17 * TILE, HEIGHT - 2 * TILE, valueFmt);
+
+      scene->render(renderer);
+      SDL_RenderPresent(renderer);
+
+      scene->update(dt);
+    }
+
+    // process scene change, if any
+    if (sceneChange) {
+      delete scene;
+      scene = nextScene;
+      nextScene = nullptr;
+      sceneChange = false;
+    }
+  }
+}
 
 void run() {
+  static bool running = false;
   if (!running) {
     running = true;
     loadAssets();
@@ -76,3 +119,4 @@ void run() {
     freeAssets();
   }
 }
+
