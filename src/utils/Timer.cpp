@@ -7,11 +7,11 @@ Timer::Timer()
   timeout = 0;
 }
 
-void Timer::update()
+void Timer::update(Uint32 delta)
 {
   if (elapsed < timeout)
   {
-    elapsed += dt;
+    elapsed += delta;
   }
 }
 

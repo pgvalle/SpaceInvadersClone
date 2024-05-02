@@ -16,6 +16,6 @@ public:
     return timeout <= elapsed;
   }
 
-  void update();
+  void update(Uint32 delta);
   void reset(Uint32 newTimeout = 0);
 };
