@@ -28,31 +28,27 @@ void loadAssets() {
   SDL_RenderSetLogicalSize(renderer, WIDTH, HEIGHT); // resolution independent rendering
 
   // font
-  {
-    TTF_Font *font = TTF_OpenFont(ASSETS_DIR "ps2p.ttf", TILE);
-    
-    char ascii[128];
-    for (char i = 0; i < 128; i++) {
-      ascii[i] = i;
-    }
-
-    SDL_Surface *surface = TTF_RenderUTF8_Solid(font, ascii, {255, 255, 255, 255});
-    texAtlas = SDL_CreateTextureFromSurface(renderer, surface);
-    SDL_FreeSurface(surface);
+  TTF_Font *font = TTF_OpenFont(ASSETS_DIR "ps2p.ttf", TILE);
   
-    TTF_CloseFont(font);
+  char ascii[96] = "";
+  for (char i = 32; i < 127; i++) {
+    ascii[i - 32] = i;
   }
+
+  SDL_Surface *surface = TTF_RenderUTF8_Solid(font, ascii, {255, 255, 255, 255});
+  texAtlas = SDL_CreateTextureFromSurface(renderer, surface);
+  SDL_FreeSurface(surface);
+
+  TTF_CloseFont(font);
 
   // image assets
-  {
-    SDL_Surface *surface = IMG_Load(ASSETS_DIR "atlas.png");
-    atlas = SDL_CreateTextureFromSurface(renderer, surface);
-    SDL_FreeSurface(surface);
+  surface = IMG_Load(ASSETS_DIR "atlas.png");
+  atlas = SDL_CreateTextureFromSurface(renderer, surface);
+  SDL_FreeSurface(surface);
 
-    surface = SDL_LoadBMP(ASSETS_DIR "icon.bmp");
-    SDL_SetWindowIcon(window, surface);
-    SDL_FreeSurface(surface);
-  }
+  surface = SDL_LoadBMP(ASSETS_DIR "icon.bmp");
+  SDL_SetWindowIcon(window, surface);
+  SDL_FreeSurface(surface);
 
   score = 0;
   hiScore = 0; // load from file
@@ -75,6 +71,13 @@ void freeAssets() {
   SDL_DestroyWindow(window);
 }
 
+bool waitEvent(SDL_Event &event, int64_t timeout) {
+  if (timeout < 0) {
+    return false;
+  }
+  return SDL_WaitEventTimeout(&event, timeout);
+}
+
 void run() {
   // only "one run() in stack"
   static bool running = false;
@@ -89,7 +92,8 @@ void run() {
 
   while (scene) {
     SDL_Event event;
-    if (SDL_WaitEventTimeout(&event, timeout)) {
+    const bool eventDetected = timeout >= 0 && SDL_WaitEventTimeout(&event, timeout);
+    if (eventDetected) {
       scene->processEvent(event);
 
       const int64_t eventDt = SDL_GetTicks() - beforeEvent;
@@ -105,7 +109,6 @@ void run() {
       beforeEvent = before;
       timeout += FRAMERATE;
 
-      // rendering base ui stuff (globals)
       SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
       SDL_RenderClear(renderer);
 

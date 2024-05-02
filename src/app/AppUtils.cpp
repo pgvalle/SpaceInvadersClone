@@ -3,8 +3,7 @@
 #include "app/App.h"
 #include "defines.h"
 
-#include <string>
-
+#include <cstring>
 
 void changeScene(Scene* newScene) {
   if (nextScene) {
@@ -26,9 +25,10 @@ void renderClip(int x, int y, const SDL_Rect &clip) {
 }
 
 void renderText(int x, int y, const char *text, SDL_Color color) {
-  for (char c : std::string(text)) {
+  for (int i = 0; i < strlen(text); i++) {
+    const char c = text[i] - 32; // printable characters only
     const SDL_Rect srcRect = {TILE * c, 0, TILE, TILE};
-    const SDL_Rect dstRect = {x + TILE * c, y, TILE, TILE};
+    const SDL_Rect dstRect = {x + TILE * i, y, TILE, TILE};
     SDL_RenderCopy(renderer, texAtlas, &srcRect, &dstRect);
   }
 }

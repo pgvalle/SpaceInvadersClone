@@ -3,7 +3,6 @@
 #include "scenes/Scene.h"
 
 #include <SDL.h>
-#include <SDL_ttf.h>
 
 // no need to declare everything in a cpp file again
 #ifndef EXT
