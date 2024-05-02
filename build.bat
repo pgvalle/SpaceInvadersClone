@@ -56,7 +56,7 @@ for /r "%source_dir%" %%f in (*.cpp) do (
 
 rem Link all object files into a single executable
 echo Linking object files...
-%compiler% "%output_dir%\*.obj" -o "executable.exe" %flags%
+%compiler% "%output_dir%\*.obj" -o "sic.exe" %flags%
 
 echo Compilation and linking completed.
 
