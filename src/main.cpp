@@ -14,7 +14,7 @@ int main(int argc, char **argv)
 
   srand(time(NULL));
 
-  run();
+  mainLoop();
 
   IMG_Quit();
   TTF_Quit();

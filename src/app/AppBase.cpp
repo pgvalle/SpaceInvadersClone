@@ -14,12 +14,13 @@
 
 void loadAssets() {
   window = SDL_CreateWindow(
-      "Space Invaders Clone",
-      SDL_WINDOWPOS_CENTERED,
-      SDL_WINDOWPOS_CENTERED,
-      2 * WIDTH,
-      2 * HEIGHT,
-      SDL_WINDOW_RESIZABLE);
+    "Space Invaders Clone",
+    SDL_WINDOWPOS_CENTERED,
+    SDL_WINDOWPOS_CENTERED,
+    2 * WIDTH,
+    2 * HEIGHT,
+    SDL_WINDOW_RESIZABLE
+  );
 
   renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
   SDL_RenderSetLogicalSize(renderer, WIDTH, HEIGHT); // resolution independent rendering
@@ -62,6 +63,14 @@ void freeAssets() {
 }
 
 void mainLoop() {
+  // only "one run() in stack"
+  static bool running = false;
+  if (running) {
+    return;
+  }
+
+  running = true;
+
   int64_t before = 0, beforeEvent = 0, timeout = FRAMERATE;
 
   while (scene) {
@@ -75,12 +84,14 @@ void mainLoop() {
       timeout -= eventDt;
     }
     else {
+      // calculating frame delta time
       const int64_t dt = SDL_GetTicks() - before;
       before = SDL_GetTicks();
       // reset event timing
       beforeEvent = before;
       timeout += FRAMERATE;
 
+      // rendering base ui stuff (globals)
       SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
       SDL_RenderClear(renderer);
 
@@ -108,15 +119,6 @@ void mainLoop() {
       sceneChange = false;
     }
   }
-}
 
-void run() {
-  static bool running = false;
-  if (!running) {
-    running = true;
-    loadAssets();
-    mainLoop();
-    freeAssets();
-  }
+  running = false;
 }
-

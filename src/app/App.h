@@ -10,7 +10,7 @@
 #define EXT extern
 #endif
 
-void run();
+void mainLoop();
 
 // globals
 
