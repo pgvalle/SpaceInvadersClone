@@ -1,35 +1,31 @@
 #include "app/App.h"
 #include "MenuScene.h"
-#include "PlayScene.h"
+//#include "PlayScene.h"
 
 #include <string.h>
 
 
-MenuScene::MenuScene()
-{
+MenuScene::MenuScene() {
   clock.reset(2000);
 }
 
-MenuScene::~MenuScene()
-{
+MenuScene::~MenuScene() {
   
 }
 
-
-void MenuScene::processEvent()
-{
+/*
+bool MenuScene::processEvent(const SDL_Event &event) {
 
 }
+*/
 
-void MenuScene::update()
-{
-  clock.update();
-  if (clock.hasTimedOut())
-  {
-    changeScene(new PlayScene());
+void MenuScene::update(Uint32 delta) {
+  clock.update(delta);
+  if (clock.hasTimedOut()) {
+    changeScene(nullptr);
   }
 }
 
-void MenuScene::render()
-{
+void MenuScene::render(SDL_Renderer *renderer) {
+  
 }

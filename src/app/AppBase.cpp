@@ -8,6 +8,8 @@
 #include "scenes/Scene.h"
 #include "scenes/MenuScene.h"
 
+#include <cstdio>
+
 #include <SDL.h>
 #include <SDL_ttf.h>
 #include <SDL_image.h>
@@ -25,7 +27,21 @@ void loadAssets() {
   renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
   SDL_RenderSetLogicalSize(renderer, WIDTH, HEIGHT); // resolution independent rendering
 
-  font = TTF_OpenFont(ASSETS_DIR "ps2p.ttf", 8);
+  // font
+  {
+    TTF_Font *font = TTF_OpenFont(ASSETS_DIR "ps2p.ttf", 8);
+
+    char ascii[128];
+    for (char i = 0; i < 128; i++) {
+      ascii[i] = i;
+    }
+
+    SDL_Surface *surface = TTF_RenderUTF8_Solid(font, ascii, {255, 255, 255, 255});
+    texAtlas = SDL_CreateTextureFromSurface(renderer, surface);
+    SDL_FreeSurface(surface);
+
+    TTF_CloseFont(font);
+  }
 
   // image assets
   {
@@ -54,9 +70,8 @@ void loadAssets() {
 void freeAssets() {
   // free audio assets
 
+  SDL_DestroyTexture(texAtlas);
   SDL_DestroyTexture(atlas);
-
-  TTF_CloseFont(font);
 
   SDL_DestroyRenderer(renderer);
   SDL_DestroyWindow(window);

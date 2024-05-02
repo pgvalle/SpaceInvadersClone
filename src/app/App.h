@@ -35,8 +35,7 @@ EXT SDL_Window* window;
 EXT SDL_Renderer *renderer;
 
 // assets
-EXT SDL_Texture *atlas;
-EXT TTF_Font *font;
+EXT SDL_Texture *atlas, texAtlas;
 
 // to change scene inside a scene
 EXT Scene *scene, *nextScene;
