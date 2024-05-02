@@ -10,7 +10,7 @@
 #define EXT extern
 #endif
 
-void mainLoop();
+void run();
 
 // globals
 
@@ -35,7 +35,7 @@ EXT SDL_Window* window;
 EXT SDL_Renderer *renderer;
 
 // assets
-EXT SDL_Texture *atlas, texAtlas;
+EXT SDL_Texture *atlas, *texAtlas;
 
 // to change scene inside a scene
 EXT Scene *scene, *nextScene;

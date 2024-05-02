@@ -1,6 +1,9 @@
 #define APP_INTERNALS
 
 #include "app/App.h"
+#include "defines.h"
+
+#include <string>
 
 
 void changeScene(Scene* newScene) {
@@ -23,12 +26,9 @@ void renderClip(int x, int y, const SDL_Rect &clip) {
 }
 
 void renderText(int x, int y, const char *text, SDL_Color color) {
-  SDL_Surface *surface = TTF_RenderUTF8_Solid(font, text, color);
-  SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
-
-  const SDL_Rect textureRect = {x, y, surface->w, surface->h};
-  SDL_RenderCopy(renderer, texture, nullptr, &textureRect);
-
-  SDL_FreeSurface(surface);
-  SDL_DestroyTexture(texture);
+  for (char c : std::string(text)) {
+    const SDL_Rect srcRect = {TILE * c, 0, TILE, TILE};
+    const SDL_Rect dstRect = {x + TILE * c, y, TILE, TILE};
+    SDL_RenderCopy(renderer, texAtlas, &srcRect, &dstRect);
+  }
 }

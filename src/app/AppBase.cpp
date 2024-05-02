@@ -29,8 +29,8 @@ void loadAssets() {
 
   // font
   {
-    TTF_Font *font = TTF_OpenFont(ASSETS_DIR "ps2p.ttf", 8);
-
+    TTF_Font *font = TTF_OpenFont(ASSETS_DIR "ps2p.ttf", TILE);
+    
     char ascii[128];
     for (char i = 0; i < 128; i++) {
       ascii[i] = i;
@@ -39,15 +39,13 @@ void loadAssets() {
     SDL_Surface *surface = TTF_RenderUTF8_Solid(font, ascii, {255, 255, 255, 255});
     texAtlas = SDL_CreateTextureFromSurface(renderer, surface);
     SDL_FreeSurface(surface);
-
+  
     TTF_CloseFont(font);
   }
 
   // image assets
   {
-    SDL_Surface *surface = nullptr;
-    
-    surface = IMG_Load(ASSETS_DIR "atlas.png");
+    SDL_Surface *surface = IMG_Load(ASSETS_DIR "atlas.png");
     atlas = SDL_CreateTextureFromSurface(renderer, surface);
     SDL_FreeSurface(surface);
 
@@ -77,7 +75,7 @@ void freeAssets() {
   SDL_DestroyWindow(window);
 }
 
-void mainLoop() {
+void run() {
   // only "one run() in stack"
   static bool running = false;
   if (running) {
@@ -85,6 +83,7 @@ void mainLoop() {
   }
 
   running = true;
+  loadAssets();
 
   int64_t before = 0, beforeEvent = 0, timeout = FRAMERATE;
 
@@ -135,5 +134,6 @@ void mainLoop() {
     }
   }
 
+  freeAssets();
   running = false;
 }
