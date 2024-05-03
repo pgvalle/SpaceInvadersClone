@@ -5,8 +5,7 @@
 #include "app/App.h"
 #include "defines.h"
 
-#include "scenes/Scene.h"
-#include "scenes/MenuScene.h"
+#include "scenes/MainScene.h"
 
 #include <cstdio>
 
@@ -27,7 +26,7 @@ void loadAssets() {
   renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
   SDL_RenderSetLogicalSize(renderer, WIDTH, HEIGHT); // resolution independent rendering
 
-  // font
+  // pre-render all ascii characters on a texture
   TTF_Font *font = TTF_OpenFont(ASSETS_DIR "ps2p.ttf", TILE);
   
   char ascii[96] = "";
@@ -50,20 +49,24 @@ void loadAssets() {
   SDL_SetWindowIcon(window, surface);
   SDL_FreeSurface(surface);
 
+  // audio assets
+
   score = 0;
   hiScore = 0; // load from file
   coins = 0; // load from file
 
-  scene = new MenuScene();
-  nextScene = nullptr;
-  sceneChange = false;
+  scene = new MainScene();
 
-  // load audio assets
+  shouldClose = false;
+
 }
 
 void freeAssets() {
-  // free audio assets
+  // audio assets
+ 
+  delete scene;
 
+  // images
   SDL_DestroyTexture(texAtlas);
   SDL_DestroyTexture(atlas);
 
@@ -72,7 +75,7 @@ void freeAssets() {
 }
 
 void run() {
-  // only "one run() in stack"
+  // only one run() in stack
   static bool running = false;
   if (running) {
     return;
@@ -83,7 +86,7 @@ void run() {
 
   Uint32 eventTimeout = FRAMERATE, before = SDL_GetTicks();
 
-  while (scene) {
+  while (!shouldClose) {
     const Uint32 beforeEvent = SDL_GetTicks();
 
     SDL_Event event;
@@ -118,14 +121,6 @@ void run() {
       SDL_RenderPresent(renderer);
 
       scene->update(delta);
-    }
-
-    // process scene change, if any
-    if (sceneChange) {
-      delete scene;
-      scene = nextScene;
-      nextScene = nullptr;
-      sceneChange = false;
     }
   }
 

@@ -17,9 +17,7 @@ EXT int score, hiScore, coins;
 
 // utils
 
-// passing nullptr will close game
-// calling twice in same frame is safe. Ignore previous calls.
-void changeScene(Scene* newScene);
+void closeApp();
 
 bool isKeyPressed(int key);
 
@@ -36,9 +34,8 @@ EXT SDL_Renderer *renderer;
 // assets
 EXT SDL_Texture *atlas, *texAtlas;
 
-// to change scene inside a scene
-EXT Scene *scene, *nextScene;
-EXT bool sceneChange;
+// so that scenes can close app
+EXT bool shouldClose;
 
 void mainLoop();
 

@@ -5,13 +5,8 @@
 
 #include <cstring>
 
-void changeScene(Scene* newScene) {
-  if (nextScene) {
-    delete nextScene;
-  }
-
-  nextScene = newScene;
-  sceneChange = true;
+void closeApp() {
+  shouldClose = true;
 }
 
 bool isKeyPressed(int key) {
