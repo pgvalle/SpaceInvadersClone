@@ -6,7 +6,7 @@
 
 
 MenuScene::MenuScene() {
-  clock.reset(2000);
+  clock.reset(10000);
 }
 
 MenuScene::~MenuScene() {
@@ -27,5 +27,5 @@ void MenuScene::update(Uint32 delta) {
 }
 
 void MenuScene::render(SDL_Renderer *renderer) {
-  
+
 }

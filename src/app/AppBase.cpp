@@ -71,13 +71,6 @@ void freeAssets() {
   SDL_DestroyWindow(window);
 }
 
-bool waitEvent(SDL_Event &event, int64_t timeout) {
-  if (timeout < 0) {
-    return false;
-  }
-  return SDL_WaitEventTimeout(&event, timeout);
-}
-
 void run() {
   // only "one run() in stack"
   static bool running = false;
@@ -88,26 +81,25 @@ void run() {
   running = true;
   loadAssets();
 
-  int64_t before = 0, beforeEvent = 0, timeout = FRAMERATE;
+  Uint32 eventTimeout = FRAMERATE, before = SDL_GetTicks();
 
   while (scene) {
+    const Uint32 beforeEvent = SDL_GetTicks();
+
     SDL_Event event;
-    const bool eventDetected = timeout >= 0 && SDL_WaitEventTimeout(&event, timeout);
-    if (eventDetected) {
+    if (SDL_WaitEventTimeout(&event, eventTimeout)) {
       scene->processEvent(event);
 
-      const int64_t eventDt = SDL_GetTicks() - beforeEvent;
-      beforeEvent = SDL_GetTicks();
-      // wait less next time
-      timeout -= eventDt;
+      // wait less for events next time
+      const Uint32 eventDelta = SDL_GetTicks() - beforeEvent;
+      eventTimeout -= (eventTimeout >= eventDelta ? eventDelta : eventTimeout);
     }
     else {
-      // calculating frame delta time
-      const int64_t dt = SDL_GetTicks() - before;
+      // lapse between last frame starting point and this frame starting point
+      const Uint32 delta = SDL_GetTicks() - before;
       before = SDL_GetTicks();
-      // reset event timing
-      beforeEvent = before;
-      timeout += FRAMERATE;
+      eventTimeout = FRAMERATE; // again wait for FRAMERATE ms
+      // TODO: FRAMERATE < delta. What to do in that case???
 
       SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
       SDL_RenderClear(renderer);
@@ -125,7 +117,7 @@ void run() {
       scene->render(renderer);
       SDL_RenderPresent(renderer);
 
-      scene->update(dt);
+      scene->update(delta);
     }
 
     // process scene change, if any
