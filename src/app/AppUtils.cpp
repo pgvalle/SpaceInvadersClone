@@ -25,10 +25,11 @@ void renderClip(int x, int y, const SDL_Rect &clip) {
 }
 
 void renderText(int x, int y, const char *text, SDL_Color color) {
-  for (int i = 0; i < strlen(text); i++) {
+  for (int i = 0; i < (int)strlen(text); i++) {
     const char c = text[i] - 32; // printable characters only
     const SDL_Rect srcRect = {TILE * c, 0, TILE, TILE};
     const SDL_Rect dstRect = {x + TILE * i, y, TILE, TILE};
+
     SDL_RenderCopy(renderer, texAtlas, &srcRect, &dstRect);
   }
 }
