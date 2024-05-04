@@ -51,10 +51,6 @@ void loadAssets() {
 
   // audio assets
 
-  score = 0;
-  hiScore = 0; // load from file
-  coins = 0; // load from file
-
   shouldClose = false;
 }
 
@@ -102,17 +98,6 @@ void run() {
 
       SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
       SDL_RenderClear(renderer);
-
-      renderText(TILE, TILE, "SCORE<1>          HI-SCORE");
-
-      char valueFmt[27];
-      // score and high-score
-      sprintf(valueFmt, "%06d            %06d", score, hiScore);
-      renderText(2 * TILE, 3 * TILE, valueFmt);
-      // credits
-      sprintf(valueFmt, "CREDIT %02d", coins);
-      renderText(17 * TILE, HEIGHT - 2 * TILE, valueFmt);
-
       scene->render(renderer);
       SDL_RenderPresent(renderer);
 
