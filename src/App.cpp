@@ -28,6 +28,7 @@ void loadAssets() {
   );
 
   renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+  SDL_RenderSetVSync(renderer, false);
   SDL_RenderSetLogicalSize(renderer, WIDTH, HEIGHT); // resolution independent rendering
 
   // pre-render all ascii characters on a texture
