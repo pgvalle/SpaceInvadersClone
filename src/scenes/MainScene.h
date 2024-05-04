@@ -4,7 +4,7 @@
 
 class MainScene : public Scene {
 public:
-  int coins, score, hiScore;
+  int credits, score, hiScore;
 
   MainScene();
   ~MainScene();

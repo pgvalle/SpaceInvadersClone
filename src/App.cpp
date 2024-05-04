@@ -104,12 +104,10 @@ void run() {
       eventTimeout = FRAMERATE; // again wait for FRAMERATE ms
       // TODO: FRAMERATE < delta. What to do in that case???
 
-      SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-      SDL_RenderClear(renderer);
       scene->render(renderer);
-      SDL_RenderPresent(renderer);
-
       scene->update(delta);
+
+      SDL_RenderPresent(renderer);
     }
   }
 
