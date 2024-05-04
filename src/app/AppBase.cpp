@@ -55,16 +55,11 @@ void loadAssets() {
   hiScore = 0; // load from file
   coins = 0; // load from file
 
-  scene = new MainScene();
-
   shouldClose = false;
-
 }
 
 void freeAssets() {
   // audio assets
- 
-  delete scene;
 
   // images
   SDL_DestroyTexture(texAtlas);
@@ -83,7 +78,8 @@ void run() {
 
   running = true;
   loadAssets();
-
+  
+  Scene *scene = new MainScene();
   Uint32 eventTimeout = FRAMERATE, before = SDL_GetTicks();
 
   while (!shouldClose) {
@@ -123,6 +119,8 @@ void run() {
       scene->update(delta);
     }
   }
+
+  delete scene;
 
   freeAssets();
   running = false;
