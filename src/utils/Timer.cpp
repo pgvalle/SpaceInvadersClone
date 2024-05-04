@@ -1,5 +1,5 @@
-#include "app/App.h"
 #include "Timer.h"
+#include "App.h"
 
 Timer::Timer() {
   elapsed = 0;

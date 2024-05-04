@@ -1,6 +1,5 @@
-#include "app/App.h"
-#include "defines.h"
 #include "MainScene.h"
+#include "../App.h"
 
 MainScene::MainScene() {
   coins = 0;

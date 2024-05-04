@@ -1,17 +1,21 @@
-#define APP_INTERNALS
 // no need to redeclare app fields here!
-#define EXT
+#define EXTERN
+#define APP_INTERNALS
 
-#include "app/App.h"
-#include "defines.h"
+#include "App.h"
 
 #include "scenes/MainScene.h"
 
 #include <cstdio>
+#include <cstring>
 
 #include <SDL.h>
 #include <SDL_ttf.h>
 #include <SDL_image.h>
+
+/*
+ * I don't wanna have everything in a really big function
+ */
 
 void loadAssets() {
   window = SDL_CreateWindow(
@@ -65,6 +69,10 @@ void freeAssets() {
   SDL_DestroyWindow(window);
 }
 
+/*
+ * here it comes what is in header
+ */
+
 void run() {
   // only one run() in stack
   static bool running = false;
@@ -110,3 +118,24 @@ void run() {
   freeAssets();
   running = false;
 }
+
+bool isKeyPressed(int key) {
+  const Uint8 *keys = SDL_GetKeyboardState(nullptr);
+  return keys[key];
+}
+
+void renderClip(int x, int y, const SDL_Rect &clip) {
+  const SDL_Rect scale = {x, y, clip.w, clip.h};
+  SDL_RenderCopy(renderer, atlas, &clip, &scale);
+}
+
+void renderText(int x, int y, const char *text, SDL_Color color) {
+  for (int i = 0; i < (int)strlen(text); i++) {
+    const char c = text[i] - 32; // printable characters only
+    const SDL_Rect srcRect = {TILE * c, 0, TILE, TILE};
+    const SDL_Rect dstRect = {x + TILE * i, y, TILE, TILE};
+
+    SDL_RenderCopy(renderer, texAtlas, &srcRect, &dstRect);
+  }
+}
+

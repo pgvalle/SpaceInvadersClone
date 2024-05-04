@@ -1,9 +1,5 @@
-#include "app/App.h"
 #include "MenuScene.h"
-//#include "PlayScene.h"
-
-#include <string.h>
-
+#include "../App.h"
 
 MenuScene::MenuScene() {
   clock.reset(10000);
@@ -13,16 +9,14 @@ MenuScene::~MenuScene() {
   
 }
 
-/*
 void MenuScene::processEvent(const SDL_Event &event) {
 
 }
-*/
 
 void MenuScene::update(Uint32 delta) {
   clock.update(delta);
   if (clock.hasTimedOut()) {
-    closeApp();
+    shouldClose = true;
   }
 }
 
