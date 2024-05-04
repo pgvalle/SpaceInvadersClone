@@ -3,10 +3,9 @@
 #include "Scene.h"
 
 class MainScene : public Scene {
-private:
+public:
   int coins, score, hiScore;
 
-public:
   MainScene();
   ~MainScene();
 
