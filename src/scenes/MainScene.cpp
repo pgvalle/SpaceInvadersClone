@@ -32,8 +32,8 @@ void MainScene::processEvent(const SDL_Event &event) {
     }
 
     default:
-      printf("Event not processed...\n");
       // TODO: implement credit input
+      break;
   }
 }
 
