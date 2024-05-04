@@ -14,7 +14,7 @@ MenuScene::~MenuScene() {
 }
 
 /*
-bool MenuScene::processEvent(const SDL_Event &event) {
+void MenuScene::processEvent(const SDL_Event &event) {
 
 }
 */

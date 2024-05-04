@@ -11,7 +11,7 @@ public:
   MenuScene();
   ~MenuScene();
 
-  //bool processEvent(const SDL_Event &event) override;
+  //void processEvent(const SDL_Event &event) override;
   void update(Uint32 delta) override;
   void render(SDL_Renderer *renderer) override;
 };
