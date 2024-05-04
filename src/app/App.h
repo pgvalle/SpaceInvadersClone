@@ -4,16 +4,15 @@
 
 #include <SDL.h>
 
-// no need to declare everything in a cpp file again
+// no need to define variables in a implementation file again
 #ifndef EXT
 #define EXT extern
 #endif
 
 void run();
 
-// globals
-
-EXT int score, hiScore, coins;
+// so that scenes can close app
+EXT bool shouldClose;
 
 // utils
 
@@ -33,10 +32,5 @@ EXT SDL_Renderer *renderer;
 
 // assets
 EXT SDL_Texture *atlas, *texAtlas;
-
-// so that scenes can close app
-EXT bool shouldClose;
-
-void mainLoop();
 
 #endif
