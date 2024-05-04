@@ -22,7 +22,7 @@ bool MenuScene::processEvent(const SDL_Event &event) {
 void MenuScene::update(Uint32 delta) {
   clock.update(delta);
   if (clock.hasTimedOut()) {
-    changeScene(nullptr);
+    closeApp();
   }
 }
 
