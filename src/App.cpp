@@ -4,14 +4,22 @@
 
 #include "App.h"
 
-#include "scenes/MainScene.h"
-
-#include <cstdio>
+#include <cassert>
 #include <cstring>
 
 #include <SDL.h>
 #include <SDL_ttf.h>
 #include <SDL_image.h>
+
+/*
+ * Private app stuff
+ */
+
+static SDL_Window* window;
+static SDL_Renderer *renderer;
+
+// assets
+static SDL_Texture *atlas, *texAtlas;
 
 /*
  * I don't wanna have everything in a really big function
@@ -74,7 +82,9 @@ void freeAssets() {
  * here it comes what is in header
  */
 
-void run() {
+void run(Scene *scene) {
+  assert(scene);
+
   // only one run() in stack
   static bool running = false;
   if (running) {
@@ -84,7 +94,6 @@ void run() {
   running = true;
   loadAssets();
   
-  Scene *scene = new MainScene();
   Uint32 eventTimeout = FRAMERATE, before = SDL_GetTicks();
 
   while (!shouldClose) {

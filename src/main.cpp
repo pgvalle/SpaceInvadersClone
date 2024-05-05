@@ -1,5 +1,7 @@
 #include "App.h"
 
+#include "scenes/MainScene.h"
+
 #include <SDL.h>
 #include <SDL_ttf.h>
 #include <SDL_image.h>
@@ -13,7 +15,7 @@ int main(int argc, char **argv) {
 
   srand(time(nullptr));
 
-  run();
+  run(new MainScene());
 
   IMG_Quit();
   TTF_Quit();

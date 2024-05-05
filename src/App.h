@@ -30,7 +30,8 @@
  * API
  */
 
-void run();
+// scene is now owned by app
+void run(Scene *scene);
 
 // so that scenes can close app
 EXTERN bool shouldClose;
@@ -40,20 +41,6 @@ bool isKeyPressed(int key);
 void renderText(int x, int y, const char *text,
                 SDL_Color color = {255, 255, 255, 255});
 void renderClip(int x, int y, const SDL_Rect &clip);
-
-/*
- * Private stuff
- */
-
-#ifdef APP_INTERNALS
-
-EXTERN SDL_Window* window;
-EXTERN SDL_Renderer *renderer;
-
-// assets
-EXTERN SDL_Texture *atlas, *texAtlas;
-
-#endif
 
 #undef EXTERN
 
