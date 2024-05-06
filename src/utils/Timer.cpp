@@ -1,10 +1,4 @@
 #include "Timer.h"
-#include "App.h"
-
-Timer::Timer() {
-  elapsed = 0;
-  timeout = 0;
-}
 
 void Timer::update(Uint32 delta) {
   if (elapsed < timeout) {

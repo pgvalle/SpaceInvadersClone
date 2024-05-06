@@ -2,14 +2,11 @@
 
 #include <SDL.h>
 
-
 class Timer {
 private:
-  Uint32 elapsed, timeout;
+  Uint32 elapsed = 0, timeout = 0;
 
 public:
-  Timer(); // default constructor
-
   bool hasTimedOut() const {
     return timeout <= elapsed;
   }
