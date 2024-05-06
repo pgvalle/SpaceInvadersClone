@@ -81,7 +81,7 @@ void freeAssets() {
 /*
  * here it comes what is in header
  */
-
+#include <cstdio>
 void run(Scene *scene) {
   assert(scene);
 
@@ -92,30 +92,23 @@ void run(Scene *scene) {
 
   loadAssets();
   
-  Uint32 eventTimeout = FRAMERATE, before = SDL_GetTicks();
-
+  Uint32 delta = 0;
   while (!shouldClose) {
-    const Uint32 beforeEvent = SDL_GetTicks();
+    const Uint32 start = SDL_GetTicks();
 
     SDL_Event event;
-    if (SDL_WaitEventTimeout(&event, eventTimeout)) {
+    if (SDL_WaitEventTimeout(&event, FRAME_DELAY)) {
       scene->processEvent(event);
-
-      // wait less for events next time
-      const Uint32 eventDelta = SDL_GetTicks() - beforeEvent;
-      eventTimeout -= (eventTimeout >= eventDelta ? eventDelta : eventTimeout);
     }
-    else {
-      // lapse between last frame starting point and this frame starting point
-      const Uint32 delta = SDL_GetTicks() - before;
-      before = SDL_GetTicks();
-      eventTimeout = FRAMERATE; // again wait for FRAMERATE ms
-      // TODO: FRAMERATE < delta. What to do in that case???
 
-      scene->render(renderer);
-      scene->update(delta);
+    scene->render(renderer);
+    scene->update(delta);
 
-      SDL_RenderPresent(renderer);
+    SDL_RenderPresent(renderer);
+    printf("%.2f\n", 1000.0f / delta);
+    delta = SDL_GetTicks() - start;
+    if (delta < FRAME_DELAY) {
+      SDL_Delay(FRAME_DELAY - delta);
     }
   }
 

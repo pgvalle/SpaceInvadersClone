@@ -13,8 +13,8 @@
 #define EXTERN extern
 #endif
 
-#define FPS 60
-#define FRAMERATE (1000 / FPS)
+#define FPS 120
+#define FRAME_DELAY (1000 / FPS)
 
 #ifndef ASSETS_DIR
 #define ASSETS_DIR "./res/"
