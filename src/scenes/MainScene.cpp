@@ -4,6 +4,7 @@
 #include <cstdio>
 
 MainScene::MainScene() {
+  fps = 0;
   credits = 0;
   score = 0;
   hiScore = 0;
@@ -48,7 +49,7 @@ void MainScene::processEvent(const SDL_Event &event) {
 }
 
 void MainScene::update(float delta) {
-
+  fps = 1 / delta;
 }
 
 void MainScene::render(SDL_Renderer *renderer) {
@@ -61,6 +62,9 @@ void MainScene::render(SDL_Renderer *renderer) {
   renderText(TILE, TILE, "SCORE<1>          HI-SCORE");
 
   static char valueFmt[27];
+  // fps
+  sprintf(valueFmt, "%.2f", fps);
+  renderText(10 * TILE, 10 * TILE, valueFmt);
   // score and high-score
   sprintf(valueFmt, "%06d            %06d", score, hiScore);
   renderText(2 * TILE, 3 * TILE, valueFmt);

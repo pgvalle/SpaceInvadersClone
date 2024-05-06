@@ -4,6 +4,7 @@
 
 class MainScene : public Scene {
 private:
+  float fps;
   int credits, score, hiScore;
 
 public:
