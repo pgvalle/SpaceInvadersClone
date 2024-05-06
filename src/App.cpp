@@ -102,9 +102,8 @@ void run(Scene *scene) {
       scene->processEvent(event);
     }
 
-    const float deltaSeconds = 1000.0f / delta;
     scene->render(renderer);
-    scene->update(deltaSeconds);
+    scene->update(1e-3 * delta); // delta in seconds
 
     SDL_RenderPresent(renderer);
 

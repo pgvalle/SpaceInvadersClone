@@ -8,7 +8,7 @@
  * Useful aliases
  */
 
-#define FPS 120
+#define FPS 60
 #define FRAME_DELAY (1000 / FPS)
 
 #ifndef ASSETS_DIR
