@@ -30,7 +30,7 @@
  * API
  */
 
-// scene is now owned by app
+// scene is owned by app
 void run(Scene *scene);
 
 // so that scenes can close app

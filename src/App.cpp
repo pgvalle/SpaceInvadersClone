@@ -87,11 +87,9 @@ void run(Scene *scene) {
 
   // only one run() in stack
   static bool running = false;
-  if (running) {
-    return;
-  }
-
+  assert(!running);
   running = true;
+
   loadAssets();
   
   Uint32 eventTimeout = FRAMERATE, before = SDL_GetTicks();
@@ -140,9 +138,9 @@ void renderClip(int x, int y, const SDL_Rect &clip) {
 void renderText(int x, int y, const char *text, SDL_Color color) {
   for (int i = 0; i < (int)strlen(text); i++) {
     const char c = text[i] - 32; // printable characters only
+
     const SDL_Rect srcRect = {TILE * c, 0, TILE, TILE};
     const SDL_Rect dstRect = {x + TILE * i, y, TILE, TILE};
-
     SDL_RenderCopy(renderer, texAtlas, &srcRect, &dstRect);
   }
 }
