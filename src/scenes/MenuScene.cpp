@@ -2,7 +2,7 @@
 #include "../App.h"
 
 MenuScene::MenuScene() {
-  clock.reset(10000);
+  clock.reset(10);
 }
 
 MenuScene::~MenuScene() {
@@ -13,7 +13,7 @@ void MenuScene::processEvent(const SDL_Event &event) {
 
 }
 
-void MenuScene::update(Uint32 delta) {
+void MenuScene::update(float delta) {
   clock.update(delta);
   if (clock.hasTimedOut()) {
     shouldClose = true;

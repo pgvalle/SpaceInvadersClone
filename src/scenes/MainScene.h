@@ -13,6 +13,6 @@ public:
   void addToScore(int value);
 
   void processEvent(const SDL_Event &event) override;
-  void update(Uint32 delta) override;
+  void update(float delta) override;
   void render(SDL_Renderer *renderer) override;
 };

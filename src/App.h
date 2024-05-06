@@ -8,11 +8,6 @@
  * Useful aliases
  */
 
-// no need to redeclare variables in App.cpp file again
-#ifndef EXTERN
-#define EXTERN extern
-#endif
-
 #define FPS 120
 #define FRAME_DELAY (1000 / FPS)
 
@@ -25,6 +20,11 @@
 // These are the dimensions of the canvas. NOT of the window.
 #define WIDTH  (28 * TILE) // 224
 #define HEIGHT (32 * TILE) // 240
+
+// no need to redeclare variables in App.cpp file again
+#ifndef EXTERN
+#define EXTERN extern
+#endif
 
 /*
  * API

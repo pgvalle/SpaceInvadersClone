@@ -47,7 +47,7 @@ void MainScene::processEvent(const SDL_Event &event) {
   }
 }
 
-void MainScene::update(Uint32 delta) {
+void MainScene::update(float delta) {
 
 }
 

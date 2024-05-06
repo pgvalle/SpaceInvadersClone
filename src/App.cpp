@@ -96,20 +96,25 @@ void run(Scene *scene) {
   while (!shouldClose) {
     const Uint32 start = SDL_GetTicks();
 
+    // query and process events
     SDL_Event event;
     if (SDL_WaitEventTimeout(&event, FRAME_DELAY)) {
       scene->processEvent(event);
     }
 
+    const float deltaSeconds = 1000.0f / delta;
     scene->render(renderer);
-    scene->update(delta);
+    scene->update(deltaSeconds);
 
     SDL_RenderPresent(renderer);
-    printf("%.2f\n", 1000.0f / delta);
-    delta = SDL_GetTicks() - start;
-    if (delta < FRAME_DELAY) {
-      SDL_Delay(FRAME_DELAY - delta);
+
+    // we want FRAME_DELAY seconds
+    const Uint32 realDelta = SDL_GetTicks() - start;
+    if (realDelta < FRAME_DELAY) {
+      SDL_Delay(FRAME_DELAY - realDelta);
     }
+    // now we should get around FRAME_DELAY seconds
+    delta = SDL_GetTicks() - start;
   }
 
   delete scene;
