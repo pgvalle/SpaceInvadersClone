@@ -1,6 +1,8 @@
 #include "MainScene.h"
 #include "../App.h"
 
+#include <cstdio>
+
 MainScene::MainScene() {
   credits = 0;
   score = 0;
@@ -10,6 +12,14 @@ MainScene::MainScene() {
 
 MainScene::~MainScene() {
 
+}
+
+void MainScene::addToScore(int value) {
+  score += value;
+  // hiScore needs to keep up with score
+  if (score > hiScore) {
+    hiScore = score;
+  }
 }
 
 void MainScene::processEvent(const SDL_Event &event) {

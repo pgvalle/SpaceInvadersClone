@@ -3,11 +3,14 @@
 #include "Scene.h"
 
 class MainScene : public Scene {
-public:
+private:
   int credits, score, hiScore;
 
+public:
   MainScene();
   ~MainScene();
+
+  void addToScore(int value);
 
   void processEvent(const SDL_Event &event) override;
   void update(Uint32 delta) override;
