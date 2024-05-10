@@ -1,5 +1,5 @@
 #include "MainScene.h"
-#include "../App.h"
+#include "App.h"
 
 #include <cstdio>
 
@@ -59,17 +59,12 @@ void MainScene::render(SDL_Renderer *renderer) {
 
   // rendering globals as part of UI
 
-  renderText(TILE, TILE, "SCORE<1>          HI-SCORE");
-
-  static char valueFmt[27];
+  renderText(8, 8, "SCORE<1>          HI-SCORE");
   // fps
-  sprintf(valueFmt, "%.2f", fps);
-  renderText(10 * TILE, 10 * TILE, valueFmt);
+  renderText(10 * 8, 10 * 8, "%.2f", fps);
   // score and high-score
-  sprintf(valueFmt, "%06d            %06d", score, hiScore);
-  renderText(2 * TILE, 3 * TILE, valueFmt);
+  renderText(2 * 8, 3 * 8, "%06d            %06d", score, hiScore);
   // credits
-  sprintf(valueFmt, "CREDIT %02d", credits);
-  renderText(17 * TILE, HEIGHT - 2 * TILE, valueFmt);
+  renderText(17 * 8, 256 - 2 * 8, "CREDIT %02d", credits);
 }
 

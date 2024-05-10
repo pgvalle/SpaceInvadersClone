@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Scene.h"
-#include "../utils/Timer.h"
+#include "Timer.h"
 
 class MenuScene : public Scene {
 private:

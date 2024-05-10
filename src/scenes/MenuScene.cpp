@@ -1,5 +1,5 @@
 #include "MenuScene.h"
-#include "../App.h"
+#include "App.h"
 
 MenuScene::MenuScene() {
   clock.reset(10);
