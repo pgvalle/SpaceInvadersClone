@@ -9,17 +9,15 @@
 #include <ctime>
 
 int main(int argc, char **argv) {
-  SDL_Init(SDL_INIT_EVERYTHING);
-  TTF_Init();
-  IMG_Init(IMG_INIT_PNG);
-
-  srand(time(nullptr));
-
+  Config conf;
+  conf.atlasPath = "res/atlas.png";
+  conf.fontPath = "res/ps2p.ttf";
+  conf.fps = 30;
+  conf.wTiles = 28;
+  conf.hTiles = 32;
+  initialize(conf);
   run(new MainScene());
-
-  IMG_Quit();
-  TTF_Quit();
-  SDL_Quit();
+  terminate();
 
   return 0;
 }
