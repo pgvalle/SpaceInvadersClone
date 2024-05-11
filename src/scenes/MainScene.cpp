@@ -18,16 +18,6 @@ MainScene::~MainScene()
 {
 }
 
-void MainScene::addToScore(int value)
-{
-  score += value;
-  // hiScore needs to keep up with score
-  if (score > hiScore)
-  {
-    hiScore = score;
-  }
-}
-
 void MainScene::processEvent(const SDL_Event &event)
 {
   switch (event.type)
@@ -39,25 +29,37 @@ void MainScene::processEvent(const SDL_Event &event)
   case SDL_KEYDOWN:
   {
     const SDL_Keycode key = event.key.keysym.sym;
-    if (key == SDLK_EQUALS)
+    switch (key)
     {
-      credits += (credits < 99 ? 1 : 0);
+      case SDLK_EQUALS:
+        credits += (credits < 99 ? 1 : 0);
+        break;
+      case SDLK_MINUS:
+        credits -= (credits > 0 ? 1 : 0);
+        break;
+      case SDLK_q:
+        viewFps = !viewFps;
+        printf("FPS view turned %s\n", viewFps ? "on" : "off");
+        break;
+      default:
+        break;
     }
-    else if (key == SDLK_MINUS)
-    {
-      credits -= (credits > 0 ? 1 : 0);
-    }
-    else if (key == SDLK_q)
-    {
-      viewFps = !viewFps;
-      printf("FPS view turned %s\n", viewFps ? "on" : "off");
-    }
-
     break;
   }
 
+  case SDL_USEREVENT:
+    if (event.user.code == SCORE_UPDATE_EVENT)
+    {
+      //score += ;
+      // hiScore needs to keep up with score
+      if (score > hiScore)
+      {
+        hiScore = score;
+      }
+    }
+    break;
+
   default:
-    // TODO: implement credit input
     break;
   }
 }
@@ -81,11 +83,11 @@ void MainScene::render(SDL_Renderer *renderer)
   // rendering globals as part of UI
 
   renderText(8, 8, "SCORE<1>          HI-SCORE\n\n"
-             " %06d            %06d", score, hiScore);
+             " %06d            %06d", score, hiScore); // scores
   // fps
   if (viewFps)
   {
-    renderText(11 * 8, 16, "%2d FPS", (int)fps);
+    renderText(13 * 8, 16, "%2d", (int)fps);
   }
   // credits
   renderText(17 * 8, 256 - 2 * 8, "CREDIT %02d", credits);

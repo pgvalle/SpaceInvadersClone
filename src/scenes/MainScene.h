@@ -3,6 +3,8 @@
 #include "Scene.h"
 #include "Timer.h"
 
+#define SCORE_UPDATE_EVENT 1
+
 class MainScene : public Scene
 {
 private:
@@ -15,8 +17,6 @@ private:
 public:
   MainScene();
   ~MainScene();
-
-  void addToScore(int value);
 
   void processEvent(const SDL_Event &event) override;
   void update(float delta) override;
