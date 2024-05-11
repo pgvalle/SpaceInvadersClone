@@ -8,14 +8,13 @@
 
 #include <ctime>
 
-int main(int argc, char **argv) {
-  Config conf;
-  conf.atlasPath = "res/atlas.png";
-  conf.fontPath = "res/ps2p.ttf";
-  conf.fps = 60;
-  conf.wTiles = 28;
-  conf.hTiles = 32;
-  initialize(conf);
+int main(int argc, char **argv)
+{
+  initialize({.atlasPath = "res/atlas.png",
+              .fontPath = "res/ps2p.ttf",
+              .fps = 60,
+              .wTiles = 28,
+              .hTiles = 32});
   run(new MainScene());
   terminate();
 
