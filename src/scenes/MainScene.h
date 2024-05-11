@@ -1,4 +1,5 @@
-#pragma once
+#ifndef _MAIN_SCENE_
+#define _MAIN_SCENE_
 
 #include "Scene.h"
 #include "Timer.h"
@@ -22,3 +23,5 @@ public:
   void update(float delta) override;
   void render(SDL_Renderer *renderer) override;
 };
+
+#endif /* _MAIN_SCENE_ */
