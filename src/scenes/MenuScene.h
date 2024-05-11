@@ -3,7 +3,8 @@
 #include "Scene.h"
 #include "Timer.h"
 
-class MenuScene : public Scene {
+class MenuScene : public Scene
+{
 private:
   Timer clock; // dummy clock
 
