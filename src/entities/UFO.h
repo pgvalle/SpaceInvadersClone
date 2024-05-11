@@ -1,6 +1,7 @@
-#pragma once
+#ifndef _UFO_
+#define _UFO_
 
-#include "utils/Timer.h"
+#include "Timer.h"
 
 
 struct UFO
@@ -24,6 +25,9 @@ public:
 
   bool checkAndProcessHit(const SDL_Rect &hitbox);
 
-  void update();
+  void update(float delta);
   void render() const;
 };
+
+
+#endif /* _UFO_ */

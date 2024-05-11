@@ -5,13 +5,13 @@
 #include <stdio.h>
 
 
-#define Y (5 * TILE)
+#define Y (5 * 8)
 
 UFO::UFO()
 {
   // start at away state
   state = AWAY;
-  clock.reset(10000); // spawn
+  clock.reset(10); // spawn
 }
 
 bool UFO::checkAndProcessHit(const SDL_Rect &hitbox)
@@ -25,62 +25,62 @@ bool UFO::checkAndProcessHit(const SDL_Rect &hitbox)
   {
     // transition to dying1 state
     state = DYING1;
-    clock.reset(300);
+    clock.reset(0.3);
   }
 
   return hit;
 }
 
-void UFO::update()
+void UFO::update(float delta)
 {
   switch (state)
   {
   case AWAY:
-    clock.update();
+    clock.update(delta);
     if (clock.hasTimedOut())
     {
       state = ALIVE;
       // randomly choose a corner
       const bool left = rand() % 2;
-      x = left ? TILE : (24 * TILE);
+      x = left ? 8 : (24 * 8);
       xVel = left ? 1 : -1;
       // randomly choose a score value
       scoreValue = 100;
 
-      clock.reset(60);
+      clock.reset(0.06);
     }
     break;
   case ALIVE:
-    clock.update();
+    clock.update(delta);
     if (clock.hasTimedOut())
     {
       x += xVel;
-      if (x < TILE || x > 24 * TILE) // out of bounds
+      if (x < 8 || x > 24 * 8) // out of bounds
       {
         // transition to away state
         state = AWAY;
-        clock.reset(10000);
+        clock.reset(10);
       }
     }
     break;
   case DYING1:
     // animation frame should change
-    clock.update();
+    clock.update(delta);
     if (clock.hasTimedOut())
     {
       state = DYING2; // now we show it's score value
-      clock.reset(2000);
+      clock.reset(2);
       // sum score value
       score += scoreValue;
     }
     break;
   case DYING2:
-    clock.update();
+    clock.update(delta);
     if (clock.hasTimedOut())
     {
       // transition to away state
       state = AWAY;
-      clock.reset(10000);
+      clock.reset(10);
     }
     break;
   default:
@@ -93,15 +93,17 @@ void UFO::render() const
   switch (state)
   {
   case ALIVE:
-    renderClip(x, Y, {0, 0, 24, 8});
+    renderTile(x, Y, 0, 0);
+    setFlip(SDL_FLIP_HORIZONTAL);
+    renderTile(x, Y, 0, 0);
+    setFlip(SDL_FLIP_NONE);
     break;
-  case DYING1:
-    renderClip(x, Y, {24, 0, 24, 8});
+  case DYING:
+    renderTile(x, Y, 8, 0);
+    renderTile(x, Y, 16, 0);
     break;
   case DYING2:
-    char scoreFmt[4];
-    sprintf(scoreFmt, "%3d", scoreValue);
-    renderText(x, Y, scoreFmt, {0xD8, 0x20, 0x20});
+    renderText(x, Y, scoreFmt,"%3d", scoreValue);
     break;
   default:
     break;
