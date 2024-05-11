@@ -1,10 +1,15 @@
 #pragma once
 
 #include "Scene.h"
+#include "Timer.h"
 
-class MainScene : public Scene {
+class MainScene : public Scene
+{
 private:
   float fps;
+  bool viewFps;
+  Timer fpsUpdateClock;
+
   int credits, score, hiScore;
 
 public:
