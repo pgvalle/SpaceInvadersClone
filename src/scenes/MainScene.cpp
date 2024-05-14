@@ -50,12 +50,14 @@ void MainScene::processEvent(const SDL_Event &event)
   case SDL_USEREVENT:
     if (event.user.code == SCORE_UPDATE_EVENT)
     {
-      //score += ;
+      score += getUint8FromUserEvent(event.user, 0);
       // hiScore needs to keep up with score
       if (score > hiScore)
       {
         hiScore = score;
       }
+
+      freeUserEventData(event);
     }
     break;
 
