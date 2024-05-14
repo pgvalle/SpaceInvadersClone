@@ -15,6 +15,8 @@ int main(int argc, char **argv)
              .fps = 60,
              .wTiles = 28,
              .hTiles = 32});
+  Uint8 value = 230;
+  pushUserEvent(SCORE_UPDATE_EVENT, &value, sizeof(Uint8));
   run(new MainScene());
   terminate();
 
