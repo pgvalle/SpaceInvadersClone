@@ -23,7 +23,7 @@ void MainScene::processEvent(const SDL_Event &event)
   switch (event.type)
   {
   case SDL_QUIT:
-    shouldClose = true;
+    App::shouldClose = true;
     break;
 
   case SDL_KEYDOWN:
@@ -44,7 +44,7 @@ void MainScene::processEvent(const SDL_Event &event)
       case SDLK_y:
       {
         Uint16 addition = rand() % 300;
-        pushUserEvent(SCORE_UPDATE_EVENT, &addition, sizeof(addition));
+        App::pushUserEvent(SCORE_UPDATE_EVENT, &addition, sizeof(addition));
         break;
       }
       default:
@@ -56,14 +56,12 @@ void MainScene::processEvent(const SDL_Event &event)
   case SDL_USEREVENT:
     if (event.user.code == SCORE_UPDATE_EVENT)
     {
-      score += getUserEventData(event.user, Uint8, 0);
+      score += App::getUserEventData<Uint8>(event.user, 0);
       // hiScore needs to keep up with score
       if (score > hiScore)
       {
         hiScore = score;
       }
-
-      freeUserEventData(event.user);
     }
     break;
 
@@ -90,13 +88,13 @@ void MainScene::render(SDL_Renderer *renderer)
 
   // rendering globals as part of UI
 
-  renderText(8, 8, "SCORE<1>          HI-SCORE\n\n"
-             " %06d            %06d", score, hiScore); // scores
+  App::renderText(8, 8, "SCORE<1>          HI-SCORE\n\n"
+                  " %06d            %06d", score, hiScore); // scores
   // fps
   if (viewFps)
   {
-    renderText(13 * 8, 16, "%2d", (int)fps);
+    App::renderText(13 * 8, 16, "%2d", (int)fps);
   }
   // credits
-  renderText(17 * 8, 256 - 2 * 8, "CREDIT %02d", credits);
+  App::renderText(17 * 8, 256 - 2 * 8, "CREDIT %02d", credits);
 }
