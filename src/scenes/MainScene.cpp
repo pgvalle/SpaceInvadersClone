@@ -7,7 +7,7 @@ MainScene::MainScene()
 {
   fps = 0;
   viewFps = true;
-  fpsUpdateClock.reset(1);
+  fpsViewClock.reset(1);
 
   credits = 0;
   score = 0;
@@ -41,6 +41,12 @@ void MainScene::processEvent(const SDL_Event &event)
         viewFps = !viewFps;
         printf("FPS view turned %s\n", viewFps ? "on" : "off");
         break;
+      case SDLK_y:
+      {
+        Uint16 addition = rand() % 300;
+        pushUserEvent(SCORE_UPDATE_EVENT, &addition, sizeof(addition));
+        break;
+      }
       default:
         break;
     }
@@ -50,7 +56,7 @@ void MainScene::processEvent(const SDL_Event &event)
   case SDL_USEREVENT:
     if (event.user.code == SCORE_UPDATE_EVENT)
     {
-      score += getUint8FromUserEvent(event.user, 0);
+      score += getUint16FromUserEvent(event.user, 0);
       // hiScore needs to keep up with score
       if (score > hiScore)
       {
@@ -68,11 +74,11 @@ void MainScene::processEvent(const SDL_Event &event)
 
 void MainScene::update(float delta)
 {
-  fpsUpdateClock.update(delta);
-  if (fpsUpdateClock.hasTimedOut())
+  fpsViewClock.update(delta);
+  if (fpsViewClock.hasTimedOut())
   {
     fps = 1 / delta;
-    fpsUpdateClock.reset();
+    fpsViewClock.reset();
   }
 }
 

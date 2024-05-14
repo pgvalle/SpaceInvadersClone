@@ -11,7 +11,7 @@ class MainScene : public Scene
 private:
   float fps;
   bool viewFps;
-  Timer fpsUpdateClock;
+  Timer fpsViewClock;
 
   int credits, score, hiScore;
 
