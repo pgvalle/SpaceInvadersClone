@@ -57,7 +57,7 @@ void MainScene::processEvent(const SDL_Event &event)
         hiScore = score;
       }
 
-      freeUserEventData(event);
+      freeUserEventData(event.user);
     }
     break;
 
