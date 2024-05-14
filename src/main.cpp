@@ -11,10 +11,10 @@
 int main(int argc, char **argv)
 {
   configure({.atlasPath = "res/atlas.png",
-              .fontPath = "res/ps2p.ttf",
-              .fps = 60,
-              .wTiles = 28,
-              .hTiles = 32});
+             .fontPath = "res/ps2p.ttf",
+             .fps = 60,
+             .wTiles = 28,
+             .hTiles = 32});
   run(new MainScene());
   terminate();
 
