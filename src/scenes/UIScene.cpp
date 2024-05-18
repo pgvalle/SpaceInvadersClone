@@ -97,9 +97,7 @@ void UIScene::render(SDL_Renderer *renderer)
   SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
   SDL_RenderClear(renderer);
 
-  // rendering globals as part of UI
-
-  App::renderText(8, 8, "SCORE<1>          HI-SCORE\n\n"
+  App::renderText(8, 8, "UR SCORE          HI-SCORE\n\n"
                   " %06d            %06d", score, hiScore); // scores
   // fps
   if (viewFps)
