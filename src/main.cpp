@@ -10,15 +10,18 @@
 
 int main(int argc, char **argv)
 {
-  App::configure({.atlasPath = "res/atlas.png",
-                  .fontPath = "res/ps2p.ttf",
-                  .fps = 60,
-                  .wTiles = 28,
-                  .hTiles = 32});
-  Uint16 value = 230;
-  App::pushUserEvent(SCORE_UPDATE_EVENT, &value, sizeof(Uint16));
+  App::init();
+
+  App::setTitle("Space Invaders");
+  App::setFPS(60);
+  App::setDimensions(28, 32);
+  
+  App::loadAtlas("res/atlas.png");
+  App::loadFont("res/ps2p.ttf");
+
   App::run(new MainScene());
-  App::terminate();
+
+  App::quit();
 
   return 0;
 }
