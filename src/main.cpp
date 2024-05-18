@@ -1,6 +1,6 @@
 #include "App.h"
 
-#include "scenes/MainScene.h"
+#include "scenes/UIScene.h"
 
 #include <SDL.h>
 #include <SDL_ttf.h>
@@ -19,7 +19,7 @@ int main(int argc, char **argv)
   App::loadAtlas("res/atlas.png");
   App::loadFont("res/ps2p.ttf");
 
-  App::run(new MainScene());
+  App::run(new UIScene());
 
   App::quit();
 
