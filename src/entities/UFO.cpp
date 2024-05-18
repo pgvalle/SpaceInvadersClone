@@ -1,6 +1,5 @@
 #include "UFO.h"
-#include "app/App.h"
-#include "defines.h"
+#include "App.h"
 
 #include <stdio.h>
 
@@ -71,7 +70,11 @@ void UFO::update(float delta)
         state = DYING2; // now we show it's score value
         clock.reset(2);
         // sum score value
-        score += scoreValue;
+        SDL_UserEvent event;
+        // event.type = SDL_USEREVENT;
+        // event.code = SCORE_UPDATE_EVENT;
+        // event.data1 = &scoreValue;
+        // SDL_PushEvent((SDL_Event *)&event);
       }
       break;
     case DYING2:
@@ -88,22 +91,23 @@ void UFO::update(float delta)
   }
 }
 
-void UFO::render() const
+void UFO::render(SDL_Renderer *renderer) const
 {
   switch (state)
   {
     case ALIVE:
-      renderTile(x, Y, 0, 0);
-      setFlip(SDL_FLIP_HORIZONTAL);
-      renderTile(x, Y, 0, 0);
-      setFlip(SDL_FLIP_NONE);
+      App::renderTile(x, Y, 0);
+      App::setFlip(SDL_FLIP_HORIZONTAL);
+      App::renderTile(x + 8, Y, 0);
+      App::setFlip(SDL_FLIP_NONE);
       break;
-    case DYING:
-      renderTile(x, Y, 8, 0);
-      renderTile(x, Y, 16, 0);
+    case DYING1:
+      App::renderTile(x, Y, 1);
+      App::renderTile(x + 8, Y, 2);
+      App::renderTile(x + 16, Y, 3);
       break;
     case DYING2:
-      renderText(x, Y, scoreFmt, "%3d", scoreValue);
+      App::renderText(x, Y, "%3d", scoreValue);
       break;
     default:
       break;
