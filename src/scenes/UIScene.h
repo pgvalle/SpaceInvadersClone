@@ -4,9 +4,7 @@
 #include "Scene.h"
 #include "Timer.h"
 
-#define SCORE_UPDATE_EVENT 1
-
-class MainScene : public Scene
+class UIScene : public Scene
 {
 private:
   float fps;
@@ -16,8 +14,8 @@ private:
   int credits, score, hiScore;
 
 public:
-  MainScene();
-  ~MainScene();
+  UIScene();
+  ~UIScene();
 
   void processEvent(const SDL_Event &event) override;
   void update(float delta) override;

@@ -1,9 +1,11 @@
-#include "MainScene.h"
+#include "UIScene.h"
+#include "Events.h"
+
 #include "App.h"
 
 #include <cstdio>
 
-MainScene::MainScene()
+UIScene::UIScene()
 {
   fps = 0;
   viewFps = true;
@@ -14,18 +16,14 @@ MainScene::MainScene()
   hiScore = 0;
 }
 
-MainScene::~MainScene()
+UIScene::~UIScene()
 {
 }
 
-void MainScene::processEvent(const SDL_Event &event)
+void UIScene::processEvent(const SDL_Event &event)
 {
   switch (event.type)
   {
-  case SDL_QUIT:
-    App::shouldClose = true;
-    break;
-
   case SDL_KEYDOWN:
   {
     const SDL_Keycode key = event.key.keysym.sym;
@@ -37,9 +35,12 @@ void MainScene::processEvent(const SDL_Event &event)
       case SDLK_MINUS:
         credits -= (credits > 0 ? 1 : 0);
         break;
-      case SDLK_q:
+      case SDLK_f:
         viewFps = !viewFps;
         printf("FPS view turned %s\n", viewFps ? "on" : "off");
+        break;
+      case SDLK_q:
+        App::pushEvent({ .type = SDL_QUIT });
         break;
       case SDLK_y:
       {
@@ -70,7 +71,7 @@ void MainScene::processEvent(const SDL_Event &event)
   }
 }
 
-void MainScene::update(float delta)
+void UIScene::update(float delta)
 {
   fpsViewClock.update(delta);
   if (fpsViewClock.hasTimedOut())
@@ -80,7 +81,7 @@ void MainScene::update(float delta)
   }
 }
 
-void MainScene::render(SDL_Renderer *renderer)
+void UIScene::render(SDL_Renderer *renderer)
 {
   // clear screen with black color
   SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
