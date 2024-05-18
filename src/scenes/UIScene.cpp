@@ -14,10 +14,20 @@ UIScene::UIScene()
   credits = 0;
   score = 0;
   hiScore = 0;
+
+  FILE *f = fopen("hiscore.txt", "r");
+  if (!f) {
+    f = fopen("hiscore.txt", "w");
+  }
+  fscanf(f, "%d", &hiScore);
+  fclose(f);
 }
 
 UIScene::~UIScene()
 {
+  FILE *f = fopen("hiscore.txt", "w");
+  fprintf(f, "%d", hiScore);
+  fclose(f);
 }
 
 void UIScene::processEvent(const SDL_Event &event)
