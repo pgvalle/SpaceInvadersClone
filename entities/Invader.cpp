@@ -1,7 +1,5 @@
 #include "Horde.h"
-#include "app/App.h"
-#include "defines.h"
-
+#include "App.h"
 
 Horde::Invader::Invader(int col, int row)
 {
@@ -30,14 +28,24 @@ void Horde::Invader::move(int xOff, int yOff)
   x += xOff;
   y += yOff;
   // each movement should change animation frame
-  frame = (frame + 1) % 2;
+  frame = !frame;
 }
 
 void Horde::Invader::render() const
 {
-  SDL_Rect clip = {12 * frame, 16, 12, 8};
-  if (type == 2) clip.y = 32;
-  else if (type == 1) clip.y = 24;
-
-  renderClip(x, y, clip);
+  switch (type)
+  {
+    case 0:
+      App::renderTile(x, y, 6 + frame);
+      break;
+    default:
+    {
+      const int base = 6 * (type + 1);
+      App::renderTile(x, y, base + frame);
+      App::setFlip(SDL_FLIP_HORIZONTAL);
+      App::renderTile(x, y, base + frame);
+      App::setFlip(SDL_FLIP_NONE);
+      break;
+    }
+  }
 }

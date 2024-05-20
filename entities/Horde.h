@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include "utils/Timer.h"
+#include "Timer.h"
 #include "Explosion.h"
 #include "Shot.h"
 
