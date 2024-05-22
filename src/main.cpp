@@ -1,12 +1,5 @@
 #include "App.h"
-
 #include "scenes/PlayScene.h"
-
-#include <SDL.h>
-#include <SDL_ttf.h>
-#include <SDL_image.h>
-
-#include <ctime>
 
 int main(int argc, char **argv)
 {
