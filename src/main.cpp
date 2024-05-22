@@ -3,21 +3,21 @@
 
 int main(int argc, char **argv)
 {
-  App::init();
+  NAGE::init();
 
-  App::setTitle("Space Invaders");
-  App::setIcon("res/icon.bmp");
-  App::setDimensions(28, 32);
-  App::setFPS(60);
+  NAGE::setAppTitle("Space Invaders");
+  NAGE::setAppIcon("res/icon.bmp");
+  NAGE::setAppDimensions(28, 32);
+  NAGE::setAppFPS(60);
   
-  App::loadAtlas("res/atlas.png");
-  App::loadFont("res/ps2p.ttf");
+  NAGE::loadAtlas("res/atlas.png");
+  NAGE::loadFont("res/ps2p.ttf");
 
   UIScene *ui = new UIScene();
-  App::run(new PlayScene(ui));
+  NAGE::run(new PlayScene(ui));
   delete ui;
 
-  App::quit();
+  NAGE::quit();
 
   return 0;
 }

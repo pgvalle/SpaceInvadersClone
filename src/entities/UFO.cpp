@@ -96,18 +96,18 @@ void UFO::render(SDL_Renderer *renderer) const
   switch (state)
   {
     case ALIVE:
-      App::renderTile(x, Y, 0);
-      App::setFlip(SDL_FLIP_HORIZONTAL);
-      App::renderTile(x + 8, Y, 0);
-      App::setFlip(SDL_FLIP_NONE);
+      NAGE::renderTile(x, Y, 0);
+      NAGE::setFlip(SDL_FLIP_HORIZONTAL);
+      NAGE::renderTile(x + 8, Y, 0);
+      NAGE::setFlip(SDL_FLIP_NONE);
       break;
     case DYING1:
-      App::renderTile(x, Y, 1);
-      App::renderTile(x + 8, Y, 2);
-      App::renderTile(x + 16, Y, 3);
+      NAGE::renderTile(x, Y, 1);
+      NAGE::renderTile(x + 8, Y, 2);
+      NAGE::renderTile(x + 16, Y, 3);
       break;
     case DYING2:
-      App::renderText(x, Y, "%3d", scoreValue);
+      NAGE::renderText(x, Y, "%3d", scoreValue);
       break;
     default:
       break;

@@ -50,12 +50,12 @@ void UIScene::processEvent(const SDL_Event &event)
         printf("FPS view turned %s\n", viewFps ? "on" : "off");
         break;
       case SDLK_q:
-        App::pushEvent({ .type = SDL_QUIT });
+        //NAGE::pushEvent(, null, 0);
         break;
       case SDLK_y:
       {
         Uint16 addition = rand() % 300;
-        App::pushUserEvent(SCORE_UPDATE_EVENT, &addition, sizeof(addition));
+        NAGE::pushEvent(SCORE_UPDATE_EVENT, &addition, sizeof(addition));
         break;
       }
       default:
@@ -67,7 +67,7 @@ void UIScene::processEvent(const SDL_Event &event)
   case SDL_USEREVENT:
     if (event.user.code == SCORE_UPDATE_EVENT)
     {
-      score += App::getUserEventData<Uint8>(event.user, 0);
+      score += NAGE::getEventData<Uint8>(event.user, 0);
       // hiScore needs to keep up with score
       if (score > hiScore)
       {
@@ -97,13 +97,13 @@ void UIScene::render(SDL_Renderer *renderer)
   SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
   SDL_RenderClear(renderer);
 
-  App::renderText(8, 8, "UR SCORE          HI-SCORE\n\n"
+  NAGE::renderText(8, 8, "UR SCORE          HI-SCORE\n\n"
                   " %06d            %06d", score, hiScore); // scores
   // fps
   if (viewFps)
   {
-    App::renderText(13 * 8, 16, "%2d", (int)fps);
+    NAGE::renderText(13 * 8, 16, "%2d", (int)fps);
   }
   // credits
-  App::renderText(17 * 8, 256 - 2 * 8, "CREDIT %02d", credits);
+  NAGE::renderText(17 * 8, 256 - 2 * 8, "CREDIT %02d", credits);
 }

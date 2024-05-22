@@ -4,12 +4,12 @@
 #include "Scene.h"
 #include "Timer.h"
 
-class UIScene : public Scene
+class UIScene : public NAGE::Scene
 {
 private:
   float fps;
   bool viewFps;
-  Timer fpsViewClock;
+  NAGE::Timer fpsViewClock;
 
   int credits, score, hiScore;
 

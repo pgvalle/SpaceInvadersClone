@@ -3,7 +3,7 @@
 
 #include "UIScene.h"
 
-class GameScene : public Scene
+class GameScene : public NAGE::Scene
 {
 protected:
   UIScene *ui;
