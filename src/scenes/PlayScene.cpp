@@ -5,6 +5,7 @@
 
 PlayScene::PlayScene(UIScene *ui) : GameScene(ui)
 {
+  state = PLAYING;
 }
 
 PlayScene::~PlayScene()
@@ -39,7 +40,7 @@ void PlayScene::update(float delta)
     // updateShotsAndCollisions();
 
     // updatePlayerShooting();
-    // ufo.update();
+    ufo.update(delta);
 
     // horde.update();
 
@@ -84,4 +85,6 @@ void PlayScene::render(SDL_Renderer *renderer)
   {
     bunkers[i].render(renderer);
   }
+
+  ufo.render(renderer);
 }
