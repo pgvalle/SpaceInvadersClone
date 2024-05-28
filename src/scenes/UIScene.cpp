@@ -49,12 +49,12 @@ void UIScene::processEvent(const SDL_Event &event)
         printf("FPS view turned %s\n", viewFps ? "on" : "off");
         break;
       case SDLK_q:
-        //NAGE::pushEvent(, null, 0);
+        //NAGE::pushUserEvent(, nullptr, 0);
         break;
       case SDLK_y:
       {
         Uint16 addition = (rand() % 3 + 1) * 100;
-        NAGE::pushEvent<int>(SCORE_UPDATE_EVENT, addition);
+        NAGE::pushUserEvent<int>(SCORE_UPDATE_EVENT, addition);
         break;
       }
       default:
