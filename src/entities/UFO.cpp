@@ -2,7 +2,8 @@
 #include "Events.h"
 
 #include <NAGE.h>
-#include <stdio.h>
+#include <cmath>
+#include <cstdio>
 
 #define Y (5 * 8)
 
@@ -21,7 +22,7 @@ bool UFO::checkAndProcessHit(const SDL_Rect &hitbox)
     return false;
   }
 
-  const SDL_Rect ufoHB = {x + 4, Y, 16, 8};
+  const SDL_Rect ufoHB = {(int)roundf(x) + 4, Y, 16, 8};
   const bool hit = SDL_HasIntersection(&hitbox, &ufoHB);
   if (hit)
   {
@@ -43,39 +44,41 @@ void UFO::update(float delta)
       {
         state = ALIVE;
         // randomly choose a corner
-        const bool left = rand() % 2;
-        x = left ? 8 : (24 * 8);
-        xVel = left ? 1 : -1;
+        left = rand() % 2;
+        x = left ? (24 * 8) : 16;
         // randomly choose a score value
         scoreValue = 100;
+      }
+      break;
 
-        clock.reset(0.06);
-      }
-      break;
     case ALIVE:
-      clock.update(delta);
-      if (clock.hasTimedOut())
+    {
+      const float xVel = 40.0f * (left ? -1 : 1);  // 1 canvas_unit/s
+      const float xDelta = xVel * delta;
+      
+      x += xDelta;
+      const int xi = roundf(x);
+      if (xi < 16 || xi > 24 * 8)  // out of bounds
       {
-        x += xVel;
-        if (x < 8 || x > 24 * 8) // out of bounds
-        {
-          // transition to away state
-          state = AWAY;
-          clock.reset(10);
-        }
+        // transition to away state
+        state = AWAY;
+        clock.reset(10);
       }
       break;
+    }
+
     case DYING1:
       // animation frame should change
       clock.update(delta);
       if (clock.hasTimedOut())
       {
-        state = DYING2; // now we show it's score value
+        state = DYING2;  // now we show it's score value
         clock.reset(2);
         // sum score value
         NAGE::pushEvent<int>(SCORE_UPDATE_EVENT, scoreValue);
       }
       break;
+
     case DYING2:
       clock.update(delta);
       if (clock.hasTimedOut())
@@ -85,6 +88,7 @@ void UFO::update(float delta)
         clock.reset(10);
       }
       break;
+
     default:
       break;
   }
@@ -92,21 +96,22 @@ void UFO::update(float delta)
 
 void UFO::render() const
 {
+  const int xi = roundf(x);
   switch (state)
   {
     case ALIVE:
-      NAGE::renderTile(x, Y, 0);
+      NAGE::renderTile(xi, Y, 0);
       NAGE::setFlip(SDL_FLIP_HORIZONTAL);
-      NAGE::renderTile(x + 8, Y, 0);
+      NAGE::renderTile(xi + 8, Y, 0);
       NAGE::setFlip(SDL_FLIP_NONE);
       break;
     case DYING1:
-      NAGE::renderTile(x, Y, 1);
-      NAGE::renderTile(x + 8, Y, 2);
-      NAGE::renderTile(x + 16, Y, 3);
+      NAGE::renderTile(xi, Y, 1);
+      NAGE::renderTile(xi + 8, Y, 2);
+      NAGE::renderTile(xi + 16, Y, 3);
       break;
     case DYING2:
-      NAGE::renderText(x, Y, "%3d", scoreValue);
+      NAGE::renderText(xi, Y, "%3d", scoreValue);
       break;
     default:
       break;

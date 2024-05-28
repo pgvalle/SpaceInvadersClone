@@ -14,9 +14,10 @@ private:
     DYING2, // show its score value
     DEAD    // they are in a better place
   } state;
-  NAGE::Timer clock;
 
-  int x, xVel;
+  NAGE::Timer clock;
+  bool left;
+  float x;
   int scoreValue;
 
 public:
