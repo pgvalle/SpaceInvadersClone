@@ -90,7 +90,7 @@ void UFO::update(float delta)
   }
 }
 
-void UFO::render(SDL_Renderer *renderer) const
+void UFO::render() const
 {
   switch (state)
   {

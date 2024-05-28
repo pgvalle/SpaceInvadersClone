@@ -25,7 +25,7 @@ public:
   bool checkAndProcessHit(const SDL_Rect &hitbox);
 
   void update(float delta);
-  void render(SDL_Renderer *renderer) const;
+  void render() const;
 };
 
 
