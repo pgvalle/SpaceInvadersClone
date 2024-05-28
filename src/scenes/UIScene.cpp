@@ -1,8 +1,7 @@
 #include "UIScene.h"
 #include "Events.h"
 
-#include "App.h"
-
+#include <NAGE.h>
 #include <cstdio>
 
 UIScene::UIScene()
@@ -54,8 +53,8 @@ void UIScene::processEvent(const SDL_Event &event)
         break;
       case SDLK_y:
       {
-        Uint16 addition = rand() % 300;
-        NAGE::pushEvent(SCORE_UPDATE_EVENT, &addition, sizeof(addition));
+        Uint16 addition = (rand() % 3 + 1) * 100;
+        NAGE::pushEvent<int>(SCORE_UPDATE_EVENT, addition);
         break;
       }
       default:
@@ -67,7 +66,7 @@ void UIScene::processEvent(const SDL_Event &event)
   case SDL_USEREVENT:
     if (event.user.code == SCORE_UPDATE_EVENT)
     {
-      score += NAGE::getEventData<Uint8>(event.user, 0);
+      score += NAGE::getEventData<int>(event.user);
       // hiScore needs to keep up with score
       if (score > hiScore)
       {

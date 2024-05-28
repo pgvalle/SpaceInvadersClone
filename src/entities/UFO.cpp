@@ -1,6 +1,7 @@
 #include "UFO.h"
-#include "App.h"
+#include "Events.h"
 
+#include <NAGE.h>
 #include <stdio.h>
 
 #define Y (5 * 8)
@@ -16,7 +17,9 @@ bool UFO::checkAndProcessHit(const SDL_Rect &hitbox)
 {
   // not even there to be hit
   if (state != ALIVE)
+  {
     return false;
+  }
 
   const SDL_Rect ufoHB = {x + 4, Y, 16, 8};
   const bool hit = SDL_HasIntersection(&hitbox, &ufoHB);
@@ -70,11 +73,7 @@ void UFO::update(float delta)
         state = DYING2; // now we show it's score value
         clock.reset(2);
         // sum score value
-        SDL_UserEvent event;
-        // event.type = SDL_USEREVENT;
-        // event.code = SCORE_UPDATE_EVENT;
-        // event.data1 = &scoreValue;
-        // SDL_PushEvent((SDL_Event *)&event);
+        NAGE::pushEvent<int>(SCORE_UPDATE_EVENT, scoreValue);
       }
       break;
     case DYING2:

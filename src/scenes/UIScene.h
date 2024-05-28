@@ -1,8 +1,7 @@
 #ifndef _MAIN_SCENE_
 #define _MAIN_SCENE_
 
-#include "Scene.h"
-#include "Timer.h"
+#include <NAGE.h>
 
 class UIScene : public NAGE::Scene
 {

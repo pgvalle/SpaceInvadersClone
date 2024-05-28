@@ -1,8 +1,7 @@
 #ifndef _UFO_
 #define _UFO_
 
-#include "Timer.h"
-#include <SDL.h>
+#include <NAGE.h>
 
 struct UFO
 {

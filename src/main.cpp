@@ -1,14 +1,14 @@
-#include "App.h"
+#include <NAGE.h>
 #include "scenes/PlayScene.h"
 
 int main(int argc, char **argv)
 {
   NAGE::init();
 
-  NAGE::setAppTitle("Space Invaders");
-  NAGE::setAppIcon("res/icon.bmp");
-  NAGE::setAppDimensions(28, 32);
-  NAGE::setAppFPS(60);
+  NAGE::setTitle("Space Invaders");
+  NAGE::setIcon("res/icon.bmp");
+  NAGE::setDimensions(28, 32);
+  NAGE::setFPS(60);
   
   NAGE::loadAtlas("res/atlas.png");
   NAGE::loadFont("res/ps2p.ttf");

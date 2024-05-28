@@ -1,7 +1,7 @@
 #include "PlayScene.h"
 #include "Events.h"
 
-#include "App.h"
+#include <NAGE.h>
 
 PlayScene::PlayScene(UIScene *ui) : GameScene(ui)
 {
