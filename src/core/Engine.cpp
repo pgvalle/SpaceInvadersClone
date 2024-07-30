@@ -17,7 +17,7 @@ void Engine::terminate()
   SDL_Quit();
 }
 
-Engine::Engine()
+Engine::Engine(Scene *scene)
 {
   window = SDL_CreateWindow(
     "Space Invaders Clone",
@@ -40,7 +40,8 @@ Engine::Engine()
   time_b4 = SDL_GetTicks();
   time_after = time_b4;
 
-  mainloop();
+  current_scene = scene;
+  next_scene = nullptr;
 }
 
 Engine::~Engine()
@@ -52,48 +53,44 @@ Engine::~Engine()
 }
 
 void Engine::change_scene(Scene *scene) {
+  next_scene = scene;
+}
 
+void Engine::request_exit() {
+  SDL_QuitEvent evt;
+  evt.type = SDL_QUIT;
+  evt.timestamp = SDL_GetTicks();
+  SDL_PushEvent((SDL_Event *)&evt);
 }
 
 void Engine::mainloop() {
   Uint32 delta = 0;
   const Uint32 tgt_delta = 1000 / FPS;
 
-  while (true) {
+  while (current_scene) {
     time_b4 = time_after;
     time_after = SDL_GetTicks();
 
     // query and process events
-    SDL_Event event;
-    if (SDL_WaitEventTimeout(&event, tgt_delta)) {
-      if (event.type == SDL_QUIT) return;
-      process_events();
+    SDL_Event evt;
+    if (SDL_WaitEventTimeout(&evt, tgt_delta)) {
+      if (evt.type == SDL_QUIT) return;
+      current_scene->process_event(this, evt);
     }
 
-    render();
-    update();
+    current_scene->update(this);
+    current_scene->render(this);
+    SDL_RenderPresent(renderer);
+
+    if (next_scene) {
+      delete current_scene;
+      current_scene = next_scene;
+      next_scene = nullptr;
+    }
 
     const Uint32 real_delta = SDL_GetTicks() - time_b4;
     if (real_delta < tgt_delta) {
       SDL_Delay(tgt_delta - real_delta);
-    }    
+    }
   }
 }
-
-void Engine::process_events() {
-
-}
-
-void Engine::update() {
-
-}
-
-void Engine::render() {
-  SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-  SDL_RenderClear(renderer);
-
-  
-
-  SDL_RenderPresent(renderer);
-}
-

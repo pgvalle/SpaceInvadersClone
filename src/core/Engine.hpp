@@ -11,7 +11,7 @@ public:
   static void init();
   static void terminate();
 
-  Engine();
+  Engine(Scene *scene);
   ~Engine();
 
   // Engine API for scenes
@@ -21,6 +21,7 @@ public:
   }
 
   void change_scene(Scene *scene);
+  void request_exit();
 
   SDL_Window *window;
   SDL_Renderer *renderer;
@@ -31,13 +32,7 @@ private:
   Uint32 time_b4, time_after;
   Scene *current_scene, *next_scene;
 
-  // game loop stuff
-
   void mainloop();
-
-  void process_events();
-  void update();
-  void render();
 };
 
 #endif  // CORE_ENGINE
