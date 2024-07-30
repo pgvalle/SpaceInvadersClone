@@ -11,7 +11,7 @@ rem Set the compiler command
 set "compiler=g++"
 
 rem Set compiler flags
-set "flags=-std=c++11 -IC:\Dev\MinGW\x86_64-w64-mingw32\include\SDL2 -I.\deps\NAGE\include -I%source_dir% -lmingw32 -lSDL2main -lSDL2 -lSDL2_ttf -lSDL2_image"
+set "flags=-std=c++11 -IC:\Dev\MinGW\x86_64-w64-mingw32\include\SDL2 -I%source_dir% -lmingw32 -lSDL2main -lSDL2 -lSDL2_ttf -lSDL2_image"
 
 rem Set the output directory for executables
 set "output_dir=.\build"
