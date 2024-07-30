@@ -1,3 +1,0 @@
-[submodule "deps/NAGE"]
-	path = deps/NAGE
-	url = https://github.com/pgvalle/NAGE

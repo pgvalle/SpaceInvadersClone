@@ -3,14 +3,11 @@
 # make sure to run script in rootdir
 cd $(dirname $0)
 
-deps/NAGE/build.sh
-echo ""
-
 # Specify the directory containing your .cpp files
 SOURCE_DIR="src"
 BUILD_DIR="build"
 FLAGS="-Wall -std=c++17 -Ideps/NAGE/include -I$SOURCE_DIR $(pkg-config --cflags sdl2 SDL2_image SDL2_ttf)"
-LIBS="-Ldeps/NAGE -lnage $(pkg-config --libs sdl2 SDL2_image SDL2_ttf)"
+LIBS="$(pkg-config --libs sdl2 SDL2_image SDL2_ttf)"
 
 # If the first argument is "clean", then clean the build directory
 if [ "$1" == "clean" ]; then
