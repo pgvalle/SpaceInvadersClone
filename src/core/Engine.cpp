@@ -1,7 +1,6 @@
-#include "Engine.hpp"
-#include "Scene.hpp"
-#include "defines.h"
-#include <assert.h>
+#include <common.h>
+
+Engine *eng = nullptr;
 
 void Engine::init()
 {
@@ -37,11 +36,16 @@ Engine::Engine(Scene *scene)
   font = TTF_OpenFont("./res/ps2p.ttf", TILE);
   assert(font);
 
+  score = 0;
+  hi_score = 0;  // TODO: load from file
+
   time_b4 = SDL_GetTicks();
   time_after = time_b4;
 
   current_scene = scene;
   next_scene = nullptr;
+
+  mainloop();
 }
 
 Engine::~Engine()
@@ -63,8 +67,17 @@ void Engine::request_exit() {
   SDL_PushEvent((SDL_Event *)&evt);
 }
 
+void Engine::push_user_event(int code, void *data, size_t sizeof_data) {
+  SDL_UserEvent event;
+  event.type = SDL_USEREVENT;
+  event.code = code;
+  event.data1 = malloc(sizeof_data);
+  memcpy(event.data1, data, sizeof_data);
+
+  SDL_PushEvent((SDL_Event *) &event);
+}
+
 void Engine::mainloop() {
-  Uint32 delta = 0;
   const Uint32 tgt_delta = 1000 / FPS;
 
   while (current_scene) {

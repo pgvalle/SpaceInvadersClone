@@ -23,10 +23,14 @@ public:
   void change_scene(Scene *scene);
   void request_exit();
 
+  void push_user_event(int code, void *data, size_t sizeof_data);
+
   SDL_Window *window;
   SDL_Renderer *renderer;
   SDL_Texture *atlas;
   TTF_Font *font;
+
+  int score, hi_score;
 
 private:
   Uint32 time_b4, time_after;
@@ -34,5 +38,7 @@ private:
 
   void mainloop();
 };
+
+extern Engine *eng;
 
 #endif  // CORE_ENGINE
