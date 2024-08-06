@@ -1,11 +1,13 @@
-#include "core/Engine.hpp"
+#include <common.h>
+#include <scenes/game/Game.h>
 
 int main(int argc, char **argv)
 {
   Engine::init();
   
-  Engine *eng = new Engine;
+  eng = new Engine(new Game());
   delete eng;
+  eng = nullptr;
 
   Engine::terminate();
 
