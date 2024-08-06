@@ -1,31 +1,20 @@
 #include "UFO.h"
-#include "Events.h"
-
-#include <NAGE.h>
-#include <cmath>
-#include <cstdio>
 
 #define Y (5 * 8)
 
-UFO::UFO()
-{
+UFO::UFO() {
   // start at away state
   state = AWAY;
   clock.reset(10); // spawn
 }
 
-bool UFO::checkAndProcessHit(const SDL_Rect &hitbox)
-{
+bool UFO::checkAndProcessHit(const SDL_Rect &hitbox) {
   // not even there to be hit
-  if (state != ALIVE)
-  {
-    return false;
-  }
+  if (state != ALIVE) return false;
 
   const SDL_Rect ufoHB = {(int)roundf(x) + 4, Y, 16, 8};
   const bool hit = SDL_HasIntersection(&hitbox, &ufoHB);
-  if (hit)
-  {
+  if (hit) {
     // transition to dying1 state
     state = DYING1;
     clock.reset(0.3);
@@ -34,14 +23,11 @@ bool UFO::checkAndProcessHit(const SDL_Rect &hitbox)
   return hit;
 }
 
-void UFO::update(float delta)
-{
-  switch (state)
-  {
+void UFO::update(float delta) {
+  switch (state) {
     case AWAY:
       clock.update(delta);
-      if (clock.hasTimedOut())
-      {
+      if (clock.has_timed_out()) {
         state = ALIVE;
         // randomly choose a corner
         left = rand() % 2;
@@ -51,15 +37,13 @@ void UFO::update(float delta)
       }
       break;
 
-    case ALIVE:
-    {
-      const float xVel = 40.0f * (left ? -1 : 1);  // 1 canvas_unit/s
-      const float xDelta = xVel * delta;
+    case ALIVE: {
+      const float x_vel = 40.0f * (left ? -1 : 1);  // 1 canvas_unit/s
+      const float dx = x_vel * delta;
       
-      x += xDelta;
+      x += dx;
       const int xi = roundf(x);
-      if (xi < 16 || xi > 24 * 8)  // out of bounds
-      {
+      if (xi < 16 || xi > 24 * 8) { // out of bounds
         // transition to away state
         state = AWAY;
         clock.reset(10);
@@ -70,19 +54,17 @@ void UFO::update(float delta)
     case DYING1:
       // animation frame should change
       clock.update(delta);
-      if (clock.hasTimedOut())
-      {
+      if (clock.has_timed_out()) {
         state = DYING2;  // now we show it's score value
         clock.reset(2);
         // sum score value
-        NAGE::pushEvent<int>(SCORE_UPDATE_EVENT, scoreValue);
+        
       }
       break;
 
     case DYING2:
       clock.update(delta);
-      if (clock.hasTimedOut())
-      {
+      if (clock.has_timed_out()) {
         // transition to away state
         state = AWAY;
         clock.reset(10);

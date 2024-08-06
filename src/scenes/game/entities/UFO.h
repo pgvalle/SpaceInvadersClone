@@ -1,13 +1,11 @@
-#ifndef _UFO_
-#define _UFO_
+#ifndef SCENES_GAME_ENTITIES_UFO
+#define SCENES_GAME_ENTITIES_UFO
 
-#include <NAGE.h>
+#include <common.h>
 
-struct UFO
-{
+struct UFO {
 private:
-  enum State
-  {
+  enum State {
     AWAY,
     ALIVE,
     DYING1, // showing death animation
@@ -15,7 +13,7 @@ private:
     DEAD    // they are in a better place
   } state;
 
-  NAGE::Timer clock;
+  Timer clock;
   bool left;
   float x;
   int scoreValue;
@@ -30,4 +28,4 @@ public:
 };
 
 
-#endif /* _UFO_ */
+#endif  // SCENES_GAME_ENTITIES_UFO
