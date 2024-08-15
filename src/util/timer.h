@@ -7,9 +7,11 @@ private:
   float elapsed = 0, timeout = 0;
 
 public:
+  static float getRandomTimeout(float min, float max);
+
   bool hasTimedOut() const;
 
-  void update(float delta);
+  void update();
   void reset(float newTimeout = 0);
 };
 
