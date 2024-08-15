@@ -9,9 +9,7 @@ struct Explosion
   SDL_Rect clip;
   Timer clock;
 
-  Explosion(int x, int y, float lifespan, const SDL_Rect &clip);
+  Explosion(int x, int y, float lifespan);
 };
-
-DECL(std::vector<Explosion>, esplosions);
 
 #endif // ENTITIES_EXPLOSION
