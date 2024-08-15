@@ -21,8 +21,9 @@ struct Invader
 
 struct Horde
 {
-  bool left;
   Timer clock;
+  bool populating;
+  int x, vx;
   std::vector<Invader> invaders;
 
   Horde();
@@ -32,6 +33,6 @@ struct Horde
   void render() const;
 };
 
-DECL(Horde, horde);
+extern Horde horde;
 
 #endif  // ENTITIES_HORDE

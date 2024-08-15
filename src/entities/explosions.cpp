@@ -31,3 +31,5 @@ void renderExplosions()
     SDL_RenderCopy(ren, atlas, &rect, &e->clip);
   }
 }
+
+std::vector<Explosion *> explosions;

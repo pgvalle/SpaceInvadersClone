@@ -124,3 +124,5 @@ void UFO::render() const
     break;
   }
 }
+
+UFO ufo;

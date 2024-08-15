@@ -27,6 +27,6 @@ struct UFO
   void render() const;
 };
 
-DECL(UFO, ufo);
+extern UFO ufo;
 
 #endif  // ENTITIES_UFO
