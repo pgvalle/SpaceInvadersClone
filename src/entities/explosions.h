@@ -3,7 +3,7 @@
 
 #include "explosion.h"
 
-DECL(std::vector<Explosion *>, explosions);
+extern std::vector<Explosion *> explosions;
 
 void updateExplosions();
 void renderExplosions();

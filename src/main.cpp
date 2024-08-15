@@ -1,7 +1,5 @@
 #include "globals.h"
-#include "entities/ufo.h"
-
-// FUNCTIONS //
+#include "entities/entities.h"
 
 void init();
 void destroy();
@@ -9,7 +7,7 @@ void destroy();
 int loadHighScore();
 
 void loop();
-void processEvent(const SDL_Event *event);
+void processEvent(const SDL_Event &event);
 void update();
 void render();
 
@@ -24,6 +22,7 @@ int main(int argc, char **argv)
 
 void init()
 {
+  srand(time(nullptr));
   SDL_Init(SDL_INIT_EVERYTHING);
   IMG_Init(IMG_INIT_PNG);
 
@@ -43,13 +42,14 @@ void init()
 
   atlas = IMG_LoadTexture(ren, "../res/atlas.png");
   assert(atlas);
+
   font = FC_CreateFont();
   FC_LoadFont(
       font,
       ren,
       "../res/ps2p.ttf",
       TILE,
-      (SDL_Color){255, 255, 255, 255},
+      FC_MakeColor(255, 255, 255, 255),
       TTF_STYLE_NORMAL);
 
   score = 0;
@@ -83,7 +83,7 @@ void loop()
       {
         if (event.type == SDL_QUIT)
           return;
-        processEvent(&event);
+        processEvent(event);
       }
 
       const Uint32 timeWasted = SDL_GetTicks() - before;
@@ -95,13 +95,15 @@ void loop()
   }
 }
 
-void processEvent(const SDL_Event *event)
+void processEvent(const SDL_Event &event)
 {
 }
 
 void update()
 {
   ufo.update();
+  horde.update();
+  updateExplosions();
 }
 
 void render()
@@ -109,6 +111,8 @@ void render()
   SDL_SetRenderDrawColor(ren, 0, 0, 0, 255);
   SDL_RenderClear(ren);
   ufo.render();
+  horde.render();
+  renderExplosions();
   SDL_RenderPresent(ren);
 }
 
