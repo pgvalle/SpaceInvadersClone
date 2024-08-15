@@ -6,11 +6,11 @@
 
 enum UFOState
 {
-  AWAY,
-  ALIVE,
-  EXPLODING,
-  SHOWING_SCORE,
-  DEAD
+  UFO_AWAY,
+  UFO_ALIVE,
+  UFO_EXPLODING,
+  UFO_SHOWING_SCORE,
+  UFO_DEAD
 };
 
 struct UFO
