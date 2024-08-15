@@ -4,10 +4,12 @@
 
 #define UFO_Y (5 * TILE)
 #define UFO_LLIMIT (2 * TILE)
-#define UFO_RLIMIT (16 * TILE)
+#define UFO_RLIMIT (26 * TILE)
+
+#define UFO_SPEED 40
 
 #define UFO_TIME_EXPLODING 0.5
-#define UFO_TIME_TO_RESPAWN Timer::getRandomTimeout(10, 15)
+#define UFO_TIME_TO_RESPAWN Timer::getRandomTimeout(0, 3)
 
 UFO::UFO()
 {
@@ -27,8 +29,9 @@ Explosion *UFO::onHit(const SDL_Rect &rect)
 
   state = EXPLODING;
   clock.reset(UFO_TIME_EXPLODING);
-  
-  Explosion *e = new Explosion(x, UFO_Y, UFO_TIME_EXPLODING);
+
+  // offset bc explosion sprite width is 8 pixels bigger
+  Explosion *e = new Explosion(x - 4, UFO_Y, UFO_TIME_EXPLODING);
   e->clip = {16, 0, 24, 8};
 
   return e;
@@ -51,29 +54,27 @@ void UFO::update()
       if (rand() % 2)
       {
         x = UFO_LLIMIT;
-        vx = 0.6;
+        vx = UFO_SPEED;
       }
       else
       {
         x = UFO_RLIMIT;
-        vx = -0.6;
-      }      
+        vx = -UFO_SPEED;
+      }
     }
     break;
-
   case ALIVE:
   {
     x += vx * delta;
-    const int xi = roundf(x);
-  
-    if (xi < UFO_LLIMIT || xi > UFO_RLIMIT) // out of bounds
+
+    const int ix = roundf(x);
+    if (ix < UFO_LLIMIT || ix > UFO_RLIMIT) // out of bounds
     {
       state = AWAY;
       clock.reset(UFO_TIME_TO_RESPAWN);
     }
     break;
   }
-
   case EXPLODING:
     clock.update();
     if (clock.hasTimedOut())
@@ -83,7 +84,6 @@ void UFO::update()
       addToScore(scoreValue);
     }
     break;
-
   case SHOWING_SCORE:
     clock.update();
     if (clock.hasTimedOut())
@@ -102,15 +102,22 @@ void UFO::render() const
 {
   SDL_SetRenderDrawColor(ren, 255, 0, 0, 255);
 
-  SDL_FRect fr = {x + 4, UFO_Y, 2 * TILE, TILE};
   switch (state)
   {
   case ALIVE:
-    SDL_RenderFillRectF(ren, &fr);
+  {
+    const SDL_Rect src = {0, 0, 16, 8},
+                   dst = {(int)roundf(x), UFO_Y, 2 * TILE, TILE};
+    SDL_RenderCopy(ren, atlas, &src, &dst);
     break;
+  }
   case EXPLODING:
-    SDL_RenderFillRectF(ren, &fr);
+  {
+    const SDL_Rect src = {0, 0, 24, 8},
+                   dst = {(int)roundf(x) - 4, UFO_Y, 3 * TILE, TILE};
+    SDL_RenderCopy(ren, atlas, &src, &dst);
     break;
+  }
   case SHOWING_SCORE:
     // NAGE::renderText(xi, Y, "%3d", scoreValue);
     break;
