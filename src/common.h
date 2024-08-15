@@ -5,6 +5,8 @@
 
 #include <stdio.h>
 #include <assert.h>
+#include <math.h>
+#include <time.h>
 #include <vector>
 
 #include <SDL2/SDL.h>
