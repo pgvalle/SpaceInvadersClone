@@ -17,8 +17,7 @@ struct UFO
 {
   UFOState state;
   Timer clock;
-  bool left;
-  float x;
+  float x, vx;
   int scoreValue;
 
   UFO();

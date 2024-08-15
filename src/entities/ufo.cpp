@@ -1,30 +1,37 @@
 #include "ufo.h"
+#include "explosion.h"
 #include "globals.h"
 
-#define Y (5 * TILE)
+#define UFO_Y (5 * TILE)
+#define UFO_LLIMIT (2 * TILE)
+#define UFO_RLIMIT (16 * TILE)
+
+#define UFO_TIME_EXPLODING 0.5
+#define UFO_TIME_TO_RESPAWN Timer::getRandomTimeout(10, 15)
 
 UFO::UFO()
 {
   state = AWAY;
-  clock.reset(10); // spawn after 10s
+  clock.reset(UFO_TIME_TO_RESPAWN); // spawn after 10s
 }
 
 Explosion *UFO::onHit(const SDL_Rect &rect)
 {
-  // not even there to be hit
   if (state != ALIVE)
     return nullptr;
 
-  const SDL_Rect ufoRect = {roundf(x) + 4, Y, 2 * TILE, TILE};
-  if (SDL_HasIntersection(&rect, &ufoRect))
-  {
-    state = EXPLODING;
-    clock.reset(0.3);
-    
-    return new Explosion(x, Y, 2, {0, 0, rect.w, rect.h});
-  }
+  const SDL_Rect ufoRect = {(int)roundf(x), UFO_Y, 2 * TILE, TILE};
 
-  return nullptr;
+  if (!SDL_HasIntersection(&rect, &ufoRect))
+    return nullptr;
+
+  state = EXPLODING;
+  clock.reset(UFO_TIME_EXPLODING);
+  
+  Explosion *e = new Explosion(x, UFO_Y, UFO_TIME_EXPLODING);
+  e->clip = {16, 0, 24, 8};
+
+  return e;
 }
 
 void UFO::update()
@@ -34,33 +41,41 @@ void UFO::update()
   switch (state)
   {
   case AWAY:
-    clock.update(delta);
+    clock.update();
     if (clock.hasTimedOut())
     {
       state = ALIVE;
-      // randomly choose a corner
-      left = rand() % 2;
-      x = left ? (24 * 8) : 16;
       scoreValue = 100; // TODO: randomize score value
+
+      // randomly choose a corner
+      if (rand() % 2)
+      {
+        x = UFO_LLIMIT;
+        vx = 0.6;
+      }
+      else
+      {
+        x = UFO_RLIMIT;
+        vx = -0.6;
+      }      
     }
     break;
 
   case ALIVE:
   {
-    const float vx = 40.0f * (left ? -1 : 1); // 1 canvas_unit/s
     x += vx * delta;
     const int xi = roundf(x);
-    if (xi < 16 || xi > 24 * 8) // out of bounds
+  
+    if (xi < UFO_LLIMIT || xi > UFO_RLIMIT) // out of bounds
     {
       state = AWAY;
-      clock.reset(10);
+      clock.reset(UFO_TIME_TO_RESPAWN);
     }
     break;
   }
 
   case EXPLODING:
-    // animation frame should change
-    clock.update(delta);
+    clock.update();
     if (clock.hasTimedOut())
     {
       state = SHOWING_SCORE;
@@ -70,11 +85,11 @@ void UFO::update()
     break;
 
   case SHOWING_SCORE:
-    clock.update(delta);
+    clock.update();
     if (clock.hasTimedOut())
     {
       state = AWAY;
-      clock.reset(10);
+      clock.reset(UFO_TIME_TO_RESPAWN);
     }
     break;
 
@@ -87,7 +102,7 @@ void UFO::render() const
 {
   SDL_SetRenderDrawColor(ren, 255, 0, 0, 255);
 
-  SDL_FRect fr = {x + 4, Y, 2 * TILE, TILE};
+  SDL_FRect fr = {x + 4, UFO_Y, 2 * TILE, TILE};
   switch (state)
   {
   case ALIVE:
