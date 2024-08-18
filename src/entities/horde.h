@@ -22,8 +22,8 @@ struct Invader
 struct Horde
 {
   Timer clock;
-  bool populating;
   int x, vx;
+  bool populating;
   std::vector<Invader> invaders;
 
   Horde();

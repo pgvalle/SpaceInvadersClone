@@ -1,6 +1,11 @@
 #include "globals.h"
 #include "entities/entities.h"
 
+static inline
+float getTime() {
+  return 1e-3 * SDL_GetTicks();
+}
+
 void init();
 void destroy();
 
@@ -8,7 +13,7 @@ int loadHighScore();
 
 void loop();
 void processEvent(const SDL_Event &event);
-void update();
+void update(float dt);
 void render();
 
 int main(int argc, char **argv)
@@ -54,6 +59,8 @@ void init()
 
   score = 0;
   highScore = loadHighScore();
+
+  running = true;
 }
 
 void destroy()
@@ -68,38 +75,43 @@ void destroy()
 
 void loop()
 {
-  const Uint32 targetDelta = 1000 / FPS;
+  const float targetDt = 1.0 / FPS;
+  float dt = 0, accum = 0;
 
-  while (true)
+  while (running)
   {
-    Uint32 delta = 0;
+    const float before = getTime();
 
-    while (delta < targetDelta)
+    while (accum < targetDt)
     {
-      const Uint32 before = SDL_GetTicks();
       SDL_Event event;
 
-      if (SDL_WaitEventTimeout(&event, targetDelta - delta))
-      {
-        if (event.type == SDL_QUIT)
-          return;
+      if (SDL_WaitEventTimeout(&event, targetDt - accum))
         processEvent(event);
-      }
 
-      const Uint32 timeWasted = SDL_GetTicks() - before;
-      delta += timeWasted;
+      const float totalTimeWasted = getTime() - before;
+      accum = totalTimeWasted;
     }
 
-    update();
+    update(dt);
     render();
+    
+    dt = getTime() - before;
+    accum = targetDt - dt;
   }
 }
 
 void processEvent(const SDL_Event &event)
 {
+  if (event.type == SDL_QUIT) {
+    running = false;
+    return;
+  }
+
+  
 }
 
-void update()
+void update(float dt)
 {
   ufo.update();
   horde.update();

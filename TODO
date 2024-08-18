@@ -9,3 +9,6 @@ Later
 #3. Fix performance issue in windows
 #4. Implement high-score persistence
 #5. update readme
+
+Actual up-to-date todo list
+1. Rearange constants in common.h to somewhere that makes more sense, such as config.h or defines.h...

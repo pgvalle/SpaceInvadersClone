@@ -19,7 +19,7 @@
 #endif
 
 #define TILE 8
-#define WIDTH (30 * TILE)
+#define WIDTH (28 * TILE)
 #define HEIGHT (32 * TILE)
 
 #define FPS 60

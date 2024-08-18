@@ -3,9 +3,9 @@
 
 float Timer::getRandomTimeout(float min, float max)
 {
-  const float normalizedRand = (float)rand() / RAND_MAX;
-  const float intervalSize = std::max(min, max) - std::min(min, max);
-  return normalizedRand * intervalSize + std::min(min, max);
+  const float normalized = (float)rand() / RAND_MAX;
+  const float interval = std::max(min, max) - std::min(min, max);
+  return normalized * interval + std::min(min, max);
 }
 
 bool Timer::hasTimedOut() const

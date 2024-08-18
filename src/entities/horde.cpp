@@ -1,12 +1,15 @@
 #include "horde.h"
 #include "globals.h"
 
+#define HORDE_LLIMIT (TILE)
+#define HORDE_RLIMIT (WIDTH - 3 * TILE)
+
 Invader::Invader(int row, int col)
 {
   type = 0;
   if (row > 2)
     type = 2;
-  else if (row > 0)
+  else if (row > 1)
     type = 1;
 
   animationFrame = 0;
@@ -17,18 +20,17 @@ Invader::Invader(int row, int col)
 
 int Invader::getScoreValue() const
 {
-  return 10 * (3 - type); // 30, 20, 10
+  return 10 * (3 - type); // type 0: 30, type 1: 20, type 2: 10
 }
 
 SDL_Rect Invader::getRect() const
 {
-  SDL_Rect rect = {x + 2, y, 8, 8};
   if (type == 2)
-    rect = {x + 1, y, 11, 8};
-  else if (type == 1)
-    rect = {x, y, 12, 8};
+    return {x - 2, y, 12, 8};
+  if (type == 1)
+    return {x - 1, y, 11, 8};
 
-  return rect;
+  return {x, y, 8, 8};
 }
 
 void Invader::move(int xOff, int yOff)
@@ -41,14 +43,15 @@ void Invader::move(int xOff, int yOff)
 
 void Invader::render() const
 {
-  SDL_SetRenderDrawColor(ren, 255, 255, 255, 255);
-  const SDL_Rect rect = {x, y, 8, 8};
-  SDL_RenderFillRect(ren, &rect);
+  const SDL_Rect dst = getRect(),
+                 src = {animationFrame * dst.w, 16 + 8 * type, dst.w, dst.h};
+
+  SDL_RenderCopy(ren , atlas, &src, &dst);
 }
 
 Horde::Horde()
 {
-  clock.reset(0.033);
+  clock.reset(0.016);
   populating = true;
 }
 
@@ -86,7 +89,7 @@ void Horde::update()
     
     const int count = invaders.size();
     // start from the bottom-left. Iterate line first
-    const int row = 10 - count / 11;
+    const int row = 4 - count / 11;
     const int col = count % 11;
     invaders.push_back(Invader(row, col));
     return;
@@ -94,7 +97,7 @@ void Horde::update()
 
   if (populating) // now populated
   {
-    clock.reset(55 * 0.033);
+    clock.reset(invaders.size() * 0.016);
     populating = false;
     x = 7;
     vx = 2; // start going right
@@ -102,19 +105,22 @@ void Horde::update()
   }
 
   // time to move horde
+  clock.reset(invaders.size() * 0.016);
 
   int vy = 0;
-  if (++x == 16)
+  for (Invader &i : invaders)
   {
-    x = 0;
-    vx = -vx;
-    vy = 8;
+    const SDL_Rect rect = i.getRect();
+    if (rect.x < HORDE_LLIMIT || rect.x > HORDE_RLIMIT)
+    {
+      vx = -vx;
+      vy = 8;
+      break;
+    }
   }
 
   for (Invader &i : invaders)
     i.move(vx, vy);
-  // move and check movements for an inversion
-  clock.reset();    
 }
 
 void Horde::render() const

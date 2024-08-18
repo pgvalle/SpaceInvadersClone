@@ -2,8 +2,8 @@
 #include "globals.h"
 
 #define UFO_Y (5 * TILE)
-#define UFO_LLIMIT (2 * TILE)
-#define UFO_RLIMIT (26 * TILE)
+#define UFO_LLIMIT (TILE)
+#define UFO_RLIMIT (24 * TILE)
 
 #define UFO_SPEED 40
 
