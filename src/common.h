@@ -1,7 +1,7 @@
 #ifndef COMMON_H
 #define COMMON_H
 
-#include "util/timer.h"
+#include "util/Timer.h"
 
 #include <cstdio>
 #include <cassert>
