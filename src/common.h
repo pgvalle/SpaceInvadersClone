@@ -1,27 +1,19 @@
-#ifndef CORE_COMMON
-#define CORE_COMMON
+#ifndef COMMON_H
+#define COMMON_H
 
 #include "util/timer.h"
 
-#include <stdio.h>
-#include <assert.h>
-#include <math.h>
-#include <time.h>
+#include <cstdio>
+#include <cassert>
+#include <cmath>
+#include <ctime>
 #include <vector>
 
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_image.h>
+#include <functional>
+typedef std::function<void()> Callback;
+
+#include <SDL.h>
+#include <SDL_image.h>
 #include <SDL_FontCache.h>
 
-// No need to re-tell in a .c/.cpp what we declared in a .h as global (extern)
-#ifndef DECL
-#define DECL(type, name1, ...) extern type name1, ##__VA_ARGS__
-#endif
-
-#define TILE 8
-#define WIDTH (28 * TILE)
-#define HEIGHT (32 * TILE)
-
-#define FPS 60
-
-#endif // CORE_COMMON
+#endif // COMMON_H
