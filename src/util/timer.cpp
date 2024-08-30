@@ -1,27 +1,43 @@
-#include "timer.h"
-#include "globals.h"
+#include "Timer.h"
+#include "common.h"
 
-float Timer::getRandomTimeout(float min, float max)
+Timer::Timer(float $timeout)
 {
-  const float normalized = (float)rand() / RAND_MAX;
-  const float interval = std::max(min, max) - std::min(min, max);
-  return normalized * interval + std::min(min, max);
+  reset($timeout);
+  onTimeout = []()
+  {
+    printf("Timer timed out!\n");
+  };
 }
 
-bool Timer::hasTimedOut() const
+float Timer::getRandomTime(float min, float max)
 {
-  return timeout <= elapsed;
+  assert(min <= max);
+
+  const float from0to1 = (float)rand() / RAND_MAX;
+  return from0to1 * (max - min) + min;
 }
 
-void Timer::update()
+void Timer::setTimeoutCallback(Callback cb)
+{
+  onTimeout = cb;
+}
+
+void Timer::update(float dt)
 {
   if (elapsed < timeout)
-    elapsed += 1.0 / FPS;
+    elapsed += dt;
+  else if (!onTimeoutCalled)
+  {
+    onTimeout();
+    onTimeoutCalled = true;
+  }
 }
 
 void Timer::reset(float newTimeout)
 {
-  elapsed = 0;
   if (newTimeout)
     timeout = newTimeout;
+  elapsed = 0;
+  onTimeoutCalled = false;
 }

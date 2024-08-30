@@ -1,17 +1,27 @@
 #ifndef UTIL_TIMER
 #define UTIL_TIMER
 
+#include <functional>
+
+// Everything in seconds
 class Timer
 {
+public:
+  using Callback = std::function<void()>;
+
 private:
-  float elapsed = 0, timeout = 0;
+  float elapsed, timeout;
+  bool onTimeoutCalled;
+  Callback onTimeout;
 
 public:
-  static float getRandomTimeout(float min, float max);
+  static float getRandomTime(float min, float max);
 
-  bool hasTimedOut() const;
+  Timer(float timeout = 0);
 
-  void update();
+  void setTimeoutCallback(Callback cb);
+
+  void update(float dt);
   void reset(float newTimeout = 0);
 };
 
