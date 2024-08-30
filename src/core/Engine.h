@@ -13,7 +13,7 @@ public:
 
 protected:
   Engine();
-  virtual ~Engine();
+  virtual ~Engine() = default;
 
   void loop();
 
