@@ -6,10 +6,6 @@ Engine::Engine()
   shouldStop = false;
 }
 
-Engine::~Engine()
-{
-}
-
 void Engine::loop()
 {
   const Uint32 msPerTick = 1000 / TICKRATE;

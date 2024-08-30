@@ -58,4 +58,10 @@ void MyEngine::update(float dt)
 
 void MyEngine::render(float dt)
 {
+  SDL_SetRenderDrawColor(ren, 0, 0, 0, 255);
+  SDL_RenderClear(ren);
+
+  // here goes everything to render
+
+  SDL_RenderPresent(ren);
 }
