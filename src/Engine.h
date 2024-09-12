@@ -2,11 +2,6 @@
 #define CORE_ENGINE
 
 #include <common.h>
-#include <memory>
-
-#include <SDL.h>
-#include <SDL_image.h>
-#include <SDL_FontCache.h>
 
 #define TILE 8
 #define WIDTH (28 * TILE)
@@ -16,26 +11,30 @@
 
 class Engine
 {
-public:
-  static void start();
-  static Engine *getInstance();
+private:
+  int score, highScore;
 
+public:
   SDL_Window *win;
   SDL_Renderer *ren;
   SDL_Texture *atlas;
   FC_Font *font;
-  int score, highScore;
   bool shouldStop;
 
-protected:
+  static void start();
+  static Engine *getInstance();
+
+private:
   Engine();
-  virtual ~Engine();
+  ~Engine();
 
   void loop();
 
   void tick(float dt);
   void update(float dt);
   void render(float dt);
+
+  void updateScore(int value);
 };
 
 #endif // CORE_ENGINE

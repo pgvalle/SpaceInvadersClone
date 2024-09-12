@@ -101,3 +101,10 @@ void Engine::render(float dt)
 
   SDL_RenderPresent(ren);
 }
+
+void Engine::updateScore(int value)
+{
+  score += value;
+  if (highScore < score)
+    highScore = score;
+}
