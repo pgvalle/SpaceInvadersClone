@@ -7,7 +7,7 @@ struct Explosion
 {
   int x, y;
   SDL_Rect clip;
-  Timer clock;
+  Timer lifespan;
 };
 
 #endif // ENTITIES_EXPLOSION
