@@ -2,22 +2,8 @@
 #define ENTITIES_HORDE
 
 #include <common.h>
+#include "invader.h"
 #include "explosion.h"
-
-struct Invader
-{
-  int type;
-  int animationFrame;
-  int x, y;
-
-  Invader(int row, int col);
-
-  int getScoreValue() const;
-  SDL_Rect getRect() const;
-
-  void move(int xOff, int yOff);
-  void render() const;
-};
 
 struct Horde
 {

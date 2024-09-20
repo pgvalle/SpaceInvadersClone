@@ -17,6 +17,11 @@ public:
 
   Timer(float timeout = 0);
 
+  float getTimeout() const
+  {
+    return timeout;
+  }
+
   void update(float dt);
   void reset(float newTimeout = 0);
 };

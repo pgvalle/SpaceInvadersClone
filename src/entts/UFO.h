@@ -1,8 +1,8 @@
 #ifndef ENTITIES_UFO
 #define ENTITIES_UFO
 
-#include <common.h>
-#include "explosion.h"
+#include "common.h"
+#include "Explosion.h"
 
 enum UFOState
 {
@@ -16,17 +16,14 @@ enum UFOState
 struct UFO
 {
   UFOState state;
-  Timer clock;
   float x, vx;
-  int scoreValue;
+  Timer clock;
 
   UFO();
 
   Explosion *onHit(const SDL_Rect &rect);
-  void update();
+  void update(float dt);
   void render() const;
 };
-
-extern UFO ufo;
 
 #endif  // ENTITIES_UFO

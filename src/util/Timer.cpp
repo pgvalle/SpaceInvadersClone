@@ -23,8 +23,8 @@ void Timer::update(float dt)
     elapsed += dt;
   else if (!onTimeoutCalled)
   {
-    onTimeout();
     onTimeoutCalled = true;
+    onTimeout();
   }
 }
 
