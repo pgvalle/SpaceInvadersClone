@@ -1,12 +1,9 @@
 #include "Timer.h"
+#include "common.h"
 
 Timer::Timer(float $timeout)
 {
   reset($timeout);
-  onTimeout = []()
-  {
-    printf("Timer timed out!\n");
-  };
 }
 
 float Timer::getRandomTime(float min, float max)
@@ -17,15 +14,20 @@ float Timer::getRandomTime(float min, float max)
   return from0to1 * (max - min) + min;
 }
 
+bool hasTimedOut() const
+{
+  return elapsed >= timeout;
+}
+
+float getTimeout() const
+{
+  return timeout;
+}
+
 void Timer::update(float dt)
 {
   if (elapsed < timeout)
     elapsed += dt;
-  else if (!onTimeoutCalled)
-  {
-    onTimeoutCalled = true;
-    onTimeout();
-  }
 }
 
 void Timer::reset(float newTimeout)
@@ -33,5 +35,4 @@ void Timer::reset(float newTimeout)
   if (newTimeout)
     timeout = newTimeout;
   elapsed = 0;
-  onTimeoutCalled = false;
 }
