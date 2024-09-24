@@ -7,6 +7,8 @@
 
 #define TICKRATE 20
 
+#include "entts/UFO.h"
+
 struct Glob
 {
   SDL_Window *win;
@@ -15,9 +17,13 @@ struct Glob
   FC_Font *font;
   int score, highScore;
   bool shouldStop;
-};
+  UFO ufo;
 
-void updateScore();
+  Glob();
+  ~Glob();
+
+  void add2Score(int val);
+};
 
 extern struct Glob *g;
 
