@@ -5,7 +5,7 @@ void tick(float dt)
 {
 }
 
-void update(float dt, const SDL_Event *event)
+void update(float dt, const SDL_Event &event)
 {
   if (event->type == SDL_QUIT)
     g->shouldStop = true;
@@ -38,7 +38,7 @@ void loop()
 
     SDL_Event event;
     SDL_PollEvent(&event);
-    update(1e-3 * msPerFrame, &event);
+    update(1e-3 * msPerFrame, event);
     render();
 
     msPerFrame = SDL_GetTicks() - msStart;
