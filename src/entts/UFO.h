@@ -1,7 +1,7 @@
 #ifndef ENTITIES_UFO
 #define ENTITIES_UFO
 
-#include "common.h"
+#include "util/Timer.h"
 #include "Explosion.h"
 
 enum UFOState
