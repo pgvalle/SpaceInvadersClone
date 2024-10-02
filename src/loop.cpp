@@ -3,6 +3,8 @@
 
 void tick(float dt)
 {
+  g->ufo.update(dt);
+  g->ufo.onHit({0, 0, 20, 500});
 }
 
 void update(float dt, const SDL_Event &event)
@@ -17,6 +19,7 @@ void render()
   SDL_RenderClear(g->ren);
 
   // here goes everything to render
+  g->ufo.render();
 
   SDL_RenderPresent(g->ren);
 }
