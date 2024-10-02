@@ -14,12 +14,12 @@ float Timer::getRandomTime(float min, float max)
   return from0to1 * (max - min) + min;
 }
 
-bool hasTimedOut() const
+bool Timer::hasTimedOut() const
 {
   return elapsed >= timeout;
 }
 
-float getTimeout() const
+float Timer::getTimeout() const
 {
   return timeout;
 }

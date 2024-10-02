@@ -1,17 +1,12 @@
-#include "common.h"
-
+void init();
 void loop();
+void terminate();
 
 int main(int argc, char **argv)
 {
-  srand(time(nullptr));
-  SDL_Init(SDL_INIT_EVERYTHING);
-  IMG_Init(IMG_INIT_PNG);
-
+  init();
   loop();
-
-  IMG_Quit();
-  SDL_Quit();
+  terminate();
 
   return 0;
 }

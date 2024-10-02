@@ -9,7 +9,7 @@
 
 #define UFO_TIME_SHOWING_SCORE 2
 #define UFO_TIME_EXPLODING 0.5
-#define UFO_TIME_TO_RESPAWN Timer::getRandomTimeout(10, 15)
+#define UFO_TIME_TO_RESPAWN Timer::getRandomTime(10, 15)
 
 UFO::UFO()
 {
@@ -34,7 +34,7 @@ Explosion *UFO::onHit(const SDL_Rect &rect)
   e->x = x - 4; // offset bc explosion sprite width is 8 pixels bigger
   e->y = UFO_Y;
   e->clip = {16, 0, 24, 8};
-  e.lifespan.reset(UFO_TIME_EXPLODING);
+  e->lifespan.reset(UFO_TIME_EXPLODING);
 
   return e;
 }

@@ -7,18 +7,18 @@ void tick(float dt)
 
 void update(float dt, const SDL_Event &event)
 {
-  if (event->type == SDL_QUIT)
+  if (event.type == SDL_QUIT)
     g->shouldStop = true;
 }
 
 void render()
 {
-  SDL_SetRenderDrawColor(ren, 0, 0, 0, 255);
-  SDL_RenderClear(ren);
+  SDL_SetRenderDrawColor(g->ren, 0, 0, 0, 255);
+  SDL_RenderClear(g->ren);
 
   // here goes everything to render
 
-  SDL_RenderPresent(ren);
+  SDL_RenderPresent(g->ren);
 }
 
 void loop()
@@ -45,5 +45,3 @@ void loop()
     msAccum += msPerFrame;
   }
 }
-
-
