@@ -12,6 +12,4 @@
 #include <SDL_image.h>
 #include <SDL_FontCache.h>
 
-typedef std::function<void()> Callback;
-
 #endif // COMMON_H
