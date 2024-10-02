@@ -8,7 +8,7 @@
 #define UFO_SPEED 40
 
 #define UFO_TIME_SHOWING_SCORE 2
-#define UFO_TIME_EXPLODING 0.5
+#define UFO_TIME_EXPLODING 1
 #define UFO_TIME_TO_RESPAWN Timer::getRandomTime(10, 15)
 
 UFO::UFO()
@@ -42,16 +42,14 @@ Explosion *UFO::onHit(const SDL_Rect &rect)
 void UFO::update(float dt)
 {
   clock.update(dt);
-
-  // States other than UFO_ALIVE depend on clock timing out. So if it didn't timeout, just don't update
-  if (state != UFO_ALIVE && !clock.hasTimedOut())
+  if (!clock.hasTimedOut())
     return;
 
   switch (state)
   {
   case UFO_AWAY:
     state = UFO_ALIVE;
-    clock.reset(1);  // we don't care about clock in UFO_ALIVE
+    clock.reset(1e-5);  // we don't care about clock in UFO_ALIVE
 
     // randomly choose a corner to spawn in: left or right
     if (rand() % 2) // left
@@ -69,7 +67,7 @@ void UFO::update(float dt)
   case UFO_ALIVE:
     x += vx*dt;
 
-    if (UFO_LLIMIT > round(x) && round(x) > UFO_RLIMIT)
+    if (UFO_LLIMIT > round(x) || round(x) > UFO_RLIMIT)
     {
       state = UFO_AWAY;
       clock.reset(UFO_TIME_TO_RESPAWN);
@@ -79,7 +77,8 @@ void UFO::update(float dt)
   case UFO_EXPLODING:
     state = UFO_SHOWING_SCORE;
     clock.reset(UFO_TIME_SHOWING_SCORE);
-    g->add2Score(100);
+    score = 100;
+    g->add2Score(score);
     break;
 
   case UFO_SHOWING_SCORE:
@@ -105,15 +104,8 @@ void UFO::render() const
     SDL_RenderCopy(g->ren, g->atlas, &src, &dst);
     break;
   }
-  case UFO_EXPLODING:
-  {
-    const SDL_Rect src = {0, 0, 24, 8},
-                   dst = {(int)round(x) - 4, UFO_Y, 3 * TILE, TILE};
-    SDL_RenderCopy(g->ren, g->atlas, &src, &dst);
-    break;
-  }
   case UFO_SHOWING_SCORE:
-    // NAGE::renderText(xi, Y, "%3d", scoreValue);
+    FC_DrawColor(g->font, g->ren, 0, 0, {255, 0, 0, 255}, "%03d", score);
     break;
 
   default:
