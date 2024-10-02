@@ -19,12 +19,9 @@ struct Glob
   bool shouldStop;
   UFO ufo;
 
-  Glob();
-  ~Glob();
-
   void add2Score(int val);
 };
 
-extern struct Glob *g;
+extern Glob *g;
 
 #endif // GLOB_H

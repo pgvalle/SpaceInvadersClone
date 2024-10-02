@@ -1,48 +1,60 @@
 #include "glob.h"
 #include "common.h"
 
-Glob::Glob()
+void init()
 {
-  win = SDL_CreateWindow(
+  assert(g == NULL);
+  g = (Glob *)malloc(sizeof(*g));
+
+  srand(time(nullptr));
+  SDL_Init(SDL_INIT_EVERYTHING);
+  IMG_Init(IMG_INIT_PNG);
+
+  g->win = SDL_CreateWindow(
     "Space Invaders Clone",
     SDL_WINDOWPOS_CENTERED,
     SDL_WINDOWPOS_CENTERED,
     2 * WIDTH,
     2 * HEIGHT,
     SDL_WINDOW_RESIZABLE);
-  assert(win);
+  assert(g->win);
 
-  ren = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED);
-  assert(ren);
-  SDL_RenderSetLogicalSize(ren, WIDTH, HEIGHT);
+  g->ren = SDL_CreateRenderer(g->win, -1, SDL_RENDERER_ACCELERATED);
+  assert(g->ren);
+  SDL_RenderSetLogicalSize(g->ren, WIDTH, HEIGHT);
 
-  atlas = IMG_LoadTexture(ren, "../res/atlas.png");
-  assert(atlas);
+  g->atlas = IMG_LoadTexture(g->ren, "../res/atlas.png");
+  assert(g->atlas);
 
-  font = FC_CreateFont();
+  g->font = FC_CreateFont();
   FC_LoadFont(
-    font,
-    ren,
+    g->font,
+    g->ren,
     "../res/ps2p.ttf",
     TILE,
     FC_MakeColor(255, 255, 255, 255),
     TTF_STYLE_NORMAL);
 
-  score = 0;
-  highScore = 0;
-  shouldStop = false;
+  g->score = 0;
+  g->highScore = 0;
+  g->shouldStop = false;
 }
 
-Glob::~Glob()
+void terminate()
 {
+  assert(g);
+  free(g);
+  g = NULL;
 
+  IMG_Quit();
+  SDL_Quit();
 }
 
 void Glob::add2Score(int value)
 {
-  score += value;
-  if (score > highScore)
-    highScore = score;
+  g->score += value;
+  if (g->score > g->highScore)
+    g->highScore = g->score;
 }
 
-struct Global *g;
+Glob *g = NULL;
