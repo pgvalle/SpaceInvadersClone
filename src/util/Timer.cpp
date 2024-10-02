@@ -3,6 +3,7 @@
 
 Timer::Timer(float $timeout)
 {
+  timeout = 0;
   reset($timeout);
 }
 
