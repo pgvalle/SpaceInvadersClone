@@ -1,7 +1,8 @@
 #ifndef ENTITIES_INVADER_H
 #define ENTITIES_INVADER_H
 
-#include <common.h>
+#include "common.h"
+#include "Explosion.h"
 
 struct Invader
 {
@@ -11,9 +12,8 @@ struct Invader
 
   Invader(int row, int col);
 
-  int getScoreValue() const;
+  Explosion *onHit(const SDL_Rect &rect) const;
   SDL_Rect getRect() const;
-
   void move(int xOff, int yOff);
   void render() const;
 };
