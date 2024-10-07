@@ -47,23 +47,15 @@ void UFO::update(float dt)
 
   switch (state)
   {
-  case UFO_AWAY:
+  case UFO_AWAY: {
     state = UFO_ALIVE;
     clock.reset(1e-5);  // we don't care about clock in UFO_ALIVE
-
     // randomly choose a corner to spawn in: left or right
-    if (rand() % 2) // left
-    {
-      x = UFO_LLIMIT;
-      vx = UFO_SPEED;
-    }
-    else
-    {
-      x = UFO_RLIMIT;
-      vx = -UFO_SPEED;
-    }
+    bool left = rand() % 2;
+    x = left ? UFO_LLIMIT : UFO_RLIMIT;
+    vx = left ? UFO_SPEED : -UFO_SPEED;
     break;
-
+  }
   case UFO_ALIVE:
     x += vx*dt;
 
