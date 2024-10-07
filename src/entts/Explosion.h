@@ -2,6 +2,7 @@
 #define ENTITIES_EXPLOSION
 
 #include "common.h"
+#include "util/Timer.h"
 
 struct Explosion
 {
