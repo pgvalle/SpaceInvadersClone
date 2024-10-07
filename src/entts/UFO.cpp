@@ -58,7 +58,6 @@ void UFO::update(float dt)
   }
   case UFO_ALIVE:
     x += vx*dt;
-
     if (UFO_LLIMIT > round(x) || round(x) > UFO_RLIMIT)
     {
       state = UFO_AWAY;
