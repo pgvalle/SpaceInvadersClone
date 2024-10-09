@@ -50,7 +50,7 @@ void PlayScene::onUpdate(float dt)
     e->onUpdate(dt);
     if (e->lifespan.hasTimedOut())
     {
-      explosions.erase(explosions.begin() + --i);
+      explosions.erase(explosions.begin() + i--);
       delete e;
     }
   }
