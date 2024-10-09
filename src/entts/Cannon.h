@@ -14,7 +14,7 @@ enum CannonState
 struct Cannon
 {
   enum CannonState state;
-  int x;
+  float x;
   int deathFrame;
   Timer clock1, clock2;
 
@@ -24,5 +24,5 @@ struct Cannon
   SDL_Rect getHitbox() const;
   void onUpdate(float dt);
   void onRender() const;
-  void move(float vx, float dt);
+  Shot *shoot() const;
 };
