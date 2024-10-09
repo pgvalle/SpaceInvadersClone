@@ -2,7 +2,7 @@
 #define ENTITIES_UFO
 
 #include "util/Timer.h"
-#include "Explosion.h"
+#include "Entity.h"
 
 enum UFOState
 {
@@ -13,7 +13,7 @@ enum UFOState
   UFO_DEAD
 };
 
-struct UFO
+struct UFO : Entity
 {
   UFOState state;
   float x, vx;
@@ -22,9 +22,12 @@ struct UFO
 
   UFO();
 
-  Explosion *onHit(const SDL_Rect &rect);
-  void update(float dt);
-  void render() const;
+  Explosion *onHit(const SDL_Rect &rect) override;
+  SDL_Rect getHitbox() const override;
+
+  void onTick(float dt) override;
+  void onUpdate(float dt) override;
+  void onRender() const override;
 };
 
 #endif  // ENTITIES_UFO

@@ -1,21 +1,24 @@
 #ifndef ENTITIES_INVADER_H
 #define ENTITIES_INVADER_H
 
-#include "common.h"
-#include "Explosion.h"
+#include "Entity.h"
 
-struct Invader
+struct Invader : Entity
 {
   int type;
-  int animationFrame;
   int x, y;
+  int clipIndex;
 
   Invader(int row, int col);
 
-  Explosion *onHit(const SDL_Rect &rect) const;
-  SDL_Rect getRect() const;
+  Explosion *onHit(const SDL_Rect &rect) override;
+  SDL_Rect getHitbox() const override;
+
+  void onTick(float dt) override;
+  void onUpdate(float dt) override;
+  void onRender() const override;
+
   void move(int xOff, int yOff);
-  void render() const;
 };
 
 #endif // ENTITIES_INVADER_H

@@ -1,5 +1,6 @@
 #include "UFO.h"
-#include "glob.h"
+#include "Explosion.h"
+#include "SIC.h"
 
 #define UFO_Y (5 * TILE)
 #define UFO_LLIMIT (TILE)
@@ -23,7 +24,6 @@ Explosion *UFO::onHit(const SDL_Rect &rect)
     return nullptr;
 
   const SDL_Rect ufoRect = {(int)round(x), UFO_Y, 2 * TILE, TILE};
-
   if (!SDL_HasIntersection(&rect, &ufoRect))
     return nullptr;
 
@@ -35,11 +35,19 @@ Explosion *UFO::onHit(const SDL_Rect &rect)
   e->y = UFO_Y;
   e->clip = {16, 0, 24, 8};
   e->lifespan.reset(UFO_TIME_EXPLODING);
-
   return e;
 }
 
-void UFO::update(float dt)
+SDL_Rect UFO::getHitbox() const
+{
+  return {(int)round(x), UFO_Y, 16, 8};
+}
+
+void UFO::onTick(float dt)
+{
+}
+
+void UFO::onUpdate(float dt)
 {
   clock.update(dt);
   if (!clock.hasTimedOut())
@@ -47,59 +55,64 @@ void UFO::update(float dt)
 
   switch (state)
   {
-  case UFO_AWAY: {
-    state = UFO_ALIVE;
-    clock.reset(1e-5);  // we don't care about clock in UFO_ALIVE
-    // randomly choose a corner to spawn in: left or right
-    bool left = rand() % 2;
-    x = left ? UFO_LLIMIT : UFO_RLIMIT;
-    vx = left ? UFO_SPEED : -UFO_SPEED;
-    break;
-  }
-  case UFO_ALIVE:
-    x += vx*dt;
-    if (UFO_LLIMIT > round(x) || round(x) > UFO_RLIMIT)
+    case UFO_AWAY:
+    {
+      state = UFO_ALIVE;
+      clock.reset(1e-5); // don't care about clock in UFO_ALIVE
+      // randomly choose a corner to spawn in: left or right
+      bool left = rand() % 2;
+      x = left ? UFO_LLIMIT : UFO_RLIMIT;
+      vx = left ? UFO_SPEED : -UFO_SPEED;
+      break;
+    }
+    case UFO_ALIVE:
+    {
+      const int newX = round(x + vx * dt);
+      if (UFO_LLIMIT > newX || newX > UFO_RLIMIT)
+      {
+        state = UFO_AWAY;
+        clock.reset(UFO_TIME_TO_RESPAWN);
+      }
+      break;
+    }
+    case UFO_EXPLODING:
+    {
+      state = UFO_SHOWING_SCORE;
+      clock.reset(UFO_TIME_SHOWING_SCORE);
+      score = 100; // TODO: generate random score
+      g->add2Score(score);
+      break;
+    }
+    case UFO_SHOWING_SCORE:
     {
       state = UFO_AWAY;
       clock.reset(UFO_TIME_TO_RESPAWN);
+      break;
     }
-    break;
-
-  case UFO_EXPLODING:
-    state = UFO_SHOWING_SCORE;
-    clock.reset(UFO_TIME_SHOWING_SCORE);
-    score = 100;
-    g->add2Score(score);
-    break;
-
-  case UFO_SHOWING_SCORE:
-    state = UFO_AWAY;
-    clock.reset(UFO_TIME_TO_RESPAWN);
-    break;
-
-  default:
-    break;
+    default:
+      break;
   }  
 }
 
-void UFO::render() const
+void UFO::onRender() const
 {
-  SDL_SetRenderDrawColor(g->ren, 255, 0, 0, 255);
+  SDL_SetRenderDrawColor(g->ren, 255, 0, 0, 255);  // red
 
   switch (state)
   {
-  case UFO_ALIVE:
-  {
-    const SDL_Rect src = {0, 0, 16, 8},
-                   dst = {(int)round(x), UFO_Y, 2 * TILE, TILE};
-    SDL_RenderCopy(g->ren, g->atlas, &src, &dst);
-    break;
-  }
-  case UFO_SHOWING_SCORE:
-    FC_DrawColor(g->font, g->ren, 0, 0, {255, 0, 0, 255}, "%03d", score);
-    break;
-
-  default:
-    break;
+    case UFO_ALIVE:
+    {
+      const SDL_Rect src = {0, 0, 16, 8};
+      const SDL_Rect dst = {(int)round(x), UFO_Y, 2 * TILE, TILE};
+      SDL_RenderCopy(g->ren, g->atlas, &src, &dst);
+      break;
+    }
+    case UFO_SHOWING_SCORE:
+    {
+      FC_DrawColor(g->font, g->ren, 0, 0, {255, 0, 0, 255}, "%03d", score);
+      break;
+    }
+    default:
+      break;
   }
 }

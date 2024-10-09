@@ -1,12 +1,18 @@
-void init();
-void loop();
-void terminate();
+#include "SIC.h"
 
 int main(int argc, char **argv)
 {
-  init();
-  loop();
-  terminate();
+  srand(time(nullptr));
+  SDL_Init(SDL_INIT_EVERYTHING);
+  TTF_Init();
+  IMG_Init(IMG_INIT_PNG);
+
+  g = new SIC();
+  g->loop();
+
+  IMG_Quit();
+  TTF_Quit();
+  SDL_Quit();
 
   return 0;
 }

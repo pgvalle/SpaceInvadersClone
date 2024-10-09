@@ -1,5 +1,6 @@
-#ifndef GLOB_H
-#define GLOB_H
+#pragma once
+
+#include "common.h"
 
 #define TILE 8
 #define WIDTH (28 * TILE)
@@ -7,9 +8,7 @@
 
 #define TICKRATE 20
 
-#include "entts/UFO.h"
-
-struct Glob
+struct SIC
 {
   SDL_Window *win;
   SDL_Renderer *ren;
@@ -17,11 +16,16 @@ struct Glob
   FC_Font *font;
   int score, highScore;
   bool shouldStop;
-  UFO ufo;
+
+  SIC();
+  ~SIC();
 
   void add2Score(int val);
+  void loop();
+  void onTick(float dt);
+  void onUpdate(float dt, const SDL_Event &event);
+  void onRender() const;
 };
 
-extern Glob *g;
+extern SIC *g;
 
-#endif // GLOB_H

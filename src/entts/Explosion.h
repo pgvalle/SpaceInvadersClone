@@ -1,14 +1,21 @@
 #ifndef ENTITIES_EXPLOSION
 #define ENTITIES_EXPLOSION
 
-#include "common.h"
 #include "util/Timer.h"
+#include "Entity.h"
 
-struct Explosion
+struct Explosion : Entity
 {
   int x, y;
   SDL_Rect clip;
   Timer lifespan;
+
+  Explosion *onHit(const SDL_Rect &rect) override;
+  SDL_Rect getHitbox() const override;
+
+  void onTick(float dt) override;
+  void onUpdate(float dt) override;
+  void onRender() const override;
 };
 
 #endif // ENTITIES_EXPLOSION
