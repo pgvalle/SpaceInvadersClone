@@ -31,6 +31,21 @@ Bunker::Bunker()
   bits[334] = bits[347] = true; // fix 2 bottom bits
 }
 
+/*
+bool Bunker::checkAndProcessHit(const SDL_Rect &hitbox)
+{
+  // pre-clip
+  if (!SDL_HasIntersection(&hitbox, &outerBounds))
+  {
+    return false;
+  }
+
+  // check where
+  // process collision
+  return true;
+}
+ */
+
 void Bunker::onRender() const
 {
   SDL_Point points[352] = {0};
@@ -44,6 +59,6 @@ void Bunker::onRender() const
     }
   }
 
-  SDL_SetRenderDrawColor(g->ren, 32, 255, 32, 255);  // greenish
+  SDL_SetRenderDrawColor(g->ren, 32, 255, 32, 255); // greenish
   SDL_RenderDrawPoints(g->ren, points, 352);
 }
