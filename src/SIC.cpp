@@ -1,6 +1,8 @@
 #include "SIC.h"
 #include "common.h"
 
+#include "scenes/PlayScene.h"
+Scene *s = NULL;
 SIC::SIC()
 {
   win = SDL_CreateWindow(
@@ -46,6 +48,8 @@ void SIC::add2Score(int value)
 
 void SIC::loop()
 {
+  s = new PlayScene;
+
   const Uint32 msPerTick = 1000 / TICKRATE;
   Uint32 msPerFrame = 1, msAccum = 0;
 
@@ -67,6 +71,8 @@ void SIC::loop()
     msPerFrame = SDL_GetTicks() - msStart;
     msAccum += msPerFrame;
   }
+
+  delete s;
 }
 
 void SIC::onTick(float dt)
@@ -77,6 +83,7 @@ void SIC::onUpdate(float dt, const SDL_Event &event)
 {
   if (event.type == SDL_QUIT)
     shouldStop = true;
+  s->onUpdate(dt);
 }
 
 void SIC::onRender() const
@@ -85,6 +92,7 @@ void SIC::onRender() const
   SDL_RenderClear(ren);
 
   // here goes everything to render
+  s->onRender();
 
   SDL_RenderPresent(ren);
 }
