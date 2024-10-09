@@ -46,7 +46,7 @@ void Horde::onUpdate(float dt)
     const int count = invaders.size();
     if (count == 55) // done populating
     {
-      clock.reset(invaders.size() * 0.016);
+      clock.reset(invaders.size() * 0.032);
       populating = false;
       x = 7;
       vx = 2; // start going right
@@ -64,7 +64,7 @@ void Horde::onUpdate(float dt)
   }
 
   // not populating
-  clock.reset(invaders.size() * 0.016);
+  clock.reset(invaders.size() * 0.032);
 
   // check if it's time to turn around
   int vy = 0;
