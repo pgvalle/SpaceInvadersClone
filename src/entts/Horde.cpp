@@ -11,30 +11,6 @@ Horde::Horde()
   populating = true;
 }
 
-Explosion *Horde::onHit(const SDL_Rect &rect)
-{
-  for (int i = 0; i < invaders.size(); i++)
-  {
-    Explosion *e = invaders[i].onHit(rect);
-    if (e)
-    {
-      invaders.erase(invaders.begin() + i);
-      return e;
-    }
-  }
-
-  return nullptr;
-}
-
-SDL_Rect Horde::getHitbox() const
-{
-  return {0, 0, 0, 0};
-}
-
-void Horde::onTick(float dt)
-{
-}
-
 void Horde::onUpdate(float dt)
 {
   clock.update(dt);

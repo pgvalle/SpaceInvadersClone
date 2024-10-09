@@ -18,14 +18,10 @@ UFO::UFO()
   clock.reset(UFO_TIME_TO_RESPAWN); // spawn after 10s
 }
 
-Explosion *UFO::onHit(const SDL_Rect &rect)
+Explosion *UFO::onHit()
 {
   if (state != UFO_ALIVE)
-    return nullptr;
-
-  const SDL_Rect ufoRect = {(int)round(x), UFO_Y, 2 * TILE, TILE};
-  if (!SDL_HasIntersection(&rect, &ufoRect))
-    return nullptr;
+    return NULL;
 
   state = UFO_EXPLODING;
   clock.reset(UFO_TIME_EXPLODING);
@@ -41,10 +37,6 @@ Explosion *UFO::onHit(const SDL_Rect &rect)
 SDL_Rect UFO::getHitbox() const
 {
   return {(int)round(x), UFO_Y, 16, 8};
-}
-
-void UFO::onTick(float dt)
-{
 }
 
 void UFO::onUpdate(float dt)

@@ -1,8 +1,9 @@
 #pragma once
 
-#include "Entity.h"
+#include "common.h"
+#include "Explosion.h"
 
-struct Invader : Entity
+struct Invader
 {
   int type;
   int x, y;
@@ -10,12 +11,8 @@ struct Invader : Entity
 
   Invader(int row, int col);
 
-  Explosion *onHit(const SDL_Rect &rect) override;
-  SDL_Rect getHitbox() const override;
-
-  void onTick(float dt) override;
-  void onUpdate(float dt) override;
-  void onRender() const override;
-
+  Explosion *onHit();
+  SDL_Rect getHitbox() const;
+  void onRender() const;
   void move(int xOff, int yOff);
 };

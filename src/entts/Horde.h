@@ -4,7 +4,7 @@
 #include "Invader.h"
 #include "Explosion.h"
 
-struct Horde : Entity
+struct Horde
 {
   std::vector<Invader> invaders;
   int x, vx;
@@ -13,10 +13,6 @@ struct Horde : Entity
 
   Horde();
 
-  Explosion *onHit(const SDL_Rect &rect) override;
-  SDL_Rect getHitbox() const override;
-
-  void onTick(float dt) override;
-  void onUpdate(float dt) override;
-  void onRender() const override;
+  void onUpdate(float dt);
+  void onRender() const;
 };

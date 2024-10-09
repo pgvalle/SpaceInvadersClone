@@ -1,7 +1,8 @@
 #pragma once
 
+#include "common.h"
 #include "util/Timer.h"
-#include "Entity.h"
+#include "Explosion.h"
 
 enum UFOState
 {
@@ -12,7 +13,7 @@ enum UFOState
   UFO_DEAD
 };
 
-struct UFO : Entity
+struct UFO
 {
   UFOState state;
   float x, vx;
@@ -21,10 +22,8 @@ struct UFO : Entity
 
   UFO();
 
-  Explosion *onHit(const SDL_Rect &rect) override;
-  SDL_Rect getHitbox() const override;
-
-  void onTick(float dt) override;
-  void onUpdate(float dt) override;
-  void onRender() const override;
+  Explosion *onHit();
+  SDL_Rect getHitbox() const;
+  void onUpdate(float dt);
+  void onRender() const;
 };

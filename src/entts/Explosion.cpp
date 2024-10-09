@@ -1,16 +1,6 @@
 #include "Explosion.h"
 #include "SIC.h"
 
-Explosion *Explosion::onHit(const SDL_Rect &rect)
-{
-  return NULL;
-}
-
-SDL_Rect Explosion::getHitbox() const
-{
-  return {0, 0, 0, 0};
-}
-
 void Explosion::onTick(float dt)
 {
 }

@@ -15,12 +15,8 @@ Invader::Invader(int row, int col)
   clipIndex = 0;
 }
 
-Explosion *Invader::onHit(const SDL_Rect &rect)
+Explosion *Invader::onHit()
 {
-  SDL_Rect hb = getHitbox();
-  if (!SDL_HasIntersection(&rect, &hb))
-    return NULL;
-
   const int scoreValue =  10 * (3 - type);
   g->add2Score(scoreValue);
 
@@ -39,14 +35,6 @@ SDL_Rect Invader::getHitbox() const
   else if (type == 1)
     return {x - 1, y, 11, 8};
   return {x, y, 8, 8};
-}
-
-void Invader::onTick(float dt)
-{
-}
-
-void Invader::onUpdate(float dt)
-{
 }
 
 void Invader::onRender() const
