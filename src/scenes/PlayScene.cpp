@@ -30,6 +30,13 @@ void PlayScene::onUpdate(float dt)
       delete exp;
     }
   }
+
+  for (int i = 0; i < shots.size(); i++)
+  {
+    Shot *shot = shots[i];
+    shot->onUpdate(dt);
+    // TODO: check collision with player, ufo and invaders
+  }
 }
 
 void PlayScene::onRender() const
