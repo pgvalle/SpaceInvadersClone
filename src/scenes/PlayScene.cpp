@@ -3,6 +3,8 @@
 
 PlayScene::PlayScene()
 {
+  lives = 3;
+  shotCooldown.reset(1);
 }
 
 PlayScene::~PlayScene()
@@ -17,6 +19,15 @@ void PlayScene::onTick(float dt)
 
 void PlayScene::onUpdate(float dt)
 {
+  // check input
+  shotCooldown.update(dt);
+  if (shotCooldown.hasTimedOut() && SDL_GetKeyboardState(NULL)[SDL_SCANCODE_SPACE])
+  {
+    shots.push_back(cannon.shoot());
+    shotCooldown.reset();
+  }
+
+  cannon.onUpdate(dt);
   ufo.onUpdate(dt);
   horde.onUpdate(dt);
 
@@ -41,8 +52,12 @@ void PlayScene::onUpdate(float dt)
 
 void PlayScene::onRender() const
 {
+  cannon.onRender();
   ufo.onRender();
   horde.onRender();
+
+  for (Shot *shot : shots)
+    shot->onRender();
 
   for (Explosion *exp : explosions)
     exp->onRender();

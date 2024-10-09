@@ -3,6 +3,7 @@
 #include "common.h"
 #include "Scene.h"
 #include "entts/Bunker.h"
+#include "entts/Cannon.h"
 #include "entts/Explosion.h"
 #include "entts/Horde.h"
 #include "entts/UFO.h"
@@ -10,6 +11,10 @@
 
 struct PlayScene : Scene
 {
+  Cannon cannon;
+  int lives;
+  Timer shotCooldown;
+
   UFO ufo;
   Horde horde;
   Bunker bunkers[4];
