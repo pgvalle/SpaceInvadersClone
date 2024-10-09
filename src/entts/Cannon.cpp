@@ -9,39 +9,23 @@ Cannon::Cannon()
   x = 14;
 }
 
-Shot Cannon::shoot() const
+void Cannon::onHit()
 {
-  return {x + 9, CANNON_Y, -4};
+  state = DYING;
+  deathFrame = 0;
+  clock1.reset(100); // animation frame time
+  clock2.reset(2000); // dying state time
 }
 
-bool Cannon::checkAndProcessHit(const SDL_Rect &hitbox)
+SDL_Rect Cannon::getHitbox() const
 {
-  const SDL_Rect cannon = {x, CANNON_Y, 16, 8};
-
-  const bool hit = SDL_HasIntersection(&hitbox, &cannon);
-  if (hit)
-  {
-    state = DYING;
-    deathFrame = 0;
-    clock1.reset(100); // animation frame time
-    clock2.reset(2000); // dying state time
-  }
-
-  return hit;
+  return {x, CANNON_Y, 16, 8};
 }
 
 void Cannon::onUpdate(float dt)
 {
   switch (state)
   {
-    case ALIVE: {
-      const Uint8 *keys = SDL_GetKeyboardState(NULL);
-      if (keys[SDL_SCANCODE_LEFT])
-        x -= (x > 14 ? 2 : 0);
-      if (keys[SDL_SCANCODE_RIGHT])
-        x += (x < WIDTH - 31 ? 2 : 0);
-      break;
-    }
     case DYING: {
       // animation frame update
       clock1.update(dt);
@@ -53,9 +37,7 @@ void Cannon::onUpdate(float dt)
       // state duration timeout update
       clock2.update(dt);
       if (clock2.hasTimedOut())
-      {
         state = DEAD;
-      }
       break;
     }
     case DEAD:
@@ -82,4 +64,9 @@ void Cannon::onRender() const
     default:
       break;
   }
+}
+
+void Cannon::move(float vx, float dt)
+{
+  x += vx * dt;
 }

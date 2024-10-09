@@ -1,5 +1,6 @@
 #pragma once
 
+#include "common.h"
 #include "util/Timer.h"
 #include "Shot.h"
 
@@ -10,26 +11,18 @@ enum CannonState
   DEAD
 };
 
-class Cannon
+struct Cannon
 {
-private:
   enum CannonState state;
   int x;
   int deathFrame;
   Timer clock1, clock2;
 
-public:
   Cannon();
 
-  Shot shoot() const;
-
-  bool isDead() const
-  {
-    return state == DEAD;
-  }
-
-  bool checkAndProcessHit(const SDL_Rect &hitbox);
-
+  void onHit();
+  SDL_Rect getHitbox() const;
   void onUpdate(float dt);
   void onRender() const;
+  void move(float vx, float dt);
 };
