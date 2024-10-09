@@ -67,7 +67,7 @@ void UFO::onUpdate(float dt)
     }
     case UFO_ALIVE:
     {
-      const int newX = round(x + vx * dt);
+      const int newX = round(x += vx * dt);
       if (UFO_LLIMIT > newX || newX > UFO_RLIMIT)
       {
         state = UFO_AWAY;
