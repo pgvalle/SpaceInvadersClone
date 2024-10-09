@@ -1,5 +1,4 @@
-#ifndef ENTITIES_INVADER_H
-#define ENTITIES_INVADER_H
+#pragma once
 
 #include "Entity.h"
 
@@ -20,5 +19,3 @@ struct Invader : Entity
 
   void move(int xOff, int yOff);
 };
-
-#endif // ENTITIES_INVADER_H

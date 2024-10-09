@@ -1,5 +1,4 @@
-#ifndef UTIL_TIMER
-#define UTIL_TIMER
+#pragma once
 
 // Everything in seconds
 class Timer
@@ -17,5 +16,3 @@ public:
   void update(float dt);
   void reset(float newTimeout = 0);
 };
-
-#endif // UTIL_TIMER

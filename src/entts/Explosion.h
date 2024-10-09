@@ -1,5 +1,4 @@
-#ifndef ENTITIES_EXPLOSION
-#define ENTITIES_EXPLOSION
+#pragma once
 
 #include "util/Timer.h"
 #include "Entity.h"
@@ -17,5 +16,3 @@ struct Explosion : Entity
   void onUpdate(float dt) override;
   void onRender() const override;
 };
-
-#endif // ENTITIES_EXPLOSION

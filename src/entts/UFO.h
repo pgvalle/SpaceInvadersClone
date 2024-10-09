@@ -1,5 +1,4 @@
-#ifndef ENTITIES_UFO
-#define ENTITIES_UFO
+#pragma once
 
 #include "util/Timer.h"
 #include "Entity.h"
@@ -29,5 +28,3 @@ struct UFO : Entity
   void onUpdate(float dt) override;
   void onRender() const override;
 };
-
-#endif  // ENTITIES_UFO

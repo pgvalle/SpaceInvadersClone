@@ -1,5 +1,4 @@
-#ifndef ENTITIES_HORDE
-#define ENTITIES_HORDE
+#pragma once
 
 #include "common.h"
 #include "Invader.h"
@@ -21,5 +20,3 @@ struct Horde : Entity
   void onUpdate(float dt) override;
   void onRender() const override;
 };
-
-#endif  // ENTITIES_HORDE
