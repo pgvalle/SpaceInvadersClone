@@ -2,13 +2,16 @@
 
 #include "common.h"
 #include "Scene.h"
-
-struct Entity;
-struct Explosion;
+#include "entts/Bunker.h"
+#include "entts/UFO.h"
+#include "entts/Horde.h"
+#include "entts/Explosion.h"
 
 struct PlayScene : Scene
 {
-  std::vector<Entity *> entities;
+  UFO ufo;
+  Horde horde;
+  Bunker bunkers[4];
   std::vector<Explosion *> explosions;
 
   PlayScene();
