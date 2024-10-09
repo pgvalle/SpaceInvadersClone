@@ -5,7 +5,7 @@
 
 struct Shot
 {
-  int x, y, vy;
+  float x, y, vy;
   SDL_Rect clip, expClip;
 
   Explosion *onHit();

@@ -8,11 +8,12 @@ Explosion *Shot::onHit()
   e->y = y;
   e->clip = expClip;
   e->lifespan.reset(0.5);
+  return e;
 }
 
 SDL_Rect Shot::getHitbox() const
 {
-  return {x, y, 1, 5};
+  return {(int)round(x), (int)round(y), 1, 5};
 }
 
 void Shot::onUpdate(float dt)
@@ -22,6 +23,6 @@ void Shot::onUpdate(float dt)
 
 void Shot::onRender() const
 {
-  const SDL_Rect dst = {x, y, clip.w, clip.h};
+  const SDL_Rect dst = {(int)round(x), (int)round(y), clip.w, clip.h};
   SDL_RenderCopy(g->ren, g->atlas, &clip, &dst);
 }
