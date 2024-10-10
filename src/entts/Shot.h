@@ -5,11 +5,9 @@
 
 struct Shot
 {
-  float x, y, vy;
-  SDL_Rect clip, expClip;
+  float x, y, dy;
 
-  Explosion *onHit();
-  SDL_Rect getHitbox() const;
-  void onUpdate(float dt);
-  void onRender() const;
+  Explosion *collisionCallback(const SDL_Rect &expClip);
+  SDL_Rect getCollider() const;
+  void draw() const;
 };

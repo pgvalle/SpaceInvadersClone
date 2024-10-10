@@ -61,6 +61,17 @@ void PlayScene::tick()
       delete exp;
     }
   }
+
+  for (int i = 0; i < shots.size(); i++)
+  {
+    Shot *shot = shots[i];
+    shot->y += shot->dy;
+    // if ()
+    // {
+    //   shots.erase(shots.begin() + i--);
+    //   delete shot;
+    // }
+  }
 }
 
 void PlayScene::draw() const
@@ -69,6 +80,9 @@ void PlayScene::draw() const
 
   for (Explosion *exp : explosions)
     exp->draw();
+
+  for (Shot *shot : shots)
+    shot->draw();
   /*
   cannon.onRender();
   ufo.onRender();
