@@ -1,55 +1,70 @@
 #include "SIC.h"
 #include "common.h"
-
 #include "scenes/PlayScene.h"
-Scene *s = NULL;
+
 SIC::SIC()
 {
-  win = SDL_CreateWindow(
-    "Space Invaders Clone",
-    SDL_WINDOWPOS_CENTERED,
-    SDL_WINDOWPOS_CENTERED,
-    2 * WIDTH,
-    2 * HEIGHT,
-    SDL_WINDOW_RESIZABLE);
-  assert(win);
+  window = SDL_CreateWindow(
+      "Space Invaders Clone",
+      SDL_WINDOWPOS_CENTERED,
+      SDL_WINDOWPOS_CENTERED,
+      2 * WIDTH,
+      2 * HEIGHT,
+      SDL_WINDOW_RESIZABLE);
+  renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+  SDL_RenderSetLogicalSize(renderer, WIDTH, HEIGHT);
 
-  ren = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED);
-  assert(ren);
-  SDL_RenderSetLogicalSize(ren, WIDTH, HEIGHT);
-
-  atlas = IMG_LoadTexture(ren, "res/atlas.png");
+  atlas = IMG_LoadTexture(renderer, "res/atlas.png");
   assert(atlas);
 
   font = FC_CreateFont();
-  FC_LoadFont(
-    font,
-    ren,
-    "res/ps2p.ttf",
-    TILE,
-    FC_MakeColor(255, 255, 255, 255),
-    TTF_STYLE_NORMAL);
+  assert(FC_LoadFont(
+      font,
+      renderer,
+      "res/ps2p.ttf",
+      TILE,
+      {255, 255, 255, 255},
+      TTF_STYLE_NORMAL));
 
-  score = 0;
-  highScore = 0;
+  currentScene = new PlayScene;
+  nextScene = NULL;
+
   shouldStop = false;
+  score = 0;
+  highScore = 0; // TODO: implement loading high score from file
 }
 
 SIC::~SIC()
 {
+  delete currentScene;
+  FC_ClearFont(font);
+  SDL_DestroyTexture(atlas);
+  SDL_DestroyRenderer(renderer);
+  SDL_DestroyWindow(window);
 }
 
-void SIC::add2Score(int value)
+void SIC::start()
 {
-  score += value;
-  if (score > highScore)
-    highScore = score;
+  srand(time(NULL)); // so that we have random numbers
+
+  // initialize libraries
+  SDL_Init(SDL_INIT_EVERYTHING);
+  TTF_Init();
+  IMG_Init(IMG_INIT_PNG);
+
+  sic = new SIC;
+  sic->loop();
+  delete sic;
+  sic = NULL;
+
+  // terminate libraries
+  IMG_Quit();
+  TTF_Quit();
+  SDL_Quit();
 }
 
 void SIC::loop()
 {
-  s = new PlayScene;
-
   const Uint32 msPerTick = 1000 / TICKRATE;
   Uint32 msPerFrame = 1, msAccum = 0;
 
@@ -57,44 +72,38 @@ void SIC::loop()
   {
     const Uint32 msStart = SDL_GetTicks();
 
+    // fixed time update (tick)
     while (msAccum >= msPerTick)
     {
-      onTick(1e-3 * msPerTick);
+      currentScene->tick(1e-3 * msPerTick);
       msAccum -= msPerTick;
     }
 
+    // event processing
     SDL_Event event;
-    SDL_PollEvent(&event);
-    onUpdate(1e-3 * msPerFrame, event);
-    onRender();
+    if (SDL_PollEvent(&event))
+      currentScene->processEvent(event);
 
+    // rendering
+    currentScene->draw();
+    SDL_RenderPresent(renderer);
+
+    // update highScore
+    if (score > highScore)
+      highScore = score;
+
+    // update scene
+    if (nextScene)
+    {
+      delete currentScene;
+      currentScene = nextScene;
+      nextScene = NULL;
+    }
+
+    // End of loop. Calculate accumulated time.
     msPerFrame = SDL_GetTicks() - msStart;
     msAccum += msPerFrame;
   }
-
-  delete s;
 }
 
-void SIC::onTick(float dt)
-{
-}
-
-void SIC::onUpdate(float dt, const SDL_Event &event)
-{
-  if (event.type == SDL_QUIT)
-    shouldStop = true;
-  s->onUpdate(dt);
-}
-
-void SIC::onRender() const
-{
-  SDL_SetRenderDrawColor(ren, 0, 0, 0, 255);
-  SDL_RenderClear(ren);
-
-  // here goes everything to render
-  s->onRender();
-
-  SDL_RenderPresent(ren);
-}
-
-SIC *g = NULL;
+SIC *sic = NULL;

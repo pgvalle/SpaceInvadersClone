@@ -1,31 +1,30 @@
 #pragma once
 
 #include "common.h"
+#include "scenes/Scene.h"
 
 #define TILE 8
 #define WIDTH (28 * TILE)
 #define HEIGHT (32 * TILE)
 
-#define TICKRATE 20
+#define TICKRATE 30
 
 struct SIC
 {
-  SDL_Window *win;
-  SDL_Renderer *ren;
+  SDL_Window *window;
+  SDL_Renderer *renderer;
   SDL_Texture *atlas;
   FC_Font *font;
-  int score, highScore;
+  Scene *currentScene, *nextScene;
   bool shouldStop;
+  int score, highScore;
 
   SIC();
   ~SIC();
 
-  void add2Score(int val);
+  static void start();
   void loop();
-  void onTick(float dt);
-  void onUpdate(float dt, const SDL_Event &event);
-  void onRender() const;
 };
 
-extern SIC *g;
+extern SIC *sic;
 
