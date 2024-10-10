@@ -1,7 +1,7 @@
 #pragma once
 
 #include "common.h"
-#include "util/Timer.h"
+#include "util/Ticker.h"
 #include "Explosion.h"
 
 enum UFOState
@@ -16,14 +16,14 @@ enum UFOState
 struct UFO
 {
   UFOState state;
-  float x, vx;
-  Timer clock;
+  float x, dx;
   int score;
+  Ticker ticker;
 
   UFO();
 
-  Explosion *onHit();
-  SDL_Rect getHitbox() const;
-  void onUpdate(float dt);
-  void onRender() const;
+  Explosion *collisionCallback();
+  SDL_Rect getCollider() const;
+  void tick();
+  void draw() const;
 };

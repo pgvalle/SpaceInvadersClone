@@ -47,12 +47,28 @@ void PlayScene::processEvent(const SDL_Event &event)
   */
 }
 
-void PlayScene::tick(float dt)
+void PlayScene::tick()
 {
+  ufo.tick();
+
+  for (int i = 0; i < explosions.size(); i++)
+  {
+    Explosion *exp = explosions[i];
+    exp->lifespan.tick();
+    if (exp->lifespan.hasFinished())
+    {
+      explosions.erase(explosions.begin() + i--);
+      delete exp;
+    }
+  }
 }
 
 void PlayScene::draw() const
 {
+  ufo.draw();
+
+  for (Explosion *exp : explosions)
+    exp->draw();
   /*
   cannon.onRender();
   ufo.onRender();

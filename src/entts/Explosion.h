@@ -1,15 +1,13 @@
 #pragma once
 
 #include "common.h"
-#include "util/Timer.h"
+#include "util/Ticker.h"
 
 struct Explosion
 {
   int x, y;
   SDL_Rect clip;
-  Timer lifespan;
+  Ticker lifespan;
 
-  void onTick(float dt);
-  void onUpdate(float dt);
-  void onRender() const;
+  void draw() const;
 };
