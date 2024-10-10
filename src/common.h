@@ -1,5 +1,4 @@
-#ifndef COMMON_H
-#define COMMON_H
+#pragma once
 
 #include <cstdio>
 #include <cassert>
@@ -11,5 +10,3 @@
 #include <SDL_ttf.h>
 #include <SDL_image.h>
 #include <SDL_FontCache.h>
-
-#endif // COMMON_H
