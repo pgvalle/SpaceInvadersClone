@@ -1,10 +1,12 @@
 #pragma once
 
+#include "common.h"
+
 struct Scene
 {
   virtual ~Scene() {};
 
-  virtual void onTick(float dt) = 0;
-  virtual void onUpdate(float dt) = 0;
-  virtual void onRender() const = 0;
+  virtual void processEvent(const SDL_Event &event) = 0;
+  virtual void tick(float dt) = 0;
+  virtual void draw() const = 0;
 };

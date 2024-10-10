@@ -3,22 +3,18 @@
 
 PlayScene::PlayScene()
 {
-  lives = 3;
-  shotCooldown.reset(1);
 }
 
 PlayScene::~PlayScene()
 {
-  for (Explosion *exp : explosions)
-    delete exp;
 }
 
-void PlayScene::onTick(float dt)
+void PlayScene::processEvent(const SDL_Event &event)
 {
-}
+  if (event.type == SDL_QUIT)
+    sic->shouldStop = true;
 
-void PlayScene::onUpdate(float dt)
-{
+  /*
   // check input
   shotCooldown.update(dt);
   if (shotCooldown.hasTimedOut() && SDL_GetKeyboardState(NULL)[SDL_SCANCODE_SPACE])
@@ -48,10 +44,16 @@ void PlayScene::onUpdate(float dt)
     shot->onUpdate(dt);
     // TODO: check collision with player, ufo and invaders
   }
+  */
 }
 
-void PlayScene::onRender() const
+void PlayScene::tick(float dt)
 {
+}
+
+void PlayScene::draw() const
+{
+  /*
   cannon.onRender();
   ufo.onRender();
   horde.onRender();
@@ -64,4 +66,5 @@ void PlayScene::onRender() const
 
   for (const Bunker &bun : bunkers)
     bun.onRender();
+  */
 }
