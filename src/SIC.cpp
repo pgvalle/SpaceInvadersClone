@@ -75,7 +75,7 @@ void SIC::loop()
     // fixed time update (tick)
     while (msAccum >= msPerTick)
     {
-      currentScene->tick(1e-3 * msPerTick);
+      currentScene->tick();
       msAccum -= msPerTick;
     }
 
@@ -85,6 +85,8 @@ void SIC::loop()
       currentScene->processEvent(event);
 
     // rendering
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    SDL_RenderClear(renderer);
     currentScene->draw();
     SDL_RenderPresent(renderer);
 
