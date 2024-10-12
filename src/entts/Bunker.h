@@ -9,5 +9,5 @@ struct Bunker
 
   Bunker();
 
-  void onRender() const;
+  void draw() const;
 };
