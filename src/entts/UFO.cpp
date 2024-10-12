@@ -18,23 +18,23 @@ UFO::UFO()
   ticker.reset(UFO_TICKS_TO_RESPAWN); // spawn after 10-15s
 }
 
-Explosion *UFO::collisionCallback()
-{
-  state = UFO_EXPLODING;
-  ticker.reset(UFO_TICKS_EXPLODING);
+// Explosion *UFO::collisionCallback()
+// {
+//   state = UFO_EXPLODING;
+//   ticker.reset(UFO_TICKS_EXPLODING);
 
-  Explosion *e = new Explosion;
-  e->x = x - 4; // offset bc explosion sprite width is 8 pixels bigger
-  e->y = UFO_Y;
-  e->clip = {16, 0, 24, 8};
-  e->lifespan.reset(UFO_TICKS_EXPLODING);
-  return e;
-}
+//   Explosion *e = new Explosion;
+//   e->x = x - 4; // offset bc explosion sprite width is 8 pixels bigger
+//   e->y = UFO_Y;
+//   e->clip = {16, 0, 24, 8};
+//   e->lifespan.reset(UFO_TICKS_EXPLODING);
+//   return e;
+// }
 
-SDL_Rect UFO::getCollider() const
-{
-  return {(int)round(x), UFO_Y, 16, 8};
-}
+// SDL_Rect UFO::getCollider() const
+// {
+//   return {(int)round(x), UFO_Y, 16, 8};
+// }
 
 void UFO::tick()
 {

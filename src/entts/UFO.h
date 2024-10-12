@@ -22,8 +22,8 @@ struct UFO
 
   UFO();
 
-  Explosion *collisionCallback();
-  SDL_Rect getCollider() const;
+  //Explosion *collisionCallback();
+  //SDL_Rect getCollider() const;
   void tick();
   void draw() const;
 };

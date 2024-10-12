@@ -49,6 +49,7 @@ void PlayScene::processEvent(const SDL_Event &event)
 
 void PlayScene::tick()
 {
+  cannon.tick();
   ufo.tick();
 
   for (int i = 0; i < explosions.size(); i++)
@@ -76,7 +77,11 @@ void PlayScene::tick()
 
 void PlayScene::draw() const
 {
+  cannon.draw();
   ufo.draw();
+
+  for (const Bunker &bun : bunkers)
+    bun.draw();
 
   for (Explosion *exp : explosions)
     exp->draw();

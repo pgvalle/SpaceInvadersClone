@@ -1,7 +1,7 @@
 #pragma once
 
 #include "common.h"
-#include "util/Timer.h"
+#include "util/Ticker.h"
 #include "Shot.h"
 
 enum CannonState
@@ -14,15 +14,16 @@ enum CannonState
 struct Cannon
 {
   enum CannonState state;
-  float x;
+  float x, dx;
+  int lives;
   int deathFrame;
-  Timer clock1, clock2;
+  Ticker clock1, clock2;
 
   Cannon();
 
-  void onHit();
-  SDL_Rect getHitbox() const;
-  void onUpdate(float dt);
-  void onRender() const;
-  Shot *shoot() const;
+  // void onHit();
+  // SDL_Rect getHitbox() const;
+  void tick();
+  void draw() const;
+  //Shot *shoot() const;
 };
