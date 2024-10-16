@@ -1,4 +1,5 @@
 #include "SIC.h"
+#include "screens.h"
 
 int main(int argc, char **argv)
 {
@@ -10,6 +11,12 @@ int main(int argc, char **argv)
 
   sic = new SIC;
   sic->init();
+
+  sic->define_screen({ menu_init, menu_draw, menu_updt });
+  //sic->define_screen({ menu_init, menu_draw, menu_updt });
+  //sic->define_screen({ menu_init, menu_draw, menu_updt });
+  //sic->define_screen({ menu_init, menu_draw, menu_updt });
+
   sic->loop();
   sic->quit();
 
