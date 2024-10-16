@@ -1,24 +1,23 @@
 #include "SIC.h"
-#include "common.h"
-#include "scenes/PlayScene.h"
 
-SIC::SIC()
-{
+void SIC::init() {
   window = SDL_CreateWindow(
       "Space Invaders Clone",
       SDL_WINDOWPOS_CENTERED,
       SDL_WINDOWPOS_CENTERED,
-      2 * WIDTH,
-      2 * HEIGHT,
+      WIDTH,
+      HEIGHT,
       SDL_WINDOW_RESIZABLE);
+  SDL_assert(window);
+
   renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-  SDL_RenderSetLogicalSize(renderer, WIDTH, HEIGHT);
+  SDL_assert(renderer);
 
   atlas = IMG_LoadTexture(renderer, "res/atlas.png");
-  assert(atlas);
+  SDL_assert(atlas);
 
   font = FC_CreateFont();
-  assert(FC_LoadFont(
+  SDL_assert(FC_LoadFont(
       font,
       renderer,
       "res/ps2p.ttf",
@@ -26,86 +25,50 @@ SIC::SIC()
       {255, 255, 255, 255},
       TTF_STYLE_NORMAL));
 
-  currentScene = new PlayScene;
-  nextScene = NULL;
-
-  shouldStop = false;
   score = 0;
-  highScore = 0; // TODO: implement loading high score from file
+  high_score = 0; // TODO: implement loading high score from file
+  
+  SDL_RenderSetLogicalSize(renderer, WIDTH, HEIGHT);
 }
 
-SIC::~SIC()
-{
-  delete currentScene;
-  FC_ClearFont(font);
+void SIC::quit() {
   SDL_DestroyTexture(atlas);
   SDL_DestroyRenderer(renderer);
   SDL_DestroyWindow(window);
 }
 
-void SIC::start()
-{
-  srand(time(NULL)); // so that we have random numbers
+void SIC::loop() {
+  SDL_assert(screens.size() > 0);
 
-  // initialize libraries
-  SDL_Init(SDL_INIT_EVERYTHING);
-  TTF_Init();
-  IMG_Init(IMG_INIT_PNG);
+  int screenid = 0;
+  const Uint32 tpf = 1000 / FRAMERATE; // time per frame
 
-  sic = new SIC;
-  sic->loop();
-  delete sic;
-  sic = NULL;
-
-  // terminate libraries
-  IMG_Quit();
-  TTF_Quit();
-  SDL_Quit();
-}
-
-void SIC::loop()
-{
-  const Uint32 msPerTick = 1000 / TICKRATE;
-  Uint32 msPerFrame = 1, msAccum = 0;
-
-  while (!shouldStop)
-  {
-    const Uint32 msStart = SDL_GetTicks();
-
-    // fixed time update (tick)
-    while (msAccum >= msPerTick)
-    {
-      currentScene->tick();
-      msAccum -= msPerTick;
-    }
-
-    // event processing
-    SDL_Event event;
-    if (SDL_PollEvent(&event))
-      currentScene->processEvent(event);
-
-    // rendering
+  while (screenid != EXIT_HOOK) {
+    const Uint32 start = SDL_GetTicks();
+ 
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
-    currentScene->draw();
+    screens[screenid].draw();
     SDL_RenderPresent(renderer);
 
-    // update highScore
-    if (score > highScore)
-      highScore = score;
+    const int new_screenid = screens[screenid].updt();
 
-    // update scene
-    if (nextScene)
-    {
-      delete currentScene;
-      currentScene = nextScene;
-      nextScene = NULL;
-    }
+    if (new_screenid != KEEP_SCENE)
+      screenid = new_screenid;
+    
+    if (score > high_score)
+      high_score = score;
 
-    // End of loop. Calculate accumulated time.
-    msPerFrame = SDL_GetTicks() - msStart;
-    msAccum += msPerFrame;
+    const Uint32 delta = SDL_GetTicks() - start;
+
+    if (delta < tpf)
+      SDL_Delay(tpf - delta);
   }
 }
 
-SIC *sic = NULL;
+void SIC::define_screen(Screen &&screen) {
+  std::move(screen);
+  screens.push_back(screen);
+}
+
+SIC *sic;
