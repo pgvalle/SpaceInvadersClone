@@ -5,8 +5,8 @@ void SIC::init() {
       "Space Invaders Clone",
       SDL_WINDOWPOS_CENTERED,
       SDL_WINDOWPOS_CENTERED,
-      WIDTH,
-      HEIGHT,
+      2 * WIDTH,
+      2 * HEIGHT,
       SDL_WINDOW_RESIZABLE);
   SDL_assert(window);
 
@@ -29,6 +29,7 @@ void SIC::init() {
   high_score = 0; // TODO: implement loading high score from file
   
   SDL_RenderSetLogicalSize(renderer, WIDTH, HEIGHT);
+  FC_SetDefaultColor(font, { 255, 255, 255, 255 });
 }
 
 void SIC::quit() {
@@ -40,22 +41,23 @@ void SIC::quit() {
 void SIC::loop() {
   SDL_assert(screens.size() > 0);
 
-  int screenid = 0;
+  int screen = 0;
   const Uint32 tpf = 1000 / FRAMERATE; // time per frame
 
-  while (screenid != EXIT_HOOK) {
+  while (screen != EXIT_HOOK) {
     const Uint32 start = SDL_GetTicks();
  
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
-    screens[screenid].draw();
+    screens[screen].draw();
     SDL_RenderPresent(renderer);
 
-    const int new_screenid = screens[screenid].updt();
+    SDL_PumpEvents();
+    const int new_screen = screens[screen].updt();
 
-    if (new_screenid != KEEP_SCENE)
-      screenid = new_screenid;
-    
+    if (new_screen != KEEP_SCREEN)
+      screen = new_screen;
+
     if (score > high_score)
       high_score = score;
 
@@ -67,7 +69,9 @@ void SIC::loop() {
 }
 
 void SIC::define_screen(Screen &&screen) {
-  std::move(screen);
+  SDL_assert(screen.init && screen.draw && screen.updt);
+  
+  screen.init();
   screens.push_back(screen);
 }
 
