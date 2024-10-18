@@ -14,6 +14,6 @@ void ui_update(const SDL_Event &event) {
   if (pressed && key == SDLK_UP)
     sic.credits++;
 
-  if (pressed && key == SDLK_UP)
+  if (pressed && key == SDLK_DOWN)
     sic.credits--;
 }
