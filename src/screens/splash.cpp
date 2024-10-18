@@ -5,24 +5,14 @@
 /// VARIABLES
 ///////////////////////////////////////////////////////////
 
-const std::string text = R"(
-         PLAY
-
-
-    SPACE INVADERS
-
- 
-
-*SCORE ADVANCES TABLE*
-
-       =? MYSTERY
-
-       =30 POINTS
-
-       =20 POINTS
-
-       =10 POINTS      
-)";
+const std::string text =
+"         PLAY\n\n\n"
+"    SPACE INVADERS\n\n\n\n"
+"*SCORE ADVANCES TABLE*\n\n"
+"       =? MYSTERY\n\n"
+"       =30 POINTS\n\n"
+"       =20 POINTS\n\n"
+"       =10 POINTS";
 
 int state, ticks, i;
 
@@ -37,7 +27,7 @@ void splash_init() {
 void splash_draw() {
   ui_draw();
 
-  sic.render_text(24, 56, text.substr(0, i).c_str());
+  sic.render_text(24, 64, text.substr(0, i).c_str());
   
   if (i <= text.find('*'))
     return;
@@ -65,12 +55,12 @@ void update_text_display() {
 int splash_update(const SDL_Event &event) {
   ui_update(event);
 
-  bool pressed_no_repeat = (event.type == SDL_KEYDOWN && event.key.repeat == 0);
+  bool pressed_no_repeat = (event.type == SDL_KEYDOWN && !event.key.repeat);
   SDL_Keycode key = event.key.keysym.sym;
 
   // pressing space skips text typewriting
   if (pressed_no_repeat && key == SDLK_SPACE) {
-    state = (state < 4 ? 4 : 5);
+    state = 4;
     ticks = 0;
     i = text.length();
   }
@@ -105,15 +95,11 @@ int splash_update(const SDL_Event &event) {
         ticks = 0;
       }
       break;
-    case 4: // wait 2 seconds again, then done
-      if (ticks++ == 60)
-        state = 5;
-      break;
   }
 
   if (sic.credits)
     return 1;
   
   // for now keep same screen (0), later add a demo screen
-  return (state == 5 ? 1 : SCREEN_UNCHANGED);
+  return SCREEN_UNCHANGED;
 }

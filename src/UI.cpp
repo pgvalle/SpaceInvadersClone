@@ -11,9 +11,13 @@ void ui_update(const SDL_Event &event) {
   bool pressed = (event.type == SDL_KEYDOWN);
   SDL_Keycode key = event.key.keysym.sym;
 
-  if (pressed && key == SDLK_UP)
-    sic.credits++;
+  if (pressed && key == SDLK_UP) {
+    if (sic.credits < 99)
+      sic.credits++;
+  }
 
-  if (pressed && key == SDLK_DOWN)
-    sic.credits--;
+  if (pressed && key == SDLK_DOWN) {
+    if (sic.credits > 0)
+      sic.credits--;
+  }
 }

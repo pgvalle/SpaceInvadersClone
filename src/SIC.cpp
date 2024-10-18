@@ -28,15 +28,20 @@ void SIC::init() {
 
   score = 0;
   high_score = 0; // TODO: implement loading high score from file
+  lives = 3;
   credits = 0;
 
   screens[0].init = splash_init;
   screens[0].draw = splash_draw;
   screens[0].update = splash_update;
   
-  screens[1].init = play_init;
-  screens[1].draw = play_draw;
-  screens[1].update = play_update;
+  screens[1].init = ready_init;
+  screens[1].draw = ready_draw;
+  screens[1].update = ready_update;
+
+  screens[2].init = play_init;
+  screens[2].draw = play_draw;
+  screens[2].update = play_update;
 
   SDL_RenderSetLogicalSize(renderer, WIDTH, HEIGHT);
   FC_SetDefaultColor(font, { 255, 255, 255, 255 });
