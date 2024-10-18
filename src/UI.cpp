@@ -8,7 +8,7 @@ void ui_draw() {
 }
 
 void ui_update(const SDL_Event &event) {
-  bool pressed = (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_UP);
+  bool pressed = (event.type == SDL_KEYDOWN);
   SDL_Keycode key = event.key.keysym.sym;
 
   if (pressed && key == SDLK_UP)
