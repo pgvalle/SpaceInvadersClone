@@ -28,13 +28,13 @@ int state, ticks, i;
 
 ///////////////////////////////////////////////////////////
 
-void menu_init() {
+void splash_init() {
   state = 0;
   ticks = 0;
   i = 0;
 }
 
-void menu_draw() {
+void splash_draw() {
   ui_draw();
 
   sic.render_text(24, 56, text.substr(0, i).c_str());
@@ -62,7 +62,7 @@ void update_text_display() {
   while (i < text.length() && (text[i] == ' ' || text[i] == '\n'));
 }
 
-int menu_update(const SDL_Event &event) {
+int splash_update(const SDL_Event &event) {
   ui_update(event);
 
   bool pressed_no_repeat = (event.type == SDL_KEYDOWN && event.key.repeat == 0);
@@ -111,5 +111,9 @@ int menu_update(const SDL_Event &event) {
       break;
   }
 
-  return (state == 5 ? 1 : SCREEN_UNCHANGED);
+  if (sic.credits)
+    return 1;
+  
+  // for now keep same screen (0), later add a demo screen
+  return (state == 5 ? 0 : SCREEN_UNCHANGED);
 }

@@ -11,6 +11,6 @@ struct Screen {
   std::function<int(const SDL_Event &)> update;
 };
 
-void menu_init();
-void menu_draw();
-int menu_update(const SDL_Event &event);
+void splash_init();
+void splash_draw();
+int splash_update(const SDL_Event &event);

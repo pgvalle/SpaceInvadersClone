@@ -30,9 +30,9 @@ void SIC::init() {
   high_score = 0; // TODO: implement loading high score from file
   credits = 0;
 
-  screens[0].init = menu_init;
-  screens[0].draw = menu_draw;
-  screens[0].update = menu_update;
+  screens[0].init = splash_init;
+  screens[0].draw = splash_draw;
+  screens[0].update = splash_update;
   
   SDL_RenderSetLogicalSize(renderer, WIDTH, HEIGHT);
   FC_SetDefaultColor(font, { 255, 255, 255, 255 });
