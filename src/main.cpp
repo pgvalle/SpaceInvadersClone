@@ -9,11 +9,9 @@ int main(int argc, char **argv)
   IMG_Init(IMG_INIT_PNG);
   TTF_Init();
 
-  _sic = new SIC;
   sic.init();
   sic.loop();
   sic.quit();
-  delete _sic;
 
   TTF_Quit();
   IMG_Quit();

@@ -32,6 +32,5 @@ struct SIC {
   void render_clip(const SDL_Rect &src, const SDL_Rect &dst);
 };
 
-extern SIC *_sic;
-#define sic (*_sic)
+extern SIC sic;
 

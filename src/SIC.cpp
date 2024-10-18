@@ -87,5 +87,5 @@ void SIC::render_clip(const SDL_Rect &src, const SDL_Rect &dst) {
   SDL_RenderCopy(renderer, atlas, &src, &dst);
 }
 
-struct SIC *_sic;
+struct SIC sic;
 
