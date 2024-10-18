@@ -34,6 +34,10 @@ void SIC::init() {
   screens[0].draw = splash_draw;
   screens[0].update = splash_update;
   
+  screens[1].init = play_init;
+  screens[1].draw = play_draw;
+  screens[1].update = play_update;
+
   SDL_RenderSetLogicalSize(renderer, WIDTH, HEIGHT);
   FC_SetDefaultColor(font, { 255, 255, 255, 255 });
 }

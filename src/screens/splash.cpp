@@ -115,5 +115,5 @@ int splash_update(const SDL_Event &event) {
     return 1;
   
   // for now keep same screen (0), later add a demo screen
-  return (state == 5 ? 0 : SCREEN_UNCHANGED);
+  return (state == 5 ? 1 : SCREEN_UNCHANGED);
 }
