@@ -1,119 +1,116 @@
 #include "SIC.h"
+#include "UI.h"
 
-enum State {
-  TEXT1,
-  TEXT12
-};
+///////////////////////////////////////////////////////////
+/// VARIABLES
+///////////////////////////////////////////////////////////
 
-State state;
-
-const std::string text1 = R"(
-
+const std::string text = R"(
+         PLAY
 
 
+    SPACE INVADERS
 
+ 
 
+*SCORE ADVANCES TABLE*
 
+       =? MYSTERY
 
-            PLAY
+       =30 POINTS
 
+       =20 POINTS
 
-       SPACE INVADERS
+       =10 POINTS      
 )";
 
-const std::string text2 = R"(
+int state, ticks, i;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-   *SCORE ADVANCES TABLE*
-
-          =? MYSTERY
-
-          =30 POINTS
-
-          =20 POINTS
-
-          =10 POINTS
-)";
-
-int i1, i2, i;
+///////////////////////////////////////////////////////////
 
 void menu_init() {
-  state = TEXT1;
-  i1 = 0;
-  i2 = 0;
+  state = 0;
+  ticks = 0;
   i = 0;
 }
 
 void menu_draw() {
-  switch (state) {
-    case TEXT1: 
-      FC_Draw(sic->font, sic->renderer, 0, 0, text1.substr(0, i1).c_str());
-      break;
-    case TEXT12: {
-      FC_Draw(sic->font, sic->renderer, 0, 0, text1.c_str());
-      FC_Draw(sic->font, sic->renderer, 0, 0, text2.substr(0, i2).c_str());
-      
-      if (i2 < 48)
-        break;
+  ui_draw();
+  sic.render_text(24, 56, text.substr(0, i).c_str());
+  
+  if (i <= text.find('*'))
+    return;
 
-      SDL_Rect src = { 0, 0, 16, 8 },
-               dst = { 64, 136, 16, 8 };
-      SDL_RenderCopy(sic->renderer, sic->atlas, &src, &dst);
-
-      src = { 0, 16, 8, 8 };
-      dst = { 68, 152, 8, 8 };
-      SDL_RenderCopy(sic->renderer, sic->atlas, &src, &dst);
-
-      src = { 0, 24, 11, 8 };
-      dst = { 66, 168, 11, 8 };
-      SDL_RenderCopy(sic->renderer, sic->atlas, &src, &dst);
-
-      src = { 0, 32, 12, 8 };
-      dst = { 66, 184, 12, 8 };
-      SDL_RenderCopy(sic->renderer, sic->atlas, &src, &dst);
-      break;
-    }
-  }
+  sic.render_clip({ 0, 0, 16, 8 }, { 64, 136, 16, 8 });
+  sic.render_clip({ 0, 16, 8, 8 }, { 68, 152, 8, 8 });
+  sic.render_clip({ 0, 24, 11, 8 }, { 66, 168, 11, 8 });
+  sic.render_clip({ 0, 32, 12, 8 }, { 66, 184, 12, 8 });
 }
 
-int menu_updt() {
-  const Uint8 *keys = SDL_GetKeyboardState(NULL);
+///////////////////////////////////////////////////////////
+/// UPDATE
+///////////////////////////////////////////////////////////
+
+void update_text_display() {
+  // draw one more character each 4 ticks
+  if (ticks++ % 4)
+    return;
+
+  // skip whitespaces and new lines
+  do i++;
+  while (i < text.length() && (text[i] == ' ' || text[i] == '\n'));
+}
+
+int menu_update(const SDL_Event &event) {
+
+  const bool space_pressed = (event.type == SDL_KEYDOWN &&
+      event.key.repeat == 0 && event.key.keysym.sym == SDLK_SPACE);
+
+  // pressing space skips text typewriting
+  if (space_pressed) {
+    state = (state < 4 ? 4 : 5);
+    ticks = 0;
+    i = text.length();
+  }
+
+  const bool q_pressed = (event.type == SDL_KEYDOWN &&
+      event.key.repeat == 0 && event.key.keysym.sym == SDLK_q);
+
+  if (q_pressed)
+    return SCREEN_EXIT_HOOK;
 
   switch (state) {
-    case TEXT1:
-      i1 += i;
-      if (i1 == text1.length())
-        state = TEXT12;
+    case 0: // wait 3 seconds before start displaying text
+      if (ticks++ == 90) // 3 seconds
+        state = 1;
       break;
-    case TEXT12:
-      i2 += i;
-      if (i2 == text2.length())
-        return EXIT_HOOK;
+    case 1: // typewrite but only a part of it (until "SPACE INVADERS")
+      update_text_display();
+      if (i == text.find('*')) {
+        state = 2;
+        ticks = 0;
+        i--;
+      }
+      break;
+    case 2: // wait 2 seconds
+      if (ticks++ == 60) {
+        state = 3;
+        ticks = 0;
+        i += 23;
+      }
+      break;
+    case 3: // typewrite remaining text
+      update_text_display();
+      if (i == text.length()) {
+        state = 4;
+        ticks = 0;
+      }
+      break;
+    case 4: // wait 2 seconds again, then done
+      if (ticks++ == 60)
+        state = 5;
       break;
   }
 
-  i = !i;
-
-  if (keys[SDL_SCANCODE_SPACE]) {
-    state = TEXT12;
-    i1 = text1.length();
-    i2 = text2.length();
-  }
-
-  if (keys[SDL_SCANCODE_Q])
-    return EXIT_HOOK;
-
-  return KEEP_SCREEN;
+  return (state == 5 ? 1 : SCREEN_UNCHANGED);
 }

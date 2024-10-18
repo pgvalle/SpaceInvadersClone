@@ -3,22 +3,17 @@
 
 int main(int argc, char **argv)
 {
-  srand(time(NULL)); // so that we have random numbers
+  srand(time(NULL));
 
   SDL_Init(SDL_INIT_EVERYTHING);
   IMG_Init(IMG_INIT_PNG);
   TTF_Init();
 
-  sic = new SIC;
-  sic->init();
-
-  sic->define_screen({ menu_init, menu_draw, menu_updt });
-  //sic->define_screen({ menu_init, menu_draw, menu_updt });
-  //sic->define_screen({ menu_init, menu_draw, menu_updt });
-  //sic->define_screen({ menu_init, menu_draw, menu_updt });
-
-  sic->loop();
-  sic->quit();
+  _sic = new SIC;
+  sic.init();
+  sic.loop();
+  sic.quit();
+  delete _sic;
 
   TTF_Quit();
   IMG_Quit();
