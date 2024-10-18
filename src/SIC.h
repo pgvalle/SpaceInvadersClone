@@ -22,7 +22,7 @@ struct SIC {
   SDL_Renderer *renderer;
   SDL_Texture *atlas;
   FC_Font *font;
-  int score, high_score, credits;
+  int score, high_score, lives, credits;
   Screen screens[MAX_SCREENS];
 
   void init();
