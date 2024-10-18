@@ -36,6 +36,7 @@ void menu_init() {
 
 void menu_draw() {
   ui_draw();
+
   sic.render_text(24, 56, text.substr(0, i).c_str());
   
   if (i <= text.find('*'))
@@ -62,6 +63,7 @@ void update_text_display() {
 }
 
 int menu_update(const SDL_Event &event) {
+  ui_update(event);
 
   const bool space_pressed = (event.type == SDL_KEYDOWN &&
       event.key.repeat == 0 && event.key.keysym.sym == SDLK_SPACE);

@@ -12,7 +12,7 @@
 
 #include "screens.h"
 
-#define FPS 30
+#define FPS 60
 #define TILE 8
 #define WIDTH (28 * TILE)
 #define HEIGHT (32 * TILE)
