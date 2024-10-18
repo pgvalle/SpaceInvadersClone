@@ -65,20 +65,17 @@ void update_text_display() {
 int menu_update(const SDL_Event &event) {
   ui_update(event);
 
-  const bool space_pressed = (event.type == SDL_KEYDOWN &&
-      event.key.repeat == 0 && event.key.keysym.sym == SDLK_SPACE);
+  bool pressed_no_repeat = (event.type == SDL_KEYDOWN && event.key.repeat == 0);
+  SDL_Keycode key = event.key.keysym.sym;
 
   // pressing space skips text typewriting
-  if (space_pressed) {
+  if (pressed_no_repeat && key == SDLK_SPACE) {
     state = (state < 4 ? 4 : 5);
     ticks = 0;
     i = text.length();
   }
 
-  const bool q_pressed = (event.type == SDL_KEYDOWN &&
-      event.key.repeat == 0 && event.key.keysym.sym == SDLK_q);
-
-  if (q_pressed)
+  if (pressed_no_repeat && key == SDLK_q)
     return SCREEN_EXIT_HOOK;
 
   switch (state) {

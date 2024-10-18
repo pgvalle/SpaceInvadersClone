@@ -8,15 +8,12 @@ void ui_draw() {
 }
 
 void ui_update(const SDL_Event &event) {
-  const bool up_pressed = (event.type == SDL_KEYDOWN &&
-      event.key.keysym.sym == SDLK_UP);
+  bool pressed = (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_UP);
+  SDL_Keycode key = event.key.keysym.sym;
 
-  if (up_pressed)
+  if (pressed && key == SDLK_UP)
     sic.credits++;
 
-  const bool down_pressed = (event.type == SDL_KEYDOWN &&
-      event.key.keysym.sym == SDLK_DOWN);
-
-  if (down_pressed)
+  if (pressed && key == SDLK_UP)
     sic.credits--;
 }
