@@ -1,10 +1,6 @@
 #include "SIC.h"
 #include "UI.h"
 
-///////////////////////////////////////////////////////////
-/// VARIABLES
-///////////////////////////////////////////////////////////
-
 static std::string text =
 "         PLAY\n\n\n"
 "    SPACE INVADERS\n\n\n\n"
@@ -24,6 +20,8 @@ void splash_init() {
   i = 0;
 }
 
+///////////////////////////////////////////////////////////
+
 void splash_draw() {
   ui_draw();
 
@@ -40,8 +38,6 @@ void splash_draw() {
 }
 
 ///////////////////////////////////////////////////////////
-/// UPDATE
-///////////////////////////////////////////////////////////
 
 void update_text_display() {
   // draw one more character each 4 ticks
@@ -56,25 +52,25 @@ void update_text_display() {
 int splash_update(const SDL_Event &event) {
   ui_update(event);
 
-  bool pressed_no_repeat = (event.type == SDL_KEYDOWN && !event.key.repeat);
+  bool pressed_0repeat = (event.type == SDL_KEYDOWN && !event.key.repeat);
   SDL_Keycode key = event.key.keysym.sym;
 
   // pressing space skips text typewriting
-  if (pressed_no_repeat && key == SDLK_SPACE) {
+  if (pressed_0repeat && key == SDLK_SPACE) {
     state = 4;
     ticks = 0;
     i = text.length();
   }
 
-  if (pressed_no_repeat && key == SDLK_q)
-    return SCREEN_EXIT_HOOK;
+  if (pressed_0repeat && key == SDLK_q)
+    return NULL_SCREEN;
 
   switch (state) {
-    case 0: // wait 3 seconds before start displaying text
+    case 0: // wait 1.5 seconds before start displaying text
       if (ticks++ == 90)
         state = 1;
       break;
-    case 1: // typewrite a part of the text (until "SPACE INVADERS")
+    case 1: // typewrite a part of the text
       update_text_display();
       if (i == text.find('*')) {
         state = 2;
@@ -82,7 +78,7 @@ int splash_update(const SDL_Event &event) {
         i--;
       }
       break;
-    case 2: // wait 2 seconds
+    case 2: // wait 1 seconds
       if (ticks++ == 60) {
         state = 3;
         i += 23;
@@ -96,8 +92,7 @@ int splash_update(const SDL_Event &event) {
   }
 
   if (sic.credits)
-    return 1;
+    return READY_SCREEN;
   
-  // for now keep same screen (0), later add a demo screen
-  return SCREEN_UNCHANGED;
+  return SPLASH_SCREEN;
 }

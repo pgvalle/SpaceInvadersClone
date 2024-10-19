@@ -12,11 +12,11 @@ void play_draw() {
 int play_update(const SDL_Event &event) {
   ui_update(event);
 
-  bool pressed_no_repeat = (event.type == SDL_KEYDOWN && event.key.repeat == 0);
+  bool pressed_0repeat = (event.type == SDL_KEYDOWN && event.key.repeat == 0);
   SDL_Keycode key = event.key.keysym.sym;
 
-  if (pressed_no_repeat && key == SDLK_q)
-    return SCREEN_EXIT_HOOK;
+  if (pressed_0repeat && key == SDLK_q)
+    return NULL_SCREEN;
 
-  return SCREEN_UNCHANGED;
+  return PLAY_SCREEN;
 }

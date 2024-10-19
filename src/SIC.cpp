@@ -50,12 +50,12 @@ void SIC::loop() {
   Uint32 tpf = 1000 / FPS; // time per frame
   int si = -1, new_si = 0; // screen index and new screen index
 
-  while (new_si != SCREEN_EXIT_HOOK) {
+  while (new_si != NULL_SCREEN) {
     SDL_Event event;
     Uint32 start = SDL_GetTicks(), delta = 0;
 
     // if screen changed, initialize screen state
-    if (new_si != SCREEN_UNCHANGED) {
+    if (si != new_si) {
       si = new_si;
       screens[si].init();
     }

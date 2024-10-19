@@ -1,6 +1,10 @@
 #include "UI.h"
 #include "SIC.h"
 
+void ui_init() {
+
+}
+
 void ui_draw() {
   sic.draw_text(8, 8, "YOUR SCORE      HIGH-SCORE");
   sic.draw_text(24, 24, "%06d          %06d", sic.score, sic.high_score);

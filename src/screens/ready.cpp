@@ -32,12 +32,12 @@ int ready_update(const SDL_Event &event) {
   
   if (pressed_no_repeat && key == SDLK_RETURN) {
     sic.credits--;
-    return 2;
+    return PLAY_SCREEN;
   }
 
   if (pressed_no_repeat && key == SDLK_q)
-    return SCREEN_EXIT_HOOK;
+    return NULL_SCREEN;
 
-  return SCREEN_UNCHANGED;
+  return READY_SCREEN;
 }
 
