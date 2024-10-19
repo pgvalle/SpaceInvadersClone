@@ -21,7 +21,7 @@ void SIC::init() {
   SDL_assert(FC_LoadFont(
       font,
       renderer,
-      "res/ps2p.ttf",
+      "res/font.ttf",
       TILE,
       { 255, 255, 255, 255 },
       TTF_STYLE_NORMAL));
@@ -31,17 +31,9 @@ void SIC::init() {
   lives = 3;
   credits = 0;
 
-  screens[0].init = splash_init;
-  screens[0].draw = splash_draw;
-  screens[0].update = splash_update;
-  
-  screens[1].init = ready_init;
-  screens[1].draw = ready_draw;
-  screens[1].update = ready_update;
-
-  screens[2].init = play_init;
-  screens[2].draw = play_draw;
-  screens[2].update = play_update;
+  screens.push_back({ splash_init, splash_draw, splash_update });
+  screens.push_back({ ready_init, ready_draw, ready_update });
+  screens.push_back({ play_init, play_draw, play_update });
 
   SDL_RenderSetLogicalSize(renderer, WIDTH, HEIGHT);
   FC_SetDefaultColor(font, { 255, 255, 255, 255 });
@@ -55,44 +47,50 @@ void SIC::quit() {
 }
 
 void SIC::loop() {
-  Uint32 tpf = 1000 / FPS;
-  int screen = -1, new_screen = 0;
+  Uint32 tpf = 1000 / FPS; // time per frame
+  int si = -1, new_si = 0; // screen index and new screen index
 
-  while (new_screen != SCREEN_EXIT_HOOK) {
-    Uint32 start = SDL_GetTicks();
+  while (new_si != SCREEN_EXIT_HOOK) {
+    SDL_Event event;
+    Uint32 start = SDL_GetTicks(), delta = 0;
 
-    if (new_screen != SCREEN_UNCHANGED) {
-      screen = new_screen;
-      screens[screen].init();
+    // if screen changed, initialize screen state
+    if (new_si != SCREEN_UNCHANGED) {
+      si = new_si;
+      screens[si].init();
     }
 
-    SDL_Event event;
+    // event processing
     SDL_PollEvent(&event);
-    new_screen = screens[screen].update(event);
+    new_si = screens[si].update(event);
 
     high_score = std::max(score, high_score);
 
+    // rendering
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
-    screens[screen].draw();
+    screens[si].draw();
     SDL_RenderPresent(renderer);
 
-    Uint32 delta = SDL_GetTicks() - start;
-
+    // fps controlling
+    delta = SDL_GetTicks() - start;
     if (delta < tpf)
       SDL_Delay(tpf - delta);
   }
 }
 
-void SIC::render_text(int x, int y, const char *fmt, ...) {
+void SIC::draw_text(int x, int y, const char *fmt, ...) {
+  static char buffer[128];
   va_list args;
 
   va_start(args, fmt);
-  FC_Draw(font, renderer, x, y, fmt, args);
+  vsprintf(buffer, fmt, args);
   va_end(args);
+
+  FC_Draw(font, renderer, x, y, buffer);
 }
 
-void SIC::render_clip(const SDL_Rect &src, const SDL_Rect &dst) {
+void SIC::draw_clip(const SDL_Rect &src, const SDL_Rect &dst) {
   SDL_RenderCopy(renderer, atlas, &src, &dst);
 }
 

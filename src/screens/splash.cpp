@@ -5,7 +5,7 @@
 /// VARIABLES
 ///////////////////////////////////////////////////////////
 
-const std::string text =
+static std::string text =
 "         PLAY\n\n\n"
 "    SPACE INVADERS\n\n\n\n"
 "*SCORE ADVANCES TABLE*\n\n"
@@ -14,7 +14,7 @@ const std::string text =
 "       =20 POINTS\n\n"
 "       =10 POINTS";
 
-int state, ticks, i;
+static int state, ticks, i;
 
 ///////////////////////////////////////////////////////////
 
@@ -27,15 +27,16 @@ void splash_init() {
 void splash_draw() {
   ui_draw();
 
-  sic.render_text(24, 64, text.substr(0, i).c_str());
+  sic.draw_text(24, 64, text.substr(0, i).c_str());
+  sic.draw_text(104, 8, "||");
   
   if (i <= text.find('*'))
     return;
 
-  sic.render_clip({ 0, 0, 16, 8 }, { 64, 136, 16, 8 });
-  sic.render_clip({ 0, 16, 8, 8 }, { 68, 152, 8, 8 });
-  sic.render_clip({ 0, 24, 11, 8 }, { 66, 168, 11, 8 });
-  sic.render_clip({ 0, 32, 12, 8 }, { 66, 184, 12, 8 });
+  sic.draw_clip({ 0, 0, 16, 8 }, { 64, 136, 16, 8 });
+  sic.draw_clip({ 0, 16, 8, 8 }, { 68, 152, 8, 8 });
+  sic.draw_clip({ 0, 24, 11, 8 }, { 66, 168, 11, 8 });
+  sic.draw_clip({ 0, 32, 12, 8 }, { 66, 184, 12, 8 });
 }
 
 ///////////////////////////////////////////////////////////
@@ -44,7 +45,7 @@ void splash_draw() {
 
 void update_text_display() {
   // draw one more character each 4 ticks
-  if (ticks++ % 4)
+  if (ticks++ % 6)
     return;
 
   // skip whitespaces and new lines
@@ -70,10 +71,10 @@ int splash_update(const SDL_Event &event) {
 
   switch (state) {
     case 0: // wait 3 seconds before start displaying text
-      if (ticks++ == 90) // 3 seconds
+      if (ticks++ == 90)
         state = 1;
       break;
-    case 1: // typewrite but only a part of it (until "SPACE INVADERS")
+    case 1: // typewrite a part of the text (until "SPACE INVADERS")
       update_text_display();
       if (i == text.find('*')) {
         state = 2;
@@ -84,16 +85,13 @@ int splash_update(const SDL_Event &event) {
     case 2: // wait 2 seconds
       if (ticks++ == 60) {
         state = 3;
-        ticks = 0;
         i += 23;
       }
       break;
     case 3: // typewrite remaining text
       update_text_display();
-      if (i == text.length()) {
+      if (i == text.length())
         state = 4;
-        ticks = 0;
-      }
       break;
   }
 

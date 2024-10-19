@@ -2,7 +2,6 @@
 
 #include <functional>
 
-#define MAX_SCREENS 8
 #define SCREEN_EXIT_HOOK -1
 #define SCREEN_UNCHANGED -2
 

@@ -2,20 +2,17 @@
 #include "UI.h"
 
 static int ticks;
-static bool cover;
+static bool show_score;
 
 void ready_init() {
   ticks = 0;
-  cover = false;
+  show_score = false;
 }
 
 void ready_draw() {
   ui_draw();
 
-  if (ticks % 7 == 0)
-    cover = !cover;
-
-  if (!cover)
+  if (show_score)
     return;
 
   SDL_Rect rect = { 24, 24, 48, 8 };
@@ -27,7 +24,8 @@ void ready_draw() {
 int ready_update(const SDL_Event &event) {
   ui_update(event);
 
-  ticks++;
+  if (ticks++ % 3 == 0)
+    show_score = !show_score;
 
   bool pressed_no_repeat = (event.type == SDL_KEYDOWN && !event.key.repeat);
   SDL_Keycode key = event.key.keysym.sym;

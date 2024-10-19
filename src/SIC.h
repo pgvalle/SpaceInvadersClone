@@ -4,6 +4,7 @@
 #include <cmath>
 #include <ctime>
 #include <string>
+#include <vector>
 
 #include <SDL.h>
 #include <SDL_image.h>
@@ -23,13 +24,13 @@ struct SIC {
   SDL_Texture *atlas;
   FC_Font *font;
   int score, high_score, lives, credits;
-  Screen screens[MAX_SCREENS];
+  std::vector<Screen> screens;
 
   void init();
   void quit();
   void loop();
-  void render_text(int x, int y, const char *fmt, ...);
-  void render_clip(const SDL_Rect &src, const SDL_Rect &dst);
+  void draw_text(int x, int y, const char *fmt, ...);
+  void draw_clip(const SDL_Rect &src, const SDL_Rect &dst);
 };
 
 extern SIC sic;

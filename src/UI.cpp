@@ -2,9 +2,9 @@
 #include "SIC.h"
 
 void ui_draw() {
-  FC_Draw(sic.font, sic.renderer, 8, 8, "YOUR SCORE      HIGH-SCORE");
-  FC_Draw(sic.font, sic.renderer, 24, 24, "%06d          %06d", sic.score, sic.high_score);
-  FC_Draw(sic.font, sic.renderer, 144, 240, "CREDIT %02d", sic.credits);
+  sic.draw_text(8, 8, "YOUR SCORE      HIGH-SCORE");
+  sic.draw_text(24, 24, "%06d          %06d", sic.score, sic.high_score);
+  sic.draw_text(144, 240, "CREDIT %02d", sic.credits);
 }
 
 void ui_update(const SDL_Event &event) {
